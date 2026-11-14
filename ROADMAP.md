@@ -87,7 +87,8 @@ The same page rules for everyone, in each writer's language.
 - [ ] Format assistant: a cue with no dialogue, an empty scene, two parentheticals in a row…
 - [ ] Rename a character everywhere; highlight one character's lines; read one character's
       lines on their own
-- [ ] Writing goals (pages or words a day) and statistics
+- [ ] Writing goals (pages or words a day) and statistics; goals and deadlines exported to any
+      calendar as `.ics`, later synced over CalDAV
 - [ ] Screen-time estimate per scene and for the script
 
 ### v0.11: story tools
@@ -98,13 +99,33 @@ The same page rules for everyone, in each writer's language.
 - [ ] Beat board as a free canvas (place anywhere, links, colours), if Outline and the beat
       board turn out not to be enough for notes
 
-### v0.12: formats
+### v0.12: formats and storage
 
 - [ ] Export to Word (.docx), RTF, plain text and HTML (import from Word already works)
 - [ ] Open and save Fade In, Highland, Trelby and WriterDuet files where their formats are public
 - [ ] Your own templates (save a script as a template); Final Draft templates (.fdxt)
 - [ ] Subtitles (SRT) from the two-column script and from bilingual scripts
 - [ ] Final Draft compatibility left over from v0.5 (#42, #44, #32): needs real Final Draft 13 files
+- [ ] **WebDAV**: open and save scripts on Nextcloud, ownCloud, Yandex Disk, Synology/QNAP or any
+      WebDAV server (address + app password). Saves check the file's version (ETag) and merge
+      someone else's changes with the collaboration three-way merge instead of overwriting; a
+      WebDAV lock marks the script "being edited by …" for others. (Browsers need the server to
+      allow cross-origin requests; the desktop app does not.)
+- [ ] Synced folders (Google Drive, Dropbox, OneDrive desktop apps): when the open file changes
+      on disk, merge the changes instead of overwriting them
+
+### v0.13: share by link
+
+Collaboration over the internet without an account: the app stays the host, as in today's
+local-network sessions (docs/collaboration.md); a small relay only forwards bytes.
+
+- [ ] **Share** gives a link (`…/s/<room>#<key>`); **Stop** ends it. Anyone with the link joins
+      from the app or from the browser (the web app), as viewer, commenter or editor
+- [ ] Relay server: a small Rust service (or a Cloudflare Worker) that pairs the host with its
+      guests and stores nothing; anyone can run their own
+- [ ] End-to-end encryption: the key is in the link's `#` part, which never reaches the relay
+- [ ] WebSocket transport for the collaboration protocol, so browsers can join
+- [ ] Comment threads with replies and resolve, on top of script notes
 
 ### 1.0: ready for everyone
 
@@ -120,9 +141,11 @@ The same page rules for everyone, in each writer's language.
 ### After 1.0
 
 - [ ] Bilingual scripts: a translation kept next to each line, printable either way
-- [ ] Collaboration over the internet (today it works on one local network), comment threads,
-      table-read mode with roles assigned to people
-- [ ] Production: sides for a shooting day, a simple stripboard and cast lists per day
+- [ ] Table-read mode with roles assigned to people
+- [ ] Production: sides for a shooting day, a simple stripboard and cast lists per day; the
+      shooting schedule in the crew's calendars over CalDAV
+- [ ] A DraftCraft cloud with accounts, where scripts live on a server: only if the project
+      grows enough to pay for running it, building on share-by-link
 - [ ] Tablets (iPad, Android) with a touch interface
 - [ ] A GitHub organization for DraftCraft, like storytold for ArtCraft (optional)
 
