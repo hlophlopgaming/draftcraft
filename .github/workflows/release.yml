@@ -205,11 +205,24 @@ jobs:
     name: Publish Release
     needs: [build-windows, build-macos, build-linux, build-web]
     runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
+      - name: Release description from RELEASE_NOTES.md
+        run: |
+          # The "## <tag>" section, up to the next "## v" heading.
+          awk -v tag="$TAG" '
+            $0 == "## " tag { on = 1; next }
+            on && /^## v/ { exit }
+            on { print }
+          ' RELEASE_NOTES.md > "$RUNNER_TEMP/notes.md"
+          if [ ! -s "$RUNNER_TEMP/notes.md" ]; then echo "DraftCraft $TAG" > "$RUNNER_TEMP/notes.md"; fi
+          cat "$RUNNER_TEMP/notes.md"
       - name: Generate SHA256SUMS.txt
         run: |
           cd dist
@@ -219,7 +232,9 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/') || inputs.tag != ''
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
+          tag_name: ${{ env.TAG }}
+          name: DraftCraft ${{ env.TAG }}
+          body_path: ${{ runner.temp }}/notes.md
           files: dist/*
           draft: false
           prerelease: false

@@ -837,7 +837,7 @@ checksum = "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76"
 
 [[package]]
 name = "draftcraft"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "ctrlc",
  "draftcraft-control-key",
@@ -854,7 +854,7 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-cli"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "draftcraft-doc",
  "draftcraft-engine",
@@ -864,7 +864,7 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-collab"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "draftcraft-doc",
  "getrandom 0.4.3",
@@ -874,14 +874,14 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-control-key"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "craft-settings",
 ]
 
 [[package]]
 name = "draftcraft-doc"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -890,7 +890,7 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-engine"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "draftcraft-collab",
  "draftcraft-doc",
@@ -908,7 +908,7 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-fdx"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "draftcraft-doc",
  "quick-xml 0.42.0",
@@ -917,14 +917,14 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-fonts"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "ttf-parser",
 ]
 
 [[package]]
 name = "draftcraft-fountain"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "draftcraft-doc",
  "serde",
@@ -933,14 +933,14 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-geom"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "draftcraft-import"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "draftcraft-doc",
  "draftcraft-fountain",
@@ -950,7 +950,7 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-layout"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "draftcraft-doc",
  "draftcraft-geom",
@@ -959,7 +959,7 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-mcp"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "draftcraft-control-key",
  "draftcraft-doc",
@@ -969,7 +969,7 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-pdf"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "draftcraft-doc",
  "draftcraft-fonts",
@@ -981,11 +981,11 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-spell"
-version = "0.5.0"
+version = "0.5.1"
 
 [[package]]
 name = "draftcraft-ui-egui"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "craft-settings",
  "draftcraft-collab",
@@ -1006,7 +1006,7 @@ dependencies = [
 
 [[package]]
 name = "draftcraft-web"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "draftcraft-engine",
  "draftcraft-ui-egui",
@@ -4457,7 +4457,7 @@ checksum = "9440ea3e5aeabb0ac63af70daf835274065238cdd0cec83418f417eae38bacee"
 
 [[package]]
 name = "xtask"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "draftcraft-engine",
 ]

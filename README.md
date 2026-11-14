@@ -41,7 +41,7 @@
   <img alt="Runs on macOS, Windows, Linux and the web" src="https://img.shields.io/badge/runs%20on-macOS%20%C2%B7%20Windows%20%C2%B7%20Linux%20%C2%B7%20Web-3b5bdb?style=flat-square">
   <img alt="License: MIT OR Apache-2.0" src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-2b47b5?style=flat-square">
   <img alt="Agent-drivable over MCP" src="https://img.shields.io/badge/agents-MCP%20%C2%B7%20CLI-3b5bdb?style=flat-square">
-  <a href="https://github.com/hlophlopgaming/draftcraft/releases/latest"><img alt="Version 0.5.0" src="https://img.shields.io/badge/version-0.5.0-6f8cff?style=flat-square"></a>
+  <a href="https://github.com/hlophlopgaming/draftcraft/releases/latest"><img alt="Version 0.5.1" src="https://img.shields.io/badge/version-0.5.1-6f8cff?style=flat-square"></a>
 </p>
 
 <br>
@@ -64,7 +64,7 @@
 
 ## Downloads
 
-Pre-built binaries for **v0.5.0** are available on [GitHub Releases](https://github.com/hlophlopgaming/draftcraft/releases/latest):
+Pre-built binaries for **v0.5.1** are available on [GitHub Releases](https://github.com/hlophlopgaming/draftcraft/releases/latest):
 
 - **macOS:** [`draftcraft-macos-universal.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-macos-universal.zip) runs on Apple Silicon and Intel; smaller single-architecture builds are [`draftcraft-macos-arm64.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-macos-arm64.zip) and [`draftcraft-macos-x86_64.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-macos-x86_64.zip). Extract and open `DraftCraft.app` (`draftcraft-cli` is included alongside it).
 - **Windows:** [`draftcraft-windows-x64.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-windows-x64.zip) (Intel/AMD) or [`draftcraft-windows-arm64.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-windows-arm64.zip) (ARM, e.g. Snapdragon laptops). Extract and run `draftcraft.exe` (`draftcraft-cli.exe` included). See [docs/windows-setup.md](docs/windows-setup.md) for details and troubleshooting.

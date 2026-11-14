@@ -105,3 +105,6 @@ Verification:
   screenplay support with embedded Courier Badi v1.010; interactive architecture & workflow
   explainer and live browser app on GitHub Pages; multi-platform release builds for Windows (x64),
   macOS (Universal `.app` + CLI), Linux (`x86_64` tarball and `.deb`), and Web (WASM).
+- 2026-11-14 — v0.5.1, the first release as DraftCraft (fork of ScriptCraft): new name and
+  stag-beetle icon; Linux AppImage, .deb, .rpm and .tar.gz; ARM64 builds for Linux and Windows and
+  single-architecture macOS builds; Russian user guide on the website; Rust 1.100, egui 0.37.
