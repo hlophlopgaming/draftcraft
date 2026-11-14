@@ -4,7 +4,8 @@
 #   packaging/linux/package.sh <x86_64|aarch64> <bin-dir> [out-dir]
 #
 # <bin-dir> holds release builds of `draftcraft` and `draftcraft-cli` for that architecture.
-# Needs: dpkg-deb, rpmbuild (Debian/Ubuntu package `rpm`), curl. The AppImage step downloads
+# Needs: dpkg-deb, rpmbuild (Debian/Ubuntu package `rpm`), desktop-file-validate
+# (`desktop-file-utils`), curl. The AppImage step downloads
 # appimagetool (pinned below) and runs it without FUSE.
 set -euo pipefail
 
