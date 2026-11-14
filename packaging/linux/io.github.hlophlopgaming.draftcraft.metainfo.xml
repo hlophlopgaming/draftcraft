@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.hlophlopgaming.draftcraft</id>
+  <name>DraftCraft</name>
+  <summary>Open-source screenwriting app</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT OR Apache-2.0</project_license>
+  <description>
+    <p>DraftCraft is a clean-room screenwriting editor written in Rust. Enter and Tab pick the
+    screenplay element as you type, pages follow the industry standard, and scripts open and save
+    as Final Draft (.fdx) and Fountain files and export to PDF.</p>
+  </description>
+  <launchable type="desktop-id">draftcraft.desktop</launchable>
+  <url type="homepage">https://hlophlopgaming.github.io/draftcraft/</url>
+  <url type="bugtracker">https://github.com/hlophlopgaming/draftcraft/issues</url>
+  <provides>
+    <binary>draftcraft</binary>
+    <binary>draftcraft-cli</binary>
+  </provides>
+  <content_rating type="oars-1.1"/>
+</component>

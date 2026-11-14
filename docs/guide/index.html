@@ -125,9 +125,16 @@ figcaption { color: var(--muted); font-size: 14px; margin-top: 6px; }
 <h3>Где запустить</h3>
 <ul>
   <li><b>В браузере.</b> Откройте <a href="../app/">веб-версию</a>. Устанавливать ничего не нужно, но некоторые функции там недоступны: совместная работа, а настройки не сохраняются между сеансами.</li>
-  <li><b>Windows.</b> Скачайте <code>draftcraft-windows-x64.zip</code> со <a href="https://github.com/hlophlopgaming/draftcraft/releases/latest">страницы релизов</a>, распакуйте и запустите <code>draftcraft.exe</code>.</li>
-  <li><b>macOS.</b> Скачайте <code>draftcraft-macos-universal.zip</code>, распакуйте и откройте <code>DraftCraft.app</code>. Подходит и для Apple Silicon, и для Intel.</li>
-  <li><b>Linux.</b> Архив <code>draftcraft-linux-x86_64.tar.gz</code> или пакет <code>.deb</code> для Debian и Ubuntu.</li>
+  <li><b>Windows.</b> Скачайте со <a href="https://github.com/hlophlopgaming/draftcraft/releases/latest">страницы релизов</a> <code>draftcraft-windows-x64.zip</code> (обычные компьютеры на Intel/AMD) или <code>draftcraft-windows-arm64.zip</code> (ноутбуки на ARM, например Snapdragon). Распакуйте и запустите <code>draftcraft.exe</code>.</li>
+  <li><b>macOS.</b> <code>draftcraft-macos-universal.zip</code> подходит для любого Mac. Есть и сборки меньшего размера: <code>draftcraft-macos-arm64.zip</code> (Apple Silicon: M1 и новее) и <code>draftcraft-macos-x86_64.zip</code> (Intel). Распакуйте и откройте <code>DraftCraft.app</code>.</li>
+  <li><b>Linux</b> (x86_64 и ARM64/aarch64):
+    <ul>
+      <li><b>AppImage</b> — работает в любом дистрибутиве: сделайте файл исполняемым (<code>chmod +x draftcraft-linux-*.AppImage</code>) и запустите;</li>
+      <li><b>.deb</b> — Debian, Ubuntu, Linux Mint: <code>sudo apt install ./draftcraft-linux-x86_64.deb</code>;</li>
+      <li><b>.rpm</b> — Fedora, openSUSE: <code>sudo dnf install ./draftcraft-linux-x86_64.rpm</code>;</li>
+      <li><b>.tar.gz</b> — просто распакуйте архив и запустите <code>draftcraft</code>.</li>
+    </ul>
+    Для ARM-компьютеров берите файлы с <code>aarch64</code> в имени.</li>
 </ul>
 
 <h3>Русский интерфейс</h3>

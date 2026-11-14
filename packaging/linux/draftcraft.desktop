@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=DraftCraft
+GenericName=Screenwriting
+GenericName[ru]=Сценарии
+Comment=Write screenplays: Final Draft and Fountain files, industry-standard pages, PDF
+Comment[ru]=Пишите сценарии: файлы Final Draft и Fountain, стандартные страницы, PDF
+Exec=draftcraft %F
+Icon=draftcraft
+Terminal=false
+Categories=Office;WordProcessor;
+Keywords=screenplay;screenwriting;script;fountain;fdx;final draft;сценарий;
+MimeType=application/x-final-draft;text/x-fountain;
+StartupWMClass=draftcraft
