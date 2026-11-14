@@ -3,4 +3,4 @@
 *.pdf
 !docs/**/*.pdf
 .DS_Store
-/apps/scriptcraft-web/dist
+/apps/draftcraft-web/dist

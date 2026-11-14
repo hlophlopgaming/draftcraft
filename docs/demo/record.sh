@@ -7,11 +7,11 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 WORK=${1:-$(mktemp -d)}
 export CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-$ROOT/.target}
 cd "$ROOT"
-cargo build -q --release -p scriptcraft -p scriptcraft-cli -p scriptcraft-ui-egui --example ui_demo
+cargo build -q --release -p draftcraft -p draftcraft-cli -p draftcraft-ui-egui --example ui_demo
 cargo xtask web
 # #12: drive the browser build in headless Chrome over the DevTools protocol.
 mkdir -p "$WORK/web_frames"
-python3 -m http.server 8765 --bind 127.0.0.1 -d apps/scriptcraft-web/dist >/dev/null 2>&1 & HTTP=$!
+python3 -m http.server 8765 --bind 127.0.0.1 -d apps/draftcraft-web/dist >/dev/null 2>&1 & HTTP=$!
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --remote-debugging-port=9333 \
   --use-angle=swiftshader --enable-unsafe-swiftshader --window-size=1280,800 --user-data-dir="$WORK/chrome" about:blank >/dev/null 2>&1 & CHROME=$!
 sleep 3

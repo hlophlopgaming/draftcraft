@@ -1,8 +1,8 @@
 //! Read aloud and dictation in the window, with a silent speech host (no audio in tests).
 
-use scriptcraft_engine::Session;
-use scriptcraft_ui_egui::ScriptApp;
-use scriptcraft_ui_egui::speech::{ReadState, SilentSpeaker};
+use draftcraft_engine::Session;
+use draftcraft_ui_egui::ScriptApp;
+use draftcraft_ui_egui::speech::{ReadState, SilentSpeaker};
 use serde_json::json;
 
 fn harness(app: ScriptApp) -> egui_kittest::Harness<'static, ScriptApp> {

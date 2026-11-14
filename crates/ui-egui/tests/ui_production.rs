@@ -1,7 +1,7 @@
 //! Page Setup and Print through the window (headless, no GPU).
 
-use scriptcraft_engine::Session;
-use scriptcraft_ui_egui::ScriptApp;
+use draftcraft_engine::Session;
+use draftcraft_ui_egui::ScriptApp;
 use serde_json::json;
 
 fn harness(app: ScriptApp) -> egui_kittest::Harness<'static, ScriptApp> {
@@ -50,5 +50,5 @@ fn page_setup_dialog() {
     assert!(h.state().production.page_setup);
     h.state_mut().execute("page.set", json!({"paper": "a4"})).unwrap();
     h.run_steps(2);
-    assert_eq!(h.state_mut().session.layout().paper, scriptcraft_doc::Paper::A4);
+    assert_eq!(h.state_mut().session.layout().paper, draftcraft_doc::Paper::A4);
 }

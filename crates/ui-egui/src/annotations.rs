@@ -3,9 +3,9 @@
 //! the Tools menu entries, the page's context menu entries and the breakdown in Reports.
 
 use egui::{Align2, Color32, FontId, Painter, Rect, RichText, Stroke, Ui, pos2, vec2};
-use scriptcraft_doc::{CardColor, Element, Pos, TAG_CATEGORIES, category_rgb};
-use scriptcraft_geom::{CHAR_W, LINE_H};
-use scriptcraft_layout::{Line, LineKind};
+use draftcraft_doc::{CardColor, Element, Pos, TAG_CATEGORIES, category_rgb};
+use draftcraft_geom::{CHAR_W, LINE_H};
+use draftcraft_layout::{Line, LineKind};
 use serde_json::{Value, json};
 
 use crate::ScriptApp;
@@ -84,10 +84,10 @@ pub fn paint_margin(app: &ScriptApp, p: &Painter, line: &Line, pr: Rect, z: f32)
     }
     let Some(para) = line.para.and_then(|i| app.session.script.para(i)) else { return };
     let y = pr.top() + line.y * z;
-    let here: Vec<&scriptcraft_doc::Note> =
+    let here: Vec<&draftcraft_doc::Note> =
         para.notes.iter().filter(|n| n.start >= line.start && (n.start < line.end || (n.start == line.end && line.end == para.text.len()))).collect();
     // The first line of an empty paragraph has start == end == 0.
-    let here: Vec<&scriptcraft_doc::Note> = if line.start == line.end { para.notes.iter().collect() } else { here };
+    let here: Vec<&draftcraft_doc::Note> = if line.start == line.end { para.notes.iter().collect() } else { here };
     for (k, n) in here.iter().enumerate().take(3) {
         let x = pr.left() + (30.0 + k as f32 * 4.0) * z;
         let r = Rect::from_min_size(pos2(x, y + 1.0 * z + k as f32 * 2.0 * z), vec2(10.0 * z, 10.0 * z));
@@ -148,7 +148,7 @@ pub fn notes_tab(app: &mut ScriptApp, ui: &mut Ui) {
         }
     });
     ui.add_space(4.0);
-    let notes = scriptcraft_engine::cmd::notes::notes_json(&mut app.session);
+    let notes = draftcraft_engine::cmd::notes::notes_json(&mut app.session);
     if notes.is_empty() {
         ui.label(RichText::new(lang.text("No notes yet. Select some words and choose Add Note, or right-click the page.")).color(t.text_soft));
         return;
@@ -276,7 +276,7 @@ fn note_editor(app: &mut ScriptApp, ctx: &egui::Context) {
             });
         });
     if save {
-        let author = scriptcraft_doc::clean_author(&ed.author);
+        let author = draftcraft_doc::clean_author(&ed.author);
         app.prefs.editing.note_author = author.clone();
         let mut v = json!({"text": ed.text, "color": ed.color.id(), "author": author});
         match ed.index {
@@ -491,7 +491,7 @@ pub fn breakdown_section(app: &mut ScriptApp, ui: &mut Ui, goto: &mut Option<usi
     let lang = app.prefs.appearance.language;
     let t = app.tokens();
     let l = app.session.layout();
-    let sheets = scriptcraft_engine::breakdown::breakdown(&app.session.script, &l);
+    let sheets = draftcraft_engine::breakdown::breakdown(&app.session.script, &l);
     let cats = app.session.script.tag_categories_used();
     ui.add_space(18.0);
     ui.horizontal(|ui| {

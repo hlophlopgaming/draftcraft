@@ -1,5 +1,5 @@
 use super::*;
-use scriptcraft_doc::Style;
+use draftcraft_doc::Style;
 
 fn sample() -> Script {
     let mut s = Script::from_paras(vec![
@@ -18,18 +18,18 @@ fn sample() -> Script {
     .unwrap();
     s.paras[1].scene_number = Some("1".into());
     s.paras[1].summary = "Margo waits.".into();
-    s.paras[1].color = Some(scriptcraft_doc::CardColor::Teal);
+    s.paras[1].color = Some(draftcraft_doc::CardColor::Teal);
     s.paras[1].tags = vec!["opening".into(), "rain".into()];
     s.paras[6].dual = true;
-    s.set_flag(scriptcraft_doc::Pos::new(2, 0), scriptcraft_doc::Pos::new(2, 4), scriptcraft_doc::Flag::Bold, true);
-    s.set_flag(scriptcraft_doc::Pos::new(2, 2), scriptcraft_doc::Pos::new(2, 9), scriptcraft_doc::Flag::Underline, true);
+    s.set_flag(draftcraft_doc::Pos::new(2, 0), draftcraft_doc::Pos::new(2, 4), draftcraft_doc::Flag::Bold, true);
+    s.set_flag(draftcraft_doc::Pos::new(2, 2), draftcraft_doc::Pos::new(2, 9), draftcraft_doc::Flag::Underline, true);
     let mut f = s.settings.elements.get(Element::Action);
     f.left = 1.75;
     f.before = 2;
     f.enter = Element::Character;
     s.settings.elements.set(Element::Action, f);
     let mut t = s.settings.elements.get(Element::Transition);
-    t.align = scriptcraft_doc::Align::Center;
+    t.align = draftcraft_doc::Align::Center;
     t.uppercase = false;
     s.settings.elements.set(Element::Transition, t);
     s.title.title = "The Long Night".into();
@@ -48,7 +48,7 @@ fn round_trip() {
     assert!(x.contains("<DualDialogue>"), "{x}");
     assert!(x.contains("Color=\"#2F2F9E9E9696\""), "{x}");
     assert_eq!(parse_color("#FFFFFFFFFFFF"), None);
-    assert_eq!(parse_color("#E04F4F"), Some(scriptcraft_doc::CardColor::Red));
+    assert_eq!(parse_color("#E04F4F"), Some(draftcraft_doc::CardColor::Red));
     assert_eq!(parse_color("nonsense"), None);
     assert!(x.contains("<Paragraph Type=\"Scene Heading\" Number=\"1\">"), "{x}");
     let back = parse(&x).unwrap();
@@ -83,7 +83,7 @@ fn reads_observed_structure() {
     assert_eq!(s.paras[0].scene_number.as_deref(), Some("4A"));
     assert_eq!(s.paras[0].summary, "First part.");
     assert_eq!(s.paras[1].text, "Waves crash & écho.");
-    assert_eq!(s.paras[1].spans, vec![scriptcraft_doc::Span { start: 0, end: 5, style: Style { bold: true, ..Style::PLAIN } }]);
+    assert_eq!(s.paras[1].spans, vec![draftcraft_doc::Span { start: 0, end: 5, style: Style { bold: true, ..Style::PLAIN } }]);
     assert_eq!(s.paras[2].element, Element::General);
     assert_eq!(s.paras[3].text, "");
     assert_eq!(s.title.title, "PIER");
@@ -125,18 +125,18 @@ fn production_locks_round_trip() {
     s.paras[0].page_lock = vec!["7".into(), "7A".into()];
     s.paras[5].page_lock = vec!["8".into()];
     let xml = write(&s);
-    assert!(xml.contains("ScriptCraftOmitted=\"Yes\"") && xml.contains("ScriptCraftLockedPages=\"7,7A\""));
-    assert!(xml.contains("<ScriptCraftProduction LockedPages=\"Yes\" LockedSceneNumbers=\"Yes\"/>"));
+    assert!(xml.contains("DraftCraftOmitted=\"Yes\"") && xml.contains("DraftCraftLockedPages=\"7,7A\""));
+    assert!(xml.contains("<DraftCraftProduction LockedPages=\"Yes\" LockedSceneNumbers=\"Yes\"/>"));
     let back = parse(&xml).unwrap();
     assert_eq!(back.paras, s.paras);
     assert!(back.settings.pages_locked && back.settings.scene_numbers_locked);
     // Without the production element, locks are off (and stray page locks are dropped).
-    let plain = xml.replace("<ScriptCraftProduction LockedPages=\"Yes\" LockedSceneNumbers=\"Yes\"/>", "");
+    let plain = xml.replace("<DraftCraftProduction LockedPages=\"Yes\" LockedSceneNumbers=\"Yes\"/>", "");
     let back = parse(&plain).unwrap();
     assert!(!back.settings.pages_locked && back.paras.iter().all(|p| p.page_lock.is_empty()));
     assert!(back.paras[2].omitted);
     // Hostile values are cleaned.
-    let x = "<FinalDraft><Content><Paragraph Type=\"Action\" ScriptCraftLockedPages=\"&lt;x&gt;,,1-2,  \" ScriptCraftOmitted=\"Yes\"><Text>a</Text></Paragraph></Content><ScriptCraftProduction LockedPages=\"Yes\"/></FinalDraft>";
+    let x = "<FinalDraft><Content><Paragraph Type=\"Action\" DraftCraftLockedPages=\"&lt;x&gt;,,1-2,  \" DraftCraftOmitted=\"Yes\"><Text>a</Text></Paragraph></Content><DraftCraftProduction LockedPages=\"Yes\"/></FinalDraft>";
     let back = parse(x).unwrap();
     assert_eq!(back.paras[0].page_lock, vec!["x".to_string(), "1-2".to_string()]);
     assert!(!back.paras[0].omitted, "only headings are omitted");
@@ -144,9 +144,9 @@ fn production_locks_round_trip() {
 
 #[test]
 fn template_formats_round_trip() {
-    let (s, _) = scriptcraft_doc::Template::TvMultiCamera.script(None, None);
+    let (s, _) = draftcraft_doc::Template::TvMultiCamera.script(None, None);
     let xml = write(&s);
-    assert!(xml.contains("Spacing=\"2\"") && xml.contains("StartsNewPage=\"Yes\"") && xml.contains("<ScriptCraftFormat SceneLetters=\"Yes\"/>"));
+    assert!(xml.contains("Spacing=\"2\"") && xml.contains("StartsNewPage=\"Yes\"") && xml.contains("<DraftCraftFormat SceneLetters=\"Yes\"/>"));
     let back = parse(&xml).unwrap();
     assert_eq!(back.settings.elements, s.settings.elements);
     assert!(back.settings.scene_letters);
@@ -155,8 +155,8 @@ fn template_formats_round_trip() {
 
 #[test]
 fn tracked_changes_round_trip() {
-    use scriptcraft_doc::Pos;
-    use scriptcraft_doc::track::{self, ChangeKind};
+    use draftcraft_doc::Pos;
+    use draftcraft_doc::track::{self, ChangeKind};
     let old = Script::from_paras(vec![
         Para::new(Element::Action, "Café one & two."),
         Para::new(Element::Character, "ANA"),
@@ -172,7 +172,7 @@ fn tracked_changes_round_trip() {
     let kinds: Vec<ChangeKind> = track::list(&new).iter().map(|c| c.kind).collect();
     assert!(kinds.contains(&ChangeKind::Insert) && kinds.contains(&ChangeKind::Delete) && kinds.contains(&ChangeKind::Element), "{kinds:?}");
     let xml = write(&new);
-    assert!(xml.contains("<ScriptCraftTrackChanges On=\"Yes\"/>") && xml.contains("&#10;"), "{xml}");
+    assert!(xml.contains("<DraftCraftTrackChanges On=\"Yes\"/>") && xml.contains("&#10;"), "{xml}");
     let back = parse(&xml).unwrap();
     assert!(back.settings.track.on);
     assert_eq!(back.paras, new.paras);
@@ -181,7 +181,7 @@ fn tracked_changes_round_trip() {
     track::resolve_all(&mut r, false, None);
     assert_eq!(r.paras, old.paras);
     // Hostile values.
-    let x = "<FinalDraft><Content><Paragraph Type=\"Action\"><Text>abc</Text><ScriptCraftChange Kind=\"Insert\" Range=\"2,999\" Author=\"\"/><ScriptCraftChange Kind=\"Delete\" At=\"99\" Text=\"a&#10;b\" Elements=\"Nope\"/><ScriptCraftChange Kind=\"Wat\"/><ScriptCraftChange Kind=\"Element\" From=\"x\"/></Paragraph></Content></FinalDraft>";
+    let x = "<FinalDraft><Content><Paragraph Type=\"Action\"><Text>abc</Text><DraftCraftChange Kind=\"Insert\" Range=\"2,999\" Author=\"\"/><DraftCraftChange Kind=\"Delete\" At=\"99\" Text=\"a&#10;b\" Elements=\"Nope\"/><DraftCraftChange Kind=\"Wat\"/><DraftCraftChange Kind=\"Element\" From=\"x\"/></Paragraph></Content></FinalDraft>";
     let back = parse(x).unwrap();
     assert_eq!(track::list(&back).len(), 2);
 }
@@ -197,7 +197,7 @@ fn russian_text_and_styles_round_trip() {
     .unwrap();
     s.title.title = "Ночной разговор".into();
     s.title.author = "Алёна Ёлкина".into();
-    s.set_flag(scriptcraft_doc::Pos::new(1, 0), scriptcraft_doc::Pos::new(1, "Ёжик".len()), scriptcraft_doc::Flag::Bold, true);
+    s.set_flag(draftcraft_doc::Pos::new(1, 0), draftcraft_doc::Pos::new(1, "Ёжик".len()), draftcraft_doc::Flag::Bold, true);
     let xml = write(&s);
     assert!(xml.contains("Courier Badi"));
     assert_eq!(parse(&xml).unwrap(), s);

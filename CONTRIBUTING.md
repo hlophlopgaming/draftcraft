@@ -1,7 +1,7 @@
-# Contributing to ScriptCraft
+# Contributing to DraftCraft
 
 Thanks for your interest. Issues and pull requests are welcome, from bug reports to new features.
-ScriptCraft is a clean-room, open-source screenwriting app in pure Rust, so a few rules keep it
+DraftCraft is a clean-room, open-source screenwriting app in pure Rust, so a few rules keep it
 safe and legally clean.
 
 ## Before you start
@@ -16,13 +16,13 @@ safe and legally clean.
 You need Rust 1.95 or newer (edition 2024).
 
 ```sh
-git clone https://github.com/NoJuanNobody/scriptcraft && cd scriptcraft
-cargo run --release -p scriptcraft          # opens the sample script
+git clone https://github.com/hlophlopgaming/draftcraft && cd draftcraft
+cargo run --release -p draftcraft          # opens the sample script
 cargo xtask ci                              # the full quality gate
 ```
 
 Use a `CARGO_TARGET_DIR` inside the repo (`.target/`, gitignored). When testing, run the app with
-`SCRIPTCRAFT_CONFIG_DIR=` (set but empty) so your real settings are never touched.
+`DRAFTCRAFT_CONFIG_DIR=` (set but empty) so your real settings are never touched.
 
 ## The rules
 
@@ -53,7 +53,7 @@ For a change you can see, include a screenshot from `ui_shot` or a short recordi
 
 ## Licensing
 
-ScriptCraft is `MIT OR Apache-2.0`. By submitting a contribution you agree that it is licensed
+DraftCraft is `MIT OR Apache-2.0`. By submitting a contribution you agree that it is licensed
 under the same terms, without extra conditions.
 
 ## Conduct

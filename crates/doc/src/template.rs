@@ -1,7 +1,7 @@
 //! Script templates: the formats for features, TV and the stage.
 //!
 //! A template is element settings (indents, spacing, capitals, Enter/Tab flow), a page setup
-//! and, for TV and stage, a starting structure of act breaks. These are ScriptCraft's own,
+//! and, for TV and stage, a starting structure of act breaks. These are DraftCraft's own,
 //! written from widely published formatting conventions:
 //!
 //! - **Feature film**: the standard screenplay format.

@@ -9,7 +9,7 @@ use std::sync::Arc;
 use std::sync::mpsc::{Receiver, Sender, channel};
 use std::time::Duration;
 
-use scriptcraft_ui_egui::ControlRequest;
+use draftcraft_ui_egui::ControlRequest;
 use serde_json::{Value, json};
 
 /// Longer request lines are refused.
@@ -39,18 +39,18 @@ fn write_key(p: &std::path::Path, key: &str) -> Result<(), String> {
     o.write(true).create_new(true);
     #[cfg(unix)]
     std::os::unix::fs::OpenOptionsExt::mode(&mut o, 0o600);
-    let text = scriptcraft_control_key::key_file_contents(key, std::process::id());
+    let text = draftcraft_control_key::key_file_contents(key, std::process::id());
     o.open(p).and_then(|mut f| f.write_all(text.as_bytes())).map_err(|e| e.to_string())
 }
 
 /// Bind `127.0.0.1:port`, write the key file and serve.
 /// Bind `127.0.0.1:port` and write the key into `key_dir` (the data folder). With no data folder
-/// (isolated settings) no key file is written, so requests can only use `SCRIPTCRAFT_CONTROL_KEY`
+/// (isolated settings) no key file is written, so requests can only use `DRAFTCRAFT_CONTROL_KEY`
 /// — which the server never knows — and are refused.
 pub fn start(port: u16, ctx: egui::Context, key_dir: Option<&std::path::Path>) -> Option<(Receiver<ControlRequest>, Option<KeyFile>)> {
     let listener = TcpListener::bind(("127.0.0.1", port)).map_err(|e| eprintln!("control server: cannot bind 127.0.0.1:{port}: {e}")).ok()?;
     let key = random_key().map_err(|e| eprintln!("control server off: {e}")).ok()?;
-    let kf = key_dir.map(|d| scriptcraft_control_key::key_path(d, port)).and_then(|p| match write_key(&p, &key) {
+    let kf = key_dir.map(|d| draftcraft_control_key::key_path(d, port)).and_then(|p| match write_key(&p, &key) {
         Ok(()) => {
             eprintln!("control server on 127.0.0.1:{port}, key in {}", p.display());
             Some(KeyFile(p))
@@ -99,7 +99,7 @@ fn serve(stream: TcpStream, tx: Sender<ControlRequest>, ctx: egui::Context, key:
         };
         let id = msg.get("id").cloned().unwrap_or(Value::Null);
         let given = msg.get("key").and_then(Value::as_str).unwrap_or("");
-        if !scriptcraft_control_key::keys_match(given, key) {
+        if !draftcraft_control_key::keys_match(given, key) {
             let _ = writeln!(out, "{}", json!({"id": id, "ok": false, "error": "missing or wrong control key"}));
             continue;
         }

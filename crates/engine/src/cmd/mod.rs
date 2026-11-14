@@ -26,7 +26,7 @@ pub mod text;
 pub mod title;
 pub mod track;
 
-use scriptcraft_doc::Pos;
+use draftcraft_doc::Pos;
 use serde_json::{Value, json};
 
 use crate::{Registry, Selection, Session};

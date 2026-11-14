@@ -1,6 +1,6 @@
 //! Element types: set the element of the selected paragraphs; dual dialogue.
 
-use scriptcraft_doc::Element;
+use draftcraft_doc::Element;
 use serde_json::Value;
 
 use super::sel_result;

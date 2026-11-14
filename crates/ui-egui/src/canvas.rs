@@ -1,10 +1,10 @@
 //! The page view: paginated script on paper, caret, selection, typing and SmartType.
 
 use egui::{Align2, Color32, CornerRadius, FontFamily, FontId, Id, Key, Modifiers, Pos2, Rect, Sense, Stroke, StrokeKind, Ui, pos2, vec2};
-use scriptcraft_doc::{Element, Pos, word_left, word_right};
-use scriptcraft_engine::smarttype::{Suggest, suggest};
-use scriptcraft_geom::{CHAR_W, FONT_SIZE, LINE_H};
-use scriptcraft_layout::{Layout, Line, LineKind};
+use draftcraft_doc::{Element, Pos, word_left, word_right};
+use draftcraft_engine::smarttype::{Suggest, suggest};
+use draftcraft_geom::{CHAR_W, FONT_SIZE, LINE_H};
+use draftcraft_layout::{Layout, Line, LineKind};
 use serde_json::json;
 
 use crate::ScriptApp;
@@ -66,7 +66,7 @@ impl CanvasState {
 }
 
 pub fn canvas_id() -> Id {
-    Id::new("scriptcraft-page-view")
+    Id::new("draftcraft-page-view")
 }
 
 /// The page view's widget id in split-screen pane `pane` (pane 0 is [`canvas_id`]).
@@ -79,7 +79,7 @@ fn courier(size: f32) -> FontId {
 }
 
 /// The Courier Badi face for a style.
-pub fn courier_styled(size: f32, st: scriptcraft_doc::Style) -> FontId {
+pub fn courier_styled(size: f32, st: draftcraft_doc::Style) -> FontId {
     let fam = match (st.bold, st.italic) {
         (false, false) => "courier",
         (true, false) => "courier-bold",
@@ -116,7 +116,7 @@ fn misspellings(app: &mut ScriptApp) -> std::sync::Arc<Vec<(usize, usize, usize)
     {
         return v.clone();
     }
-    let v = std::sync::Arc::new(scriptcraft_engine::cmd::spell::misspellings(&app.session, None));
+    let v = std::sync::Arc::new(draftcraft_engine::cmd::spell::misspellings(&app.session, None));
     app.canvas.spell_cache = Some((id, dict, v.clone()));
     v
 }
@@ -249,7 +249,7 @@ fn caret_para_blank(app: &ScriptApp) -> bool {
 pub fn key_command(app: &mut ScriptApp, key: Key, m: Modifiers) {
     if key == Key::Enter && !m.command && !m.shift && app.enter_picker && caret_para_blank(app) {
         let cur = app.session.element();
-        let target = scriptcraft_engine::typing::enter_empty(cur);
+        let target = draftcraft_engine::typing::enter_empty(cur);
         app.canvas.picker = Element::ALL.iter().position(|e| *e == target);
         return;
     }
@@ -502,7 +502,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
             }
             app.canvas.spell_target = bad.iter().find(|m| m.0 == pos.para && m.1 <= pos.off && pos.off <= m.2).map(|&(pa, a, b)| {
                 let w = app.session.script.para(pa).and_then(|p| p.text.get(a..b)).unwrap_or("").to_string();
-                (pa, a, b, scriptcraft_spell::english().suggest(&w, 6))
+                (pa, a, b, draftcraft_spell::english().suggest(&w, 6))
             });
             app.canvas.scroll_to_caret = false;
         }

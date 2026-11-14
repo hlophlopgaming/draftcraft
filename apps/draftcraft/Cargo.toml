@@ -1,20 +1,20 @@
 [package]
-name = "scriptcraft"
+name = "draftcraft"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish = false
-default-run = "scriptcraft"
-description = "ScriptCraft desktop app"
+default-run = "draftcraft"
+description = "DraftCraft desktop app"
 
 [lints]
 workspace = true
 
 [dependencies]
-scriptcraft-doc = { workspace = true }
-scriptcraft-engine = { workspace = true }
-scriptcraft-ui-egui = { workspace = true }
-scriptcraft-control-key = { workspace = true }
+draftcraft-doc = { workspace = true }
+draftcraft-engine = { workspace = true }
+draftcraft-ui-egui = { workspace = true }
+draftcraft-control-key = { workspace = true }
 eframe = { workspace = true, features = ["default_fonts", "wgpu", "accesskit", "wayland", "x11"] }
 egui = { workspace = true }
 serde_json = { workspace = true }

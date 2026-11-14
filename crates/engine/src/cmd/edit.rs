@@ -1,6 +1,6 @@
 //! Undo, redo, clipboard, find and replace.
 
-use scriptcraft_doc::{Para, Pos, Script};
+use draftcraft_doc::{Para, Pos, Script};
 use serde_json::{Value, json};
 
 use super::{delete_selection, sel_result, set_caret};
@@ -69,7 +69,7 @@ fn clip(s: &mut Session) -> Value {
         p.bookmark = None;
         p.beats.clear();
     }
-    let text = scriptcraft_fountain::write(&frag);
+    let text = draftcraft_fountain::write(&frag);
     let n = paras.len();
     s.clip = Some((text.clone(), paras));
     json!({"text": text, "paragraphs": n, "format": "fountain"})
@@ -100,7 +100,7 @@ pub fn paste_paras(s: &mut Session, paras: &[Para]) -> CmdResult {
     if paras.is_empty() {
         return sel_result(s);
     }
-    if s.script.paras.len() + paras.len() > scriptcraft_doc::MAX_PARAS {
+    if s.script.paras.len() + paras.len() > draftcraft_doc::MAX_PARAS {
         return Err(CmdError::Failed("the script would be too large".into()));
     }
     let el = s.element();
@@ -139,7 +139,7 @@ fn paste(s: &mut Session, v: &Value) -> CmdResult {
     }
     let fountain = p::bool(v, "fountain").unwrap_or_else(|| text.replace("\r\n", "\n").contains("\n\n"));
     if fountain {
-        let parsed = scriptcraft_fountain::parse(text);
+        let parsed = draftcraft_fountain::parse(text);
         return paste_paras(s, &parsed.paras);
     }
     super::text::insert(s, &json!({"text": text}))

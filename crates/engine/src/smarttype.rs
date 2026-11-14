@@ -1,7 +1,7 @@
 //! SmartType: autocompletion of character names, extensions, scene-heading prefixes, locations,
 //! times of day and transitions, from built-in lists and what the script already uses.
 
-use scriptcraft_doc::{Element, HEADING_PREFIXES, Pos, Script, character_name, heading_parts};
+use draftcraft_doc::{Element, HEADING_PREFIXES, Pos, Script, character_name, heading_parts};
 use serde::Serialize;
 
 /// Most suggestions offered at once.

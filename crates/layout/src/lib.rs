@@ -1,4 +1,4 @@
-//! ScriptCraft L2: screenplay pagination.
+//! DraftCraft L2: screenplay pagination.
 //!
 //! The industry page: US Letter, 12-point Courier (10 characters per inch, 6 lines per inch),
 //! 1" top and bottom margins (54 body lines), and fixed element indents measured from the left
@@ -26,14 +26,14 @@
 //! same scene, and scene numbers print in both margins.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
-use scriptcraft_doc::{Element, Paper, Pos, Script, Span, character_name};
-use scriptcraft_geom::{BASELINE, CHAR_W, LINE_H, TOP, chars_between, inch};
+use draftcraft_doc::{Element, Paper, Pos, Script, Span, character_name};
+use draftcraft_geom::{BASELINE, CHAR_W, LINE_H, TOP, chars_between, inch};
 
 mod decorate;
 pub use decorate::{body_rows, slots};
 use serde::Serialize;
 
-pub use scriptcraft_doc::Align;
+pub use draftcraft_doc::Align;
 
 /// Where an element sits on the page.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize)]
@@ -49,7 +49,7 @@ pub struct Spec {
 
 /// The standard indents (inches from the left edge of the paper).
 pub const fn spec(e: Element) -> Spec {
-    let f = scriptcraft_doc::ElementFormat::default_for(e);
+    let f = draftcraft_doc::ElementFormat::default_for(e);
     Spec { left: f.left, right: f.right, before: f.before as usize, align: f.align }
 }
 
@@ -125,7 +125,7 @@ impl Line {
         format!("{}{}", self.text, self.suffix)
     }
     /// The text in styled segments: (column, text, style), covering the whole line.
-    pub fn segments(&self) -> Vec<(usize, &str, scriptcraft_doc::Style)> {
+    pub fn segments(&self) -> Vec<(usize, &str, draftcraft_doc::Style)> {
         let mut out = Vec::new();
         let mut at = 0;
         let mut col = 0;
@@ -136,11 +136,11 @@ impl Line {
             }
         };
         for sp in &self.spans {
-            push(at, sp.start.max(at), scriptcraft_doc::Style::PLAIN, &mut col, &mut out);
+            push(at, sp.start.max(at), draftcraft_doc::Style::PLAIN, &mut col, &mut out);
             push(sp.start.max(at), sp.end, sp.style, &mut col, &mut out);
             at = sp.end.max(at);
         }
-        push(at, self.text.len(), scriptcraft_doc::Style::PLAIN, &mut col, &mut out);
+        push(at, self.text.len(), draftcraft_doc::Style::PLAIN, &mut col, &mut out);
         out
     }
     fn chars(&self) -> usize {
@@ -189,7 +189,7 @@ impl Layout {
     pub fn page_height(&self, i: usize) -> f32 {
         let h = self.paper.height_pt();
         let Some(p) = self.pages.get(i) else { return h };
-        let bottom = p.lines.iter().filter(|l| l.kind != LineKind::Footer).map(|l| l.y + LINE_H).fold(0.0f32, f32::max) + scriptcraft_geom::BOTTOM;
+        let bottom = p.lines.iter().filter(|l| l.kind != LineKind::Footer).map(|l| l.y + LINE_H).fold(0.0f32, f32::max) + draftcraft_geom::BOTTOM;
         bottom.max(h)
     }
 
@@ -779,7 +779,7 @@ fn title_page(script: &Script) -> Option<Page> {
 
 /// A free-form title page: one row per line from the top margin, between 1" from each edge of
 /// the paper (as Final Draft lays out title pages), wrapped; rows past the page are dropped.
-fn free_form_title_page(t: &scriptcraft_doc::TitlePage, paper: scriptcraft_doc::Paper) -> Page {
+fn free_form_title_page(t: &draftcraft_doc::TitlePage, paper: draftcraft_doc::Paper) -> Page {
     let page_w = paper.width_pt();
     let (left, right) = (inch(1.0), page_w - inch(1.0));
     let cols = (((right - left) / CHAR_W) as usize).max(10);
@@ -796,14 +796,14 @@ fn free_form_title_page(t: &scriptcraft_doc::TitlePage, paper: scriptcraft_doc::
             let piece = text.get(s..e).unwrap_or("").trim_end();
             let w = piece.chars().count() as f32 * CHAR_W;
             let x = match l.align {
-                scriptcraft_doc::Align::Left => left,
-                scriptcraft_doc::Align::Center => (left + (right - left - w) / 2.0).max(left),
-                scriptcraft_doc::Align::Right => (right - w).max(left),
+                draftcraft_doc::Align::Left => left,
+                draftcraft_doc::Align::Center => (left + (right - left - w) / 2.0).max(left),
+                draftcraft_doc::Align::Right => (right - w).max(left),
             };
             if !piece.is_empty() {
                 let mut line = deco(LineKind::Title, x, TOP + row as f32 * LINE_H, piece);
                 if !l.style.is_plain() {
-                    line.spans = vec![scriptcraft_doc::Span { start: 0, end: piece.len(), style: l.style }];
+                    line.spans = vec![draftcraft_doc::Span { start: 0, end: piece.len(), style: l.style }];
                 }
                 lines.push(line);
             }

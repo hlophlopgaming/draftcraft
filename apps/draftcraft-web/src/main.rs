@@ -1,22 +1,22 @@
-//! ScriptCraft in the browser. Build with `cargo xtask web` (needs the `wasm32-unknown-unknown`
-//! target and `wasm-bindgen-cli`); it writes `apps/scriptcraft-web/dist/`, which any static
+//! DraftCraft in the browser. Build with `cargo xtask web` (needs the `wasm32-unknown-unknown`
+//! target and `wasm-bindgen-cli`); it writes `apps/draftcraft-web/dist/`, which any static
 //! server can host. File › Open uses the browser's file picker; Save and the exports download
 //! the file. Fonts, the word list and the sample script are compiled in, so it works offline.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
-    eprintln!("scriptcraft-web runs in the browser: build it with `cargo xtask web` (target wasm32-unknown-unknown).");
+    eprintln!("draftcraft-web runs in the browser: build it with `cargo xtask web` (target wasm32-unknown-unknown).");
 }
 
 #[cfg(target_arch = "wasm32")]
 mod web {
-    use scriptcraft_engine::Session;
+    use draftcraft_engine::Session;
     use std::cell::{Cell, RefCell};
     use std::rc::Rc;
 
-    use scriptcraft_ui_egui::speech::{SpeechHost, Voice};
-    use scriptcraft_ui_egui::{FileHost, Inbox, ScriptApp};
+    use draftcraft_ui_egui::speech::{SpeechHost, Voice};
+    use draftcraft_ui_egui::{FileHost, Inbox, ScriptApp};
     use wasm_bindgen::JsCast;
     use wasm_bindgen::JsValue;
     use wasm_bindgen::closure::Closure;
@@ -30,7 +30,7 @@ mod web {
         fn open(&self, inbox: Inbox) {
             let ctx = self.ctx.clone();
             wasm_bindgen_futures::spawn_local(async move {
-                let picked = rfd::AsyncFileDialog::new().add_filter("Script", &scriptcraft_engine::io::OPEN_EXTENSIONS).pick_file().await;
+                let picked = rfd::AsyncFileDialog::new().add_filter("Script", &draftcraft_engine::io::OPEN_EXTENSIONS).pick_file().await;
                 if let Some(f) = picked {
                     let bytes = f.read().await;
                     if let Ok(mut q) = inbox.lock() {
@@ -89,17 +89,17 @@ mod web {
         }
     }
 
-    impl scriptcraft_ui_egui::printing::PrintHost for BrowserPrint {
+    impl draftcraft_ui_egui::printing::PrintHost for BrowserPrint {
         fn engine(&self) -> String {
             "browser print window".into()
         }
-        fn printers(&mut self, _refresh: bool) -> Result<Vec<scriptcraft_ui_egui::printing::Printer>, String> {
+        fn printers(&mut self, _refresh: bool) -> Result<Vec<draftcraft_ui_egui::printing::Printer>, String> {
             Ok(Vec::new())
         }
         fn chooses_in_dialog(&self) -> bool {
             true
         }
-        fn send(&mut self, job: scriptcraft_ui_egui::printing::PrintJob) -> Result<(), String> {
+        fn send(&mut self, job: draftcraft_ui_egui::printing::PrintJob) -> Result<(), String> {
             self.clear();
             let fail = |_: JsValue| String::from("the browser could not prepare the pages");
             let window = web_sys::window().ok_or("no window")?;
@@ -299,14 +299,14 @@ mod web {
     pub fn start() {
         // Errors and panics go to the browser console.
         let _ = eframe::WebLogger::init(log::LevelFilter::Info);
-        log::info!("ScriptCraft {} starting", env!("CARGO_PKG_VERSION"));
+        log::info!("DraftCraft {} starting", env!("CARGO_PKG_VERSION"));
         wasm_bindgen_futures::spawn_local(async {
             let Some(canvas) = web_sys::window()
                 .and_then(|w| w.document())
-                .and_then(|d| d.get_element_by_id("scriptcraft"))
+                .and_then(|d| d.get_element_by_id("draftcraft"))
                 .and_then(|e| e.dyn_into::<web_sys::HtmlCanvasElement>().ok())
             else {
-                log::error!("no <canvas id=\"scriptcraft\"> on the page");
+                log::error!("no <canvas id=\"draftcraft\"> on the page");
                 return;
             };
             let r = eframe::WebRunner::new()
@@ -324,7 +324,7 @@ mod web {
                 )
                 .await;
             if let Err(e) = r {
-                log::error!("ScriptCraft failed to start: {e:?}");
+                log::error!("DraftCraft failed to start: {e:?}");
             }
         });
     }

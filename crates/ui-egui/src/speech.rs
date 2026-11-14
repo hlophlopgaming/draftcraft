@@ -12,9 +12,9 @@
 use std::sync::{Arc, Mutex};
 
 use egui::{Align2, Color32, Painter, Rect, RichText, vec2};
-use scriptcraft_doc::{Pos, Script};
-use scriptcraft_engine::CmdError;
-use scriptcraft_layout::{Line, LineKind};
+use draftcraft_doc::{Pos, Script};
+use draftcraft_engine::CmdError;
+use draftcraft_layout::{Line, LineKind};
 use serde_json::{Value, json};
 
 use crate::ScriptApp;
@@ -422,7 +422,7 @@ pub fn tick(app: &mut ScriptApp, ctx: &egui::Context) {
             app.read_aloud.started = true;
             // Follow along: the caret moves to the line being read.
             if q.para < app.session.script.paras.len() {
-                app.session.sel = scriptcraft_engine::Selection::caret(Pos::new(q.para, 0));
+                app.session.sel = draftcraft_engine::Selection::caret(Pos::new(q.para, 0));
                 crate::split::follow_caret(app);
             }
         }
@@ -453,15 +453,15 @@ pub fn paint_reading(app: &ScriptApp, p: &Painter, line: &Line, pr: Rect, z: f32
     if line.kind != LineKind::Body || line.para.is_none() || line.para != app.read_aloud.reading() {
         return;
     }
-    let w = line.text.chars().count().max(1) as f32 * scriptcraft_geom::CHAR_W;
-    let r = Rect::from_min_size(pr.min + vec2((line.x - 4.0) * z, (line.y - 1.0) * z), vec2((w + 8.0) * z, (scriptcraft_geom::LINE_H + 2.0) * z));
+    let w = line.text.chars().count().max(1) as f32 * draftcraft_geom::CHAR_W;
+    let r = Rect::from_min_size(pr.min + vec2((line.x - 4.0) * z, (line.y - 1.0) * z), vec2((w + 8.0) * z, (draftcraft_geom::LINE_H + 2.0) * z));
     let c = app.tokens().accent;
     p.rect_filled(r, 3.0 * z, Color32::from_rgba_unmultiplied(c.r(), c.g(), c.b(), if app.dark { 60 } else { 34 }));
 }
 
 /// Characters who speak, for the voices list.
 fn characters(s: &Script) -> Vec<String> {
-    scriptcraft_engine::speech::characters(s)
+    draftcraft_engine::speech::characters(s)
 }
 
 /// The Read Aloud and Dictation windows.

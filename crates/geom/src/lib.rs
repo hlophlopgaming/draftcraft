@@ -1,4 +1,4 @@
-//! ScriptCraft L0: units and page geometry.
+//! DraftCraft L0: units and page geometry.
 //!
 //! Screenplays are set in 12-point Courier on US Letter paper: ten characters per inch and six
 //! lines per inch. Everything here is in PDF points (1/72 inch) measured from the page's top-left.

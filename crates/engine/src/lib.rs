@@ -1,4 +1,4 @@
-//! ScriptCraft engine: the editing session and its commands.
+//! DraftCraft engine: the editing session and its commands.
 //!
 //! **Everything is a command.** Each user-visible action is a [`CommandSpec`] with a stable id
 //! (`element.character`, `text.enter`), a label, its menu location, a default shortcut, a params
@@ -26,8 +26,8 @@ use std::collections::HashMap;
 
 use serde_json::Value;
 
-pub use scriptcraft_doc as doc;
-pub use scriptcraft_layout as layout;
+pub use draftcraft_doc as doc;
+pub use draftcraft_layout as layout;
 pub use session::{Selection, Session};
 
 #[derive(Debug, thiserror::Error, Clone, PartialEq)]
@@ -42,8 +42,8 @@ pub enum CmdError {
     Failed(String),
 }
 
-impl From<scriptcraft_doc::DocError> for CmdError {
-    fn from(e: scriptcraft_doc::DocError) -> Self {
+impl From<draftcraft_doc::DocError> for CmdError {
+    fn from(e: draftcraft_doc::DocError) -> Self {
         CmdError::Failed(e.to_string())
     }
 }

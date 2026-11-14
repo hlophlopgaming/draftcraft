@@ -1,15 +1,15 @@
 [package]
-name = "scriptcraft-mcp"
+name = "draftcraft-mcp"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ScriptCraft MCP server (JSON-RPC over stdio), headless or bridged to the running app (L5)"
+description = "DraftCraft MCP server (JSON-RPC over stdio), headless or bridged to the running app (L5)"
 
 [lints]
 workspace = true
 
 [dependencies]
-scriptcraft-doc = { workspace = true }
-scriptcraft-engine = { workspace = true }
-scriptcraft-control-key = { workspace = true }
+draftcraft-doc = { workspace = true }
+draftcraft-engine = { workspace = true }
+draftcraft-control-key = { workspace = true }
 serde_json = { workspace = true }

@@ -12,7 +12,7 @@ mod font;
 mod obj;
 mod text;
 
-use scriptcraft_doc::{Element, Script, Style};
+use draftcraft_doc::{Element, Script, Style};
 
 use crate::Imported;
 use crate::shape::{self, Builder, Geometry, Styled, TitleBlocks};

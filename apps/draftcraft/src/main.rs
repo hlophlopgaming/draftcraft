@@ -1,11 +1,11 @@
-//! The ScriptCraft desktop app.
+//! The DraftCraft desktop app.
 //!
-//! Usage: `scriptcraft [--new | --sample] [--config-dir <dir>] [--control <port>] [file.fountain|file.fdx|file.docx|file.celtx|file.pdf]`
+//! Usage: `draftcraft [--new | --sample] [--config-dir <dir>] [--control <port>] [file.fountain|file.fdx|file.docx|file.celtx|file.pdf]`
 //!
 //! With no file it opens the sample script (`--new` starts blank). Settings and data follow the
-//! Craft suite's folder rules (craft-settings): `--config-dir`, then `SCRIPTCRAFT_CONFIG_DIR`
+//! Craft suite's folder rules (craft-settings): `--config-dir`, then `DRAFTCRAFT_CONFIG_DIR`
 //! (empty = isolated, nothing read or written), then a `portable` marker, then the platform
-//! folder. `--control <port>` (or `SCRIPTCRAFT_CONTROL_PORT`) starts a localhost JSON-lines
+//! folder. `--control <port>` (or `DRAFTCRAFT_CONTROL_PORT`) starts a localhost JSON-lines
 //! control server; every request carries the key the app writes to
 //! `<data>/control-key.local-<port>` (see docs/control-protocol.md).
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
@@ -14,8 +14,8 @@ mod control_server;
 mod printing;
 mod tts;
 
-use scriptcraft_engine::Session;
-use scriptcraft_ui_egui::ScriptApp;
+use draftcraft_engine::Session;
+use draftcraft_ui_egui::ScriptApp;
 use serde_json::json;
 
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -106,7 +106,7 @@ fn install_signal_handler(ctx: Arc<Mutex<Option<egui::Context>>>, key: Arc<Mutex
         });
     });
     if let Err(e) = r {
-        eprintln!("scriptcraft: no signal handler ({e})");
+        eprintln!("draftcraft: no signal handler ({e})");
     }
 }
 
@@ -114,7 +114,7 @@ fn main() -> eframe::Result<()> {
     let ctx_slot: Arc<Mutex<Option<egui::Context>>> = Arc::new(Mutex::new(None));
     let key_slot: Arc<Mutex<Option<control_server::KeyFile>>> = Arc::new(Mutex::new(None));
     install_signal_handler(ctx_slot.clone(), key_slot.clone());
-    let mut control_port: Option<u16> = std::env::var("SCRIPTCRAFT_CONTROL_PORT").ok().and_then(|p| p.parse().ok());
+    let mut control_port: Option<u16> = std::env::var("DRAFTCRAFT_CONTROL_PORT").ok().and_then(|p| p.parse().ok());
     let mut file: Option<String> = None;
     let mut blank = false;
     let mut config_dir: Option<std::path::PathBuf> = None;
@@ -127,7 +127,7 @@ fn main() -> eframe::Result<()> {
             "--sample" => blank = false,
             "--help" | "-h" => {
                 println!(
-                    "scriptcraft [--new | --sample] [--config-dir <dir>] [--control <port>] [file.fountain|file.fdx|file.docx|file.celtx|file.pdf]"
+                    "draftcraft [--new | --sample] [--config-dir <dir>] [--control <port>] [file.fountain|file.fdx|file.docx|file.celtx|file.pdf]"
                 );
                 return Ok(());
             }
@@ -138,14 +138,14 @@ fn main() -> eframe::Result<()> {
     if let Some(f) = &file
         && let Err(e) = session.run("file.open", &json!({"path": f}))
     {
-        eprintln!("scriptcraft: {e}");
+        eprintln!("draftcraft: {e}");
     }
     #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
     let mut options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([1440.0, 900.0])
             .with_min_inner_size([720.0, 480.0])
-            .with_title("ScriptCraft")
+            .with_title("DraftCraft")
             .with_icon(icon()),
         ..Default::default()
     };
@@ -160,7 +160,7 @@ fn main() -> eframe::Result<()> {
         }));
     }
     eframe::run_native(
-        "ScriptCraft",
+        "DraftCraft",
         options,
         Box::new(move |cc| {
             if let Ok(mut g) = ctx_slot.lock() {
@@ -168,13 +168,13 @@ fn main() -> eframe::Result<()> {
             }
             let mut app = ScriptApp::new(session);
             app.dark = cc.egui_ctx.system_theme() == Some(egui::Theme::Dark);
-            let folders = scriptcraft_control_key::folders(config_dir);
+            let folders = draftcraft_control_key::folders(config_dir);
             let data = folders.data.clone();
             app = app.with_folders(folders);
             // Read aloud with the system's voices (and whisper.cpp dictation when installed).
-            app.speaker = tts::detect().map(|s| Box::new(s) as Box<dyn scriptcraft_ui_egui::speech::SpeechHost>);
+            app.speaker = tts::detect().map(|s| Box::new(s) as Box<dyn draftcraft_ui_egui::speech::SpeechHost>);
             // Print to the system's printers (CUPS, or the Windows print action).
-            app.printer = printing::detect().map(|p| Box::new(p) as Box<dyn scriptcraft_ui_egui::printing::PrintHost>);
+            app.printer = printing::detect().map(|p| Box::new(p) as Box<dyn draftcraft_ui_egui::printing::PrintHost>);
             let mut key_file = None;
             if let Some(port) = control_port
                 && let Some((rx, kf)) = control_server::start(port, cc.egui_ctx.clone(), data.as_deref())

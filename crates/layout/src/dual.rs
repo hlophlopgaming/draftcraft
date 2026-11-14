@@ -9,7 +9,7 @@
 //! moves left (never past the column's left edge) when it doesn't, and when even the whole
 //! column is too narrow the name goes on its own line(s) with `(CONT'D)` under it.
 
-use scriptcraft_geom::{CHAR_W, LINE_H, chars_between};
+use draftcraft_geom::{CHAR_W, LINE_H, chars_between};
 
 use super::{Builder, Element, Item, LineKind, deco, inch, sentence_end, spec_in, wrap};
 

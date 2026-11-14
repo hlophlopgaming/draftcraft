@@ -4,8 +4,8 @@ use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use scriptcraft_doc::{Element, Pos, Script};
-use scriptcraft_layout::Layout;
+use draftcraft_doc::{Element, Pos, Script};
+use draftcraft_layout::Layout;
 use serde::Serialize;
 use serde_json::Value;
 
@@ -57,14 +57,14 @@ pub struct Session {
     /// The SmartType popup was dismissed for this paragraph (Escape); reset when typing.
     pub suggest_dismissed: bool,
     /// Style for the next typed text, set by Bold/Italic/Underline with no selection.
-    pub pending_style: Option<scriptcraft_doc::Style>,
+    pub pending_style: Option<draftcraft_doc::Style>,
     /// Words Spelling ignores in this session (lowercase).
     pub ignored_words: std::collections::BTreeSet<String>,
     /// The user's own dictionary (lowercase); the app loads and saves it.
     pub user_words: std::collections::BTreeSet<String>,
     /// The last multi-paragraph copy: the text put on the clipboard and the paragraphs, so
     /// pasting it back keeps every element, style and flag.
-    pub clip: Option<(String, Vec<scriptcraft_doc::Para>)>,
+    pub clip: Option<(String, Vec<draftcraft_doc::Para>)>,
     history: Vec<Snapshot>,
     redo: Vec<Snapshot>,
     typing_open: bool,
@@ -134,7 +134,7 @@ impl Session {
         if let Some(l) = &self.layout {
             return l.clone();
         }
-        let l = Arc::new(scriptcraft_layout::layout(&self.script));
+        let l = Arc::new(draftcraft_layout::layout(&self.script));
         self.layout = Some(l.clone());
         l
     }
@@ -148,7 +148,7 @@ impl Session {
         if let Some(l) = &self.speed_layout {
             return l.clone();
         }
-        let l = Arc::new(scriptcraft_layout::layout_with(&self.script, scriptcraft_layout::Mode::Speed));
+        let l = Arc::new(draftcraft_layout::layout_with(&self.script, draftcraft_layout::Mode::Speed));
         self.speed_layout = Some(l.clone());
         l
     }
@@ -295,12 +295,12 @@ impl Session {
         match &result {
             Ok(_) if self.script != old => {
                 // Revision marks follow the edit; in revision mode the edit is marked.
-                scriptcraft_doc::revision::mark_changes(&old, &mut self.script);
+                draftcraft_doc::revision::mark_changes(&old, &mut self.script);
                 // Tracked changes follow the edit; with track changes on, the edit is recorded
                 // (track.* commands resolve changes themselves).
                 if !id.starts_with("track.") {
                     let author = self.script.settings.track.on.then(|| self.author.clone());
-                    scriptcraft_doc::track::follow(&old, &mut self.script, author.as_deref());
+                    draftcraft_doc::track::follow(&old, &mut self.script, author.as_deref());
                 }
                 let _ = self.script.normalize();
                 self.clamp_selection();

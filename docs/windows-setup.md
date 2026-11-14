@@ -1,27 +1,27 @@
 # Windows Setup Guide
 
-This guide walks you through installing and running ScriptCraft on Windows.
+This guide walks you through installing and running DraftCraft on Windows.
 
 ## Prerequisites
 
-**Windows 10 or later** is required to run ScriptCraft.
+**Windows 10 or later** is required to run DraftCraft.
 
 ## Option 1: Download the Portable Executable (Easiest)
 
 The simplest way to get started is to download the pre-built Windows binary.
 
-1. Go to the [ScriptCraft Releases](https://github.com/NoJuanNobody/scriptcraft/releases) page
-2. Find the latest release and download `scriptcraft-windows-x64.zip`
-3. Extract the ZIP file to a folder of your choice (e.g., `C:\Users\YourName\scriptcraft`)
-4. Double-click `scriptcraft.exe` to launch the app
+1. Go to the [DraftCraft Releases](https://github.com/hlophlopgaming/draftcraft/releases) page
+2. Find the latest release and download `draftcraft-windows-x64.zip`
+3. Extract the ZIP file to a folder of your choice (e.g., `C:\Users\YourName\draftcraft`)
+4. Double-click `draftcraft.exe` to launch the app
 
 That's it! No installation, no dependencies to manage.
 
 ### First Launch
 
-When you run ScriptCraft for the first time on Windows:
+When you run DraftCraft for the first time on Windows:
 
-- The app creates a settings folder at `%APPDATA%\scriptcraft` (usually `C:\Users\YourName\AppData\Roaming\scriptcraft`)
+- The app creates a settings folder at `%APPDATA%\draftcraft` (usually `C:\Users\YourName\AppData\Roaming\draftcraft`)
 - This folder stores your preferences, autosave recovery, backups, and custom dictionary
 - A sample script ("Night Signal") opens by default
 - Create a new blank script with **File › New** or press **Ctrl+N**
@@ -35,7 +35,7 @@ When you run ScriptCraft for the first time on Windows:
 
 ## Option 2: Build from Source
 
-If you prefer to build ScriptCraft yourself, or if you want the latest development version:
+If you prefer to build DraftCraft yourself, or if you want the latest development version:
 
 ### Install Rust
 
@@ -46,12 +46,12 @@ If you prefer to build ScriptCraft yourself, or if you want the latest developme
 ### Build and Run
 
 ```sh
-git clone https://github.com/NoJuanNobody/scriptcraft
-cd scriptcraft
-cargo run --release -p scriptcraft
+git clone https://github.com/hlophlopgaming/draftcraft
+cd draftcraft
+cargo run --release -p draftcraft
 ```
 
-The first build takes a few minutes. After that, the executable is at `target\release\scriptcraft.exe`.
+The first build takes a few minutes. After that, the executable is at `target\release\draftcraft.exe`.
 
 ## Troubleshooting
 
@@ -60,34 +60,34 @@ The first build takes a few minutes. After that, the executable is at `target\re
 This sometimes happens with unsigned binaries. Windows Defender may quarantine the `.exe` on first download.
 
 **Solution:**
-1. Right-click `scriptcraft.exe`
+1. Right-click `draftcraft.exe`
 2. Click **Properties**
 3. At the bottom, check **Unblock** and click **Apply**
 4. Click **OK** and try again
 
 ### "Windows says the app is not compatible"
 
-ScriptCraft requires **Windows 10 or later**. If you're on Windows 7 or 8, you'll need to upgrade to run the app. Alternatively, you can build from source with an older Rust toolchain (not supported or tested).
+DraftCraft requires **Windows 10 or later**. If you're on Windows 7 or 8, you'll need to upgrade to run the app. Alternatively, you can build from source with an older Rust toolchain (not supported or tested).
 
 ### "I can't find my settings folder"
 
 Settings and backups are stored at:
 
 ```
-%APPDATA%\scriptcraft
+%APPDATA%\draftcraft
 ```
 
 In Windows Explorer, you can paste this path directly into the address bar to jump to it. On most systems, this is:
 
 ```
-C:\Users\YourName\AppData\Roaming\scriptcraft
+C:\Users\YourName\AppData\Roaming\draftcraft
 ```
 
-You can also open this folder from ScriptCraft via **Help › About**, which shows all the folders in use.
+You can also open this folder from DraftCraft via **Help › About**, which shows all the folders in use.
 
 ### "How do I uninstall?"
 
-Since ScriptCraft is portable, just delete the folder you extracted. Your settings and files are kept in `%APPDATA%\scriptcraft`; delete that folder too if you want to remove them.
+Since DraftCraft is portable, just delete the folder you extracted. Your settings and files are kept in `%APPDATA%\draftcraft`; delete that folder too if you want to remove them.
 
 ## Next Steps
 
@@ -97,4 +97,4 @@ Since ScriptCraft is portable, just delete the folder you extracted. Your settin
 
 ## Questions?
 
-Open an issue on [GitHub](https://github.com/NoJuanNobody/scriptcraft/issues) or check the existing discussions.
+Open an issue on [GitHub](https://github.com/hlophlopgaming/draftcraft/issues) or check the existing discussions.

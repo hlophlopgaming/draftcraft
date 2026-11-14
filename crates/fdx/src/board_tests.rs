@@ -1,5 +1,5 @@
 use super::*;
-use scriptcraft_doc::CardColor;
+use draftcraft_doc::CardColor;
 
 fn boarded() -> Script {
     let mut s = Script::from_paras(vec![
@@ -27,7 +27,7 @@ fn beats_links_and_bookmarks_round_trip() {
     assert!(xml.contains("<ListItem Color=\"#D6D65C5CA8A8\""), "{xml}");
     assert!(xml.contains("Type=\"Beat\""), "{xml}");
     assert!(xml.contains("<DisplayBoard Height=\"10000\" Type=\"Beat\""), "{xml}");
-    assert!(xml.contains("ScriptCraftBeats=\""), "{xml}");
+    assert!(xml.contains("DraftCraftBeats=\""), "{xml}");
     let back = parse(&xml).unwrap_or_default();
     // Beat text never becomes script paragraphs.
     assert_eq!(back.paras.len(), s.paras.len());
@@ -89,8 +89,8 @@ fn reads_observed_beat_board() {
 #[test]
 fn hostile_board_input() {
     let x = r##"<FinalDraft><Content>
-<Paragraph Type="Scene Heading" ScriptCraftBeats="missing, ,k1,k1" Bookmark="   "><Text>INT. A - DAY</Text></Paragraph>
-<Paragraph Type="Action" ScriptCraftBeats="k1"><Text>x</Text></Paragraph>
+<Paragraph Type="Scene Heading" DraftCraftBeats="missing, ,k1,k1" Bookmark="   "><Text>INT. A - DAY</Text></Paragraph>
+<Paragraph Type="Action" DraftCraftBeats="k1"><Text>x</Text></Paragraph>
 </Content>
 <ListItems><ListItem Id="k1" Type="Beat" Title="T"><Content><Paragraph><Text>a</Text></Paragraph></Content></ListItem>
 <ListItem Id="k1" Type="Beat" Title="Dup"/><ListItem Type="Beat" Title="no id"/></ListItems>
@@ -103,5 +103,5 @@ fn hostile_board_input() {
     assert_eq!(s.paras[0].beats.len(), 1);
     assert!(s.paras[1].beats.is_empty());
     let b = &s.board.beats[0];
-    assert!(b.x.is_finite() && b.y.is_finite() && b.w >= scriptcraft_doc::BEAT_MIN && b.h >= scriptcraft_doc::BEAT_MIN);
+    assert!(b.x.is_finite() && b.y.is_finite() && b.w >= draftcraft_doc::BEAT_MIN && b.h >= draftcraft_doc::BEAT_MIN);
 }

@@ -1,7 +1,7 @@
 //! Script notes: comments anchored to ranges of the script's text, with a colour and an author.
 //! Notes are numbered in script order (`index`).
 
-use scriptcraft_doc::{CardColor, NoteRef, Pos};
+use draftcraft_doc::{CardColor, NoteRef, Pos};
 use serde_json::{Value, json};
 
 use super::parse_pos;
@@ -51,7 +51,7 @@ fn note_ref(s: &Session, v: &Value) -> Result<NoteRef, CmdError> {
 
 fn add(s: &mut Session, v: &Value) -> CmdResult {
     let text = p::req_str(v, "text")?;
-    if scriptcraft_doc::clean_note(text).is_empty() {
+    if draftcraft_doc::clean_note(text).is_empty() {
         return Err(CmdError::Params("the note is empty".into()));
     }
     let color = color_param(v)?;
@@ -90,11 +90,11 @@ fn list(s: &mut Session, _: &Value) -> CmdResult {
 fn edit(s: &mut Session, v: &Value) -> CmdResult {
     let r = note_ref(s, v)?;
     let color = color_param(v)?;
-    let text = p::str(v, "text").map(scriptcraft_doc::clean_note);
+    let text = p::str(v, "text").map(draftcraft_doc::clean_note);
     if text.as_deref().is_some_and(str::is_empty) {
         return Err(CmdError::Params("the note is empty (use note.delete)".into()));
     }
-    let author = p::str(v, "author").map(scriptcraft_doc::clean_author);
+    let author = p::str(v, "author").map(draftcraft_doc::clean_author);
     let n = s.script.note_mut(r).ok_or_else(|| CmdError::Failed("the note is gone".into()))?;
     if let Some(t) = text {
         n.text = t;

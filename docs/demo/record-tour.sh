@@ -13,9 +13,9 @@ WORK=${3:-$(mktemp -d)}
 mkdir -p "$WORK"
 export CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-$ROOT/.target}
 # Never touch a real settings profile.
-export SCRIPTCRAFT_CONFIG_DIR=
+export DRAFTCRAFT_CONFIG_DIR=
 cd "$ROOT"
-cargo build -q --release -p scriptcraft-ui-egui --example ui_demo
+cargo build -q --release -p draftcraft-ui-egui --example ui_demo
 RUN="$WORK/run"
 rm -rf "$RUN"
 mkdir -p "$RUN"

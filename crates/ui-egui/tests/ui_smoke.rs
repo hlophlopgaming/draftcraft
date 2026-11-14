@@ -2,8 +2,8 @@
 //! runs, and all views lay out without panicking.
 
 use egui_kittest::kittest::Queryable;
-use scriptcraft_engine::Session;
-use scriptcraft_ui_egui::{ControlRequest, ScriptApp, UI_COMMANDS};
+use draftcraft_engine::Session;
+use draftcraft_ui_egui::{ControlRequest, ScriptApp, UI_COMMANDS};
 use serde_json::json;
 
 fn harness(app: ScriptApp) -> egui_kittest::Harness<'static, ScriptApp> {
@@ -100,34 +100,34 @@ fn enter_in_an_empty_paragraph_shows_the_element_list() {
     send("ui.key", json!({"key": "Enter"}));
     step(&mut h, 3);
     assert!(h.state().canvas.picker.is_some());
-    assert_eq!(h.state().session.element(), scriptcraft_doc::Element::Action);
+    assert_eq!(h.state().session.element(), draftcraft_doc::Element::Action);
     send("ui.key", json!({"key": "ArrowDown"}));
     send("ui.key", json!({"key": "Enter"}));
     step(&mut h, 4);
     assert!(h.state().canvas.picker.is_none());
     // The list opened on Scene Heading (Enter's usual target); one row down is Action.
-    assert_eq!(h.state().session.element(), scriptcraft_doc::Element::Action);
+    assert_eq!(h.state().session.element(), draftcraft_doc::Element::Action);
     send("ui.key", json!({"key": "Enter"}));
     step(&mut h, 3);
     send("ui.text", json!({"text": "3"}));
     step(&mut h, 3);
-    assert_eq!(h.state().session.element(), scriptcraft_doc::Element::Character);
+    assert_eq!(h.state().session.element(), draftcraft_doc::Element::Character);
     // Turned off, Enter changes the element directly.
     h.state_mut().enter_picker = false;
     send("ui.key", json!({"key": "Enter"}));
     step(&mut h, 3);
-    assert_eq!(h.state().session.element(), scriptcraft_doc::Element::Action);
+    assert_eq!(h.state().session.element(), draftcraft_doc::Element::Action);
     assert_eq!(h.state().session.script.paras.len(), 2);
 }
 
 #[test]
 fn autosave_backups_and_recent_files() {
-    use scriptcraft_ui_egui::persist;
-    let dir = std::env::temp_dir().join(format!("scriptcraft-ui-state-{}", std::process::id()));
+    use draftcraft_ui_egui::persist;
+    let dir = std::env::temp_dir().join(format!("draftcraft-ui-state-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     let file = dir.join("draft.fountain");
-    std::fs::write(&file, scriptcraft_engine::sample::FOUNTAIN).unwrap();
+    std::fs::write(&file, draftcraft_engine::sample::FOUNTAIN).unwrap();
     let mut app = ScriptApp::new(Session::new(Default::default())).with_state_dir(dir.clone());
     app.dialogs = false;
     app.prefs.files.autosave_seconds = 1;
@@ -146,13 +146,13 @@ fn autosave_backups_and_recent_files() {
     assert!(persist::read_recovery(&dir).is_none());
     let backups: Vec<_> = std::fs::read_dir(dir.join(persist::BACKUPS)).unwrap().flatten().collect();
     assert_eq!(backups.len(), 1);
-    assert_eq!(std::fs::read_to_string(backups[0].path()).unwrap(), scriptcraft_engine::sample::FOUNTAIN);
+    assert_eq!(std::fs::read_to_string(backups[0].path()).unwrap(), draftcraft_engine::sample::FOUNTAIN);
     // Settings are written to config.toml when the app exits.
     h.state_mut().on_exit();
     let toml = std::fs::read_to_string(dir.join("config.toml")).unwrap();
     assert!(toml.contains("[files]") && toml.contains("draft.fountain"), "{toml}");
     // A recovery file left by a crash is offered on the next start.
-    persist::write_recovery(&dir, Some(&file), &scriptcraft_engine::sample::script()).unwrap();
+    persist::write_recovery(&dir, Some(&file), &draftcraft_engine::sample::script()).unwrap();
     let next = ScriptApp::new(Session::new(Default::default())).with_state_dir(dir.clone());
     assert!(next.recovery_offer.is_some());
     assert_eq!(next.prefs.files.recent.len(), 1);
@@ -232,8 +232,8 @@ struct MockHost {
     pick: Option<(String, Vec<u8>)>,
 }
 
-impl scriptcraft_ui_egui::FileHost for MockHost {
-    fn open(&self, inbox: scriptcraft_ui_egui::Inbox) {
+impl draftcraft_ui_egui::FileHost for MockHost {
+    fn open(&self, inbox: draftcraft_ui_egui::Inbox) {
         if let Some(f) = self.pick.clone() {
             inbox.lock().unwrap().push(f);
         }
@@ -298,7 +298,7 @@ fn outline_view_drags_a_scene_under_an_act() {
     h.state_mut().execute("ui.view.outline", json!({})).unwrap();
     h.state_mut().execute("ui.toggleStoryMap", json!({})).unwrap();
     step(&mut h, 4);
-    let rows: Vec<egui::Rect> = h.ctx.data(|d| d.get_temp(scriptcraft_ui_egui::outline::rows_id())).unwrap_or_default();
+    let rows: Vec<egui::Rect> = h.ctx.data(|d| d.get_temp(draftcraft_ui_egui::outline::rows_id())).unwrap_or_default();
     assert_eq!(rows.len(), 6, "[One] 0 1 [Two] 2 3");
     let last_heading = h.state().session.script.scenes()[3].heading.clone();
     // Grab the last scene's grip (it is under act two: one level in) and drop it just below [One].
@@ -341,7 +341,7 @@ fn import_from_word_celtx_and_pdf() {
     assert_eq!(st.session.script.paras.len(), 3);
     assert_eq!(st.session.script.paras[2].text, "Light it.");
     assert!(st.session.dirty && st.session.path.is_none());
-    // Natively, with a path: a PDF exported by ScriptCraft comes back as the same script.
+    // Natively, with a path: a PDF exported by DraftCraft comes back as the same script.
     let dir = std::env::temp_dir().join(format!("sc-ui-import-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let pdf = dir.join("night.pdf");
@@ -364,7 +364,7 @@ fn russian_language_switch_preserves_script_and_command_ids() {
     app.dialogs = false;
     let original = app.session.script.clone();
     app.execute("ui.language", json!({"language": "ru"})).unwrap();
-    assert_eq!(app.prefs.appearance.language, scriptcraft_ui_egui::i18n::Language::Russian);
+    assert_eq!(app.prefs.appearance.language, draftcraft_ui_egui::i18n::Language::Russian);
     assert_eq!(app.session.script, original);
     assert!(app.execute("ui.language", json!({"language": "unknown"})).is_err());
     let mut h = harness(app);
@@ -385,7 +385,7 @@ fn russian_language_switch_preserves_script_and_command_ids() {
     }
     assert!(h.state().session.script.paras.iter().any(|p| p.text == "Ёжик ждёт у окна."));
     h.state_mut().execute("ui.language", json!({"language": "en"})).unwrap();
-    assert_eq!(h.state().prefs.appearance.language, scriptcraft_ui_egui::i18n::Language::English);
+    assert_eq!(h.state().prefs.appearance.language, draftcraft_ui_egui::i18n::Language::English);
     step(&mut h, 2);
     assert!(h.query_by_label("File").is_some());
     assert!(h.query_by_label("Файл").is_none());

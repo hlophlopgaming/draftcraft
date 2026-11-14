@@ -28,14 +28,14 @@ fn obj(props: Value, required: &[&str]) -> Value {
 /// The tools we offer.
 pub fn tool_definitions() -> Value {
     json!([
-        {"name": "list_commands", "title": "List commands", "description": "Every ScriptCraft command: id, label, menu location, shortcut, params, whether it changes the script, enabled.", "inputSchema": obj(json!({}), &[])},
+        {"name": "list_commands", "title": "List commands", "description": "Every DraftCraft command: id, label, menu location, shortcut, params, whether it changes the script, enabled.", "inputSchema": obj(json!({}), &[])},
         {"name": "execute", "title": "Run a command", "description": "Run one command by id (see list_commands), e.g. {command:\"text.insert\", params:{text:\"INT. DINER - NIGHT\"}}, {command:\"text.enter\"}, {command:\"element.set\", params:{element:\"character\"}}.", "inputSchema": obj(json!({"command": {"type": "string"}, "params": {"type": "object"}}), &["command"])},
         {"name": "batch", "title": "Run several commands", "description": "Run commands in order; stops at the first error. {steps:[{command, params}]}", "inputSchema": obj(json!({"steps": {"type": "array", "items": {"type": "object"}}}), &["steps"])},
         {"name": "inspect_script", "title": "Inspect the script", "description": "Paragraphs with element, text and page; selection; title page; page count.", "inputSchema": obj(json!({"from": {"type": "integer"}, "count": {"type": "integer"}}), &[])},
         {"name": "get_fountain", "title": "Script as Fountain", "description": "The whole script as Fountain plain text.", "inputSchema": obj(json!({}), &[])},
         {"name": "set_fountain", "title": "Replace script from Fountain", "description": "Replace the whole script with Fountain text (undoable).", "inputSchema": obj(json!({"text": {"type": "string"}}), &["text"])},
         {"name": "reports", "title": "Reports", "description": "Character, scene and location reports.", "inputSchema": obj(json!({}), &[])},
-        {"name": "screenshot", "title": "Screenshot the app", "description": "PNG of the ScriptCraft window saved to `path` (needs the app: scriptcraft-cli mcp --connect).", "inputSchema": obj(json!({"path": {"type": "string"}}), &["path"])},
+        {"name": "screenshot", "title": "Screenshot the app", "description": "PNG of the DraftCraft window saved to `path` (needs the app: draftcraft-cli mcp --connect).", "inputSchema": obj(json!({"path": {"type": "string"}}), &["path"])},
     ])
 }
 

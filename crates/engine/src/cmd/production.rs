@@ -1,6 +1,6 @@
 //! Production locks: locked pages (A/B pages), locked scene numbers (12A) and omitted scenes.
 
-use scriptcraft_doc::{Element, expand_page_label};
+use draftcraft_doc::{Element, expand_page_label};
 use serde_json::{Value, json};
 
 use crate::{CmdError, CmdResult, CommandSpec, Session, p};
@@ -26,7 +26,7 @@ pub fn specs() -> Vec<CommandSpec> {
 /// Lock (or re-lock) every page break where it is now.
 fn lock_pages(s: &mut Session, _: &Value) -> CmdResult {
     let l = s.layout();
-    let starts = scriptcraft_layout::unit_starts(&s.script);
+    let starts = draftcraft_layout::unit_starts(&s.script);
     for p in &mut s.script.paras {
         p.page_lock.clear();
     }
@@ -35,7 +35,7 @@ fn lock_pages(s: &mut Session, _: &Value) -> CmdResult {
     for page in l.pages.iter().filter(|p| !p.title_page) {
         pages += 1;
         let labels = expand_page_label(&page.label);
-        let first = page.lines.iter().find(|x| x.kind == scriptcraft_layout::LineKind::Body && x.para.is_some());
+        let first = page.lines.iter().find(|x| x.kind == draftcraft_layout::LineKind::Body && x.para.is_some());
         let starts_unit =
             first.and_then(|x| Some((x.para?, x.start))).filter(|&(para, start)| start == 0 && starts.get(para).copied().unwrap_or(false));
         match (starts_unit, anchor) {
@@ -99,7 +99,7 @@ fn omit(s: &mut Session, v: &Value) -> CmdResult {
     if on {
         // The caret leaves the hidden text for the heading.
         if s.script.hidden(s.sel.focus.para) || s.sel.focus.para == para {
-            super::set_caret(s, scriptcraft_doc::Pos::new(para, 0));
+            super::set_caret(s, draftcraft_doc::Pos::new(para, 0));
         }
         let heading = s.script.paras.get(para).filter(|p| p.element == Element::SceneHeading).and_then(|p| p.scene_number.clone());
         s.status = match heading {
@@ -118,7 +118,7 @@ fn unomit(s: &mut Session, v: &Value) -> CmdResult {
 
 #[cfg(test)]
 mod tests {
-    use scriptcraft_doc::{Element, Para, Pos, Script};
+    use draftcraft_doc::{Element, Para, Pos, Script};
     use serde_json::json;
 
     use crate::Session;
@@ -186,7 +186,7 @@ mod tests {
         let mut s = Session::new(Script::from_paras(vec![Para::new(Element::Action, text)]).unwrap());
         let lay = s.layout();
         assert!(lay.pages.len() >= 3);
-        let start3 = lay.pages[2].lines.iter().find(|x| x.kind == scriptcraft_layout::LineKind::Body).unwrap().start;
+        let start3 = lay.pages[2].lines.iter().find(|x| x.kind == draftcraft_layout::LineKind::Body).unwrap().start;
         s.run("caret.gotoPage", &json!({"page": 3})).unwrap();
         assert_eq!(s.sel.focus, Pos::new(0, start3));
         assert_eq!(s.layout().caret(s.sel.focus).map(|c| c.page), Some(2));
@@ -229,7 +229,7 @@ mod tests {
         let shown = lay.pages[idx2].lines.iter().find_map(|x| x.para).unwrap();
         assert_eq!(s.script.paras[shown].text, first2, "page 2 still starts with the same text");
         // The printed number is the label.
-        assert!(lay.pages[1].lines.iter().any(|x| x.kind == scriptcraft_layout::LineKind::Header && x.text.contains("1A.")));
+        assert!(lay.pages[1].lines.iter().any(|x| x.kind == draftcraft_layout::LineKind::Header && x.text.contains("1A.")));
         // Go to Page takes printed labels.
         s.run("caret.gotoPage", &json!({"page": "1A."})).unwrap();
         assert_eq!(s.layout().caret(s.sel.focus).map(|c| c.page), Some(1));
@@ -281,7 +281,7 @@ mod tests {
         let l = s.layout();
         let line = l.pages.iter().flat_map(|p| p.lines.iter()).find(|x| x.para == Some(para)).unwrap();
         assert_eq!(line.display(), "OMITTED");
-        assert!(l.pages.iter().flat_map(|p| p.lines.iter()).any(|x| x.kind == scriptcraft_layout::LineKind::SceneNumber && x.text == "5"));
+        assert!(l.pages.iter().flat_map(|p| p.lines.iter()).any(|x| x.kind == draftcraft_layout::LineKind::SceneNumber && x.text == "5"));
         assert!(!l.pages.iter().flat_map(|p| p.lines.iter()).any(|x| x.para == Some(para + 1)), "omitted text is not shown");
         assert_eq!(s.script.scenes()[6].number.as_deref(), Some("6"));
         s.run("scene.unomit", &json!({"index": 5})).unwrap();
@@ -306,7 +306,7 @@ mod tests {
         s.run("scene.omit", &json!({"index": 4})).unwrap();
         let before = labels(&mut s);
         assert!(before.iter().any(|l| l == "1A"), "{before:?}");
-        let back = scriptcraft_fdx::parse(&scriptcraft_fdx::write(&s.script)).unwrap();
+        let back = draftcraft_fdx::parse(&draftcraft_fdx::write(&s.script)).unwrap();
         assert_eq!(back.paras, s.script.paras);
         let mut s2 = Session::new(back);
         assert_eq!(labels(&mut s2), before);

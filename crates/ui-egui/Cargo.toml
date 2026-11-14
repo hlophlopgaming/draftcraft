@@ -1,22 +1,22 @@
 [package]
-name = "scriptcraft-ui-egui"
+name = "draftcraft-ui-egui"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ScriptCraft egui front end (Final Draft-style page view, navigator, index cards, reports); swappable: nothing below depends on it (L6)"
+description = "DraftCraft egui front end (Final Draft-style page view, navigator, index cards, reports); swappable: nothing below depends on it (L6)"
 
 [lints]
 workspace = true
 
 [dependencies]
-scriptcraft-geom = { workspace = true }
-scriptcraft-doc = { workspace = true }
-scriptcraft-fonts = { workspace = true }
-scriptcraft-layout = { workspace = true }
-scriptcraft-engine = { workspace = true }
-scriptcraft-collab = { workspace = true }
-scriptcraft-spell = { workspace = true }
-scriptcraft-control-key = { workspace = true }
+draftcraft-geom = { workspace = true }
+draftcraft-doc = { workspace = true }
+draftcraft-fonts = { workspace = true }
+draftcraft-layout = { workspace = true }
+draftcraft-engine = { workspace = true }
+draftcraft-collab = { workspace = true }
+draftcraft-spell = { workspace = true }
+draftcraft-control-key = { workspace = true }
 # Settings storage shared with the other Craft apps (storytold/craft-libs#22).
 craft-settings = { workspace = true }
 egui = { workspace = true }

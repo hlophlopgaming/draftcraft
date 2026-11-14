@@ -1,8 +1,8 @@
-//! ScriptCraft's MCP server (Model Context Protocol, JSON-RPC 2.0 over stdio), structured after
+//! DraftCraft's MCP server (Model Context Protocol, JSON-RPC 2.0 over stdio), structured after
 //! WordCraft's (MIT OR Apache-2.0; see NOTICE).
 //!
 //! Two backends: [`Headless`] runs an in-process editing session; [`Remote`] talks to a running
-//! ScriptCraft window through its control channel (`scriptcraft --control PORT`), so agents can
+//! DraftCraft window through its control channel (`draftcraft --control PORT`), so agents can
 //! also take screenshots of the real UI.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
@@ -13,7 +13,7 @@ use std::io::{BufRead, BufReader, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
-use scriptcraft_engine::Session;
+use draftcraft_engine::Session;
 use serde_json::{Value, json};
 
 pub use server::Server;
@@ -26,7 +26,7 @@ pub trait Backend {
 }
 
 /// Methods that need the desktop app.
-pub const NEEDS_APP: &str = "needs the desktop app: start `scriptcraft --control 7990` and run `scriptcraft-cli mcp --connect 127.0.0.1:7990`";
+pub const NEEDS_APP: &str = "needs the desktop app: start `draftcraft --control 7990` and run `draftcraft-cli mcp --connect 127.0.0.1:7990`";
 
 /// An in-process session.
 pub struct Headless {
@@ -35,7 +35,7 @@ pub struct Headless {
 
 impl Default for Headless {
     fn default() -> Self {
-        Headless { session: Session::new(scriptcraft_doc::Script::new()) }
+        Headless { session: Session::new(draftcraft_doc::Script::new()) }
     }
 }
 
@@ -57,7 +57,7 @@ impl Backend for Headless {
     }
 }
 
-/// A running ScriptCraft app, reached through its loopback control port.
+/// A running DraftCraft app, reached through its loopback control port.
 pub struct Remote {
     addr: String,
     key: String,
@@ -72,7 +72,7 @@ impl Remote {
         if !sa.ip().is_loopback() {
             return Err("only loopback addresses (127.0.0.1, ::1) are allowed".into());
         }
-        let key = scriptcraft_control_key::find_key(sa.port())?;
+        let key = draftcraft_control_key::find_key(sa.port())?;
         let s = TcpStream::connect_timeout(&sa, Duration::from_millis(800)).map_err(|e| format!("cannot connect to {addr}: {e}"))?;
         s.set_read_timeout(Some(Duration::from_secs(90))).map_err(|e| e.to_string())?;
         let r = s.try_clone().map_err(|e| e.to_string())?;
@@ -97,7 +97,7 @@ impl Backend for Remote {
         }
     }
     fn describe(&self) -> String {
-        format!("connected to the ScriptCraft app at {}", self.addr)
+        format!("connected to the DraftCraft app at {}", self.addr)
     }
 }
 

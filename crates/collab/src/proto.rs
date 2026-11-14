@@ -1,6 +1,6 @@
 //! Wire messages: one JSON object per line.
 
-use scriptcraft_doc::{Pos, Script};
+use draftcraft_doc::{Pos, Script};
 use serde::{Deserialize, Serialize};
 
 use crate::diff::Patch;

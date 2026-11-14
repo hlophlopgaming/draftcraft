@@ -7,24 +7,24 @@ version = "0.5.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 rust-version = "1.95"
-repository = "https://github.com/NoJuanNobody/scriptcraft"
+repository = "https://github.com/hlophlopgaming/draftcraft"
 
 [workspace.dependencies]
 # internal
-scriptcraft-geom = { path = "crates/geom" }
-scriptcraft-doc = { path = "crates/doc" }
-scriptcraft-fonts = { path = "crates/fonts" }
-scriptcraft-fountain = { path = "crates/fountain" }
-scriptcraft-fdx = { path = "crates/fdx" }
-scriptcraft-layout = { path = "crates/layout" }
-scriptcraft-pdf = { path = "crates/pdf" }
-scriptcraft-spell = { path = "crates/spell" }
-scriptcraft-collab = { path = "crates/collab" }
-scriptcraft-import = { path = "crates/import" }
-scriptcraft-engine = { path = "crates/engine" }
-scriptcraft-control-key = { path = "crates/control-key" }
-scriptcraft-mcp = { path = "crates/mcp" }
-scriptcraft-ui-egui = { path = "crates/ui-egui" }
+draftcraft-geom = { path = "crates/geom" }
+draftcraft-doc = { path = "crates/doc" }
+draftcraft-fonts = { path = "crates/fonts" }
+draftcraft-fountain = { path = "crates/fountain" }
+draftcraft-fdx = { path = "crates/fdx" }
+draftcraft-layout = { path = "crates/layout" }
+draftcraft-pdf = { path = "crates/pdf" }
+draftcraft-spell = { path = "crates/spell" }
+draftcraft-collab = { path = "crates/collab" }
+draftcraft-import = { path = "crates/import" }
+draftcraft-engine = { path = "crates/engine" }
+draftcraft-control-key = { path = "crates/control-key" }
+draftcraft-mcp = { path = "crates/mcp" }
+draftcraft-ui-egui = { path = "crates/ui-egui" }
 
 # Shared Craft-suite libraries (storytold/craft-libs), pinned to a reviewed revision.
 # craft-settings: config.toml storage with the suite's folder rules (craft-libs#22).

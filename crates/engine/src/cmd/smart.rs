@@ -1,6 +1,6 @@
 //! SmartType commands.
 
-use scriptcraft_doc::Pos;
+use draftcraft_doc::Pos;
 use serde_json::{Value, json};
 
 use super::{sel_result, set_caret};

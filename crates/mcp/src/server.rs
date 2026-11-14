@@ -18,7 +18,7 @@ const INVALID_PARAMS: i64 = -32602;
 const INTERNAL_ERROR: i64 = -32603;
 const RESOURCE_NOT_FOUND: i64 = -32002;
 
-const INSTRUCTIONS: &str = "ScriptCraft is a screenwriting app (Final Draft-style). Every action is a command: find ids with \
+const INSTRUCTIONS: &str = "DraftCraft is a screenwriting app (Final Draft-style). Every action is a command: find ids with \
 list_commands and run them with execute (or batch). The script is a list of paragraphs, each with an element \
 (sceneHeading, action, character, parenthetical, dialogue, transition, shot, general). Typing works like Final Draft: \
 text.insert types at the caret, text.enter starts the next element (Scene Heading→Action, Character→Dialogue, \
@@ -27,8 +27,8 @@ file.new → text.insert {text:\"INT. DINER - NIGHT\"} → text.enter → text.i
 text.insert {text:\"MARGO\"} → text.enter → text.insert {text:\"Coffee?\"} → inspect_script → execute file.exportPdf \
 {path:\"/tmp/out.pdf\"}. Or write Fountain and call set_fountain.";
 
-pub const SCRIPT_URI: &str = "scriptcraft://script";
-pub const COMMANDS_URI: &str = "scriptcraft://commands";
+pub const SCRIPT_URI: &str = "draftcraft://script";
+pub const COMMANDS_URI: &str = "draftcraft://commands";
 
 /// An MCP server bound to one backend.
 pub struct Server {
@@ -121,7 +121,7 @@ impl Server {
                 Ok(json!({
                     "protocolVersion": version,
                     "capabilities": {"tools": {}, "resources": {}},
-                    "serverInfo": {"name": "scriptcraft", "title": "ScriptCraft", "version": env!("CARGO_PKG_VERSION")},
+                    "serverInfo": {"name": "draftcraft", "title": "DraftCraft", "version": env!("CARGO_PKG_VERSION")},
                     "instructions": format!("{INSTRUCTIONS} Backend: {}.", self.backend.describe()),
                 }))
             }

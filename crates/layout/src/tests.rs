@@ -1,4 +1,4 @@
-use scriptcraft_doc::{Para, Script};
+use draftcraft_doc::{Para, Script};
 
 use super::*;
 
@@ -212,7 +212,7 @@ fn hostile_layouts() {
 #[test]
 fn styled_lines_carry_spans() {
     let mut sc = s(vec![p(Element::Action, "A long action line that certainly wraps onto a second line of text, maybe a third.")]);
-    sc.set_flag(Pos::new(0, 55), Pos::new(0, 70), scriptcraft_doc::Flag::Bold, true);
+    sc.set_flag(Pos::new(0, 55), Pos::new(0, 70), draftcraft_doc::Flag::Bold, true);
     let l = layout(&sc);
     let b = body(&l.pages[0]);
     assert_eq!(b[0].spans.len(), 1);
@@ -313,7 +313,7 @@ fn dual_dialogue_splits_both_columns_at_the_same_row() {
     let mores: Vec<&Line> = p1.lines.iter().filter(|q| q.kind == LineKind::More).collect();
     assert_eq!(mores.len(), 2);
     assert!(mores.iter().all(|m| (m.y - last_y(p1, true) - LINE_H).abs() < 0.01));
-    assert!(p1.lines.iter().all(|q| q.y + LINE_H <= TOP + body_rows(scriptcraft_doc::Paper::Letter) as f32 * LINE_H + 0.01));
+    assert!(p1.lines.iter().all(|q| q.y + LINE_H <= TOP + body_rows(draftcraft_doc::Paper::Letter) as f32 * LINE_H + 0.01));
     // Both cues come back with (CONT'D) on one row, over their own columns.
     let contd: Vec<&Line> = l.pages[1].lines.iter().filter(|q| q.kind == LineKind::Contd).collect();
     assert_eq!(contd.iter().map(|q| q.text.as_str()).collect::<Vec<_>>(), vec!["ANA (CONT'D)", "BEN (CONT'D)"]);
@@ -345,7 +345,7 @@ fn dual_dialogue_taller_than_a_page_is_never_cut() {
         assert_eq!(lines_of(&l, para), dual_wrapped(&sc, para), "para {para}");
     }
     for pg in &l.pages {
-        assert!(pg.lines.iter().all(|q| q.y + LINE_H <= TOP + body_rows(scriptcraft_doc::Paper::Letter) as f32 * LINE_H + 0.01));
+        assert!(pg.lines.iter().all(|q| q.y + LINE_H <= TOP + body_rows(draftcraft_doc::Paper::Letter) as f32 * LINE_H + 0.01));
     }
     // Without (MORE)/(CONT'D) it still splits and keeps every line.
     let mut off = sc.clone();

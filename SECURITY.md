@@ -1,14 +1,14 @@
 # Security policy
 
-ScriptCraft opens files that other people write, listens on local sockets and can be driven by
+DraftCraft opens files that other people write, listens on local sockets and can be driven by
 agents. Security reports are welcome and taken seriously.
 
 ## Reporting a vulnerability
 
 Please **do not open a public issue** for a security problem. Use GitHub's private reporting:
-<https://github.com/NoJuanNobody/scriptcraft/security/advisories/new>
+<https://github.com/hlophlopgaming/draftcraft/security/advisories/new>
 
-If you cannot use GitHub, email <alondono11@gmail.com> with "ScriptCraft security" in the subject.
+If you cannot use GitHub, email <alondono11@gmail.com> with "DraftCraft security" in the subject.
 
 Include what you found, how to reproduce it (a sample file or command is ideal) and the version or
 commit. You will get an acknowledgement within 7 days. This is a single-maintainer project, so fix

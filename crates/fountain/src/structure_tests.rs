@@ -1,5 +1,5 @@
 use super::*;
-use scriptcraft_doc::{CardColor, StructureKind, StructurePoint};
+use draftcraft_doc::{CardColor, StructureKind, StructurePoint};
 
 const SRC: &str = "Title: Test
 
@@ -75,6 +75,6 @@ fn hostile_sections() {
     assert!(s.structure_points().iter().all(|(_, p)| !p.title.is_empty() && !p.title.contains('\u{7}')));
     let many: String = (0..6000).map(|i| format!("# P{i}\n\n")).collect();
     let s = parse(&many);
-    assert_eq!(s.structure_count(), scriptcraft_doc::MAX_STRUCTURE);
+    assert_eq!(s.structure_count(), draftcraft_doc::MAX_STRUCTURE);
     let _ = StructurePoint::new(StructureKind::Act, "", "", None);
 }

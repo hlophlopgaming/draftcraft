@@ -5,7 +5,7 @@
 //! whole drag.
 
 use egui::{Align2, Color32, FontId, Id, Pos2, Rect, RichText, Sense, Stroke, StrokeKind, Ui, Vec2, pos2, vec2};
-use scriptcraft_doc::{Beat, CardColor};
+use draftcraft_doc::{Beat, CardColor};
 use serde_json::json;
 
 use crate::ScriptApp;
@@ -68,7 +68,7 @@ impl Default for BoardState {
 }
 
 pub fn board_id() -> Id {
-    Id::new("scriptcraft-beat-board")
+    Id::new("draftcraft-beat-board")
 }
 
 /// Open the Beat window for a beat (or a new one at `at`).
@@ -191,7 +191,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
         edit(app, None, (b.x, b.y));
     }
     if new_at_center {
-        let c = to_board(app, rect.center() - vec2(scriptcraft_doc::BEAT_W, scriptcraft_doc::BEAT_H) * 0.5 * app.board.zoom);
+        let c = to_board(app, rect.center() - vec2(draftcraft_doc::BEAT_W, draftcraft_doc::BEAT_H) * 0.5 * app.board.zoom);
         edit(app, None, (c.x, c.y));
     }
     let beats: Vec<Beat> = app.session.script.board.beats.clone();
@@ -212,8 +212,8 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
             match d.kind {
                 DragKind::Move => (x, y) = (d.orig.0 + dv.x, d.orig.1 + dv.y),
                 DragKind::Resize => {
-                    w = (d.orig.2 + dv.x).clamp(scriptcraft_doc::BEAT_MIN, scriptcraft_doc::BEAT_MAX);
-                    h = (d.orig.3 + dv.y).clamp(scriptcraft_doc::BEAT_MIN, scriptcraft_doc::BEAT_MAX);
+                    w = (d.orig.2 + dv.x).clamp(draftcraft_doc::BEAT_MIN, draftcraft_doc::BEAT_MAX);
+                    h = (d.orig.3 + dv.y).clamp(draftcraft_doc::BEAT_MIN, draftcraft_doc::BEAT_MAX);
                 }
             }
         }
@@ -293,7 +293,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
     }
 }
 
-fn paint_card(p: &egui::Painter, app: &ScriptApp, b: &Beat, r: Rect, scenes: &[scriptcraft_doc::Scene], selected: bool) {
+fn paint_card(p: &egui::Painter, app: &ScriptApp, b: &Beat, r: Rect, scenes: &[draftcraft_doc::Scene], selected: bool) {
     let t = app.tokens();
     let z = app.board.zoom;
     let shadow = egui::epaint::Shadow { offset: [0, 2], blur: 10, spread: 0, color: Color32::from_black_alpha(if t.dark { 110 } else { 34 }) };
@@ -348,7 +348,7 @@ fn beat_menu(
     app: &mut ScriptApp,
     ui: &mut Ui,
     b: &Beat,
-    scenes: &[scriptcraft_doc::Scene],
+    scenes: &[draftcraft_doc::Scene],
     actions: &mut Vec<(&'static str, serde_json::Value)>,
     open_editor: &mut Option<u32>,
 ) {

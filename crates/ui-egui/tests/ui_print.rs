@@ -1,8 +1,8 @@
 //! Printing to a printer through the window, with a fake print host (nothing is ever printed).
 
-use scriptcraft_engine::Session;
-use scriptcraft_ui_egui::ScriptApp;
-use scriptcraft_ui_egui::printing::FakePrinter;
+use draftcraft_engine::Session;
+use draftcraft_ui_egui::ScriptApp;
+use draftcraft_ui_egui::printing::FakePrinter;
 use serde_json::json;
 
 fn harness(app: ScriptApp) -> egui_kittest::Harness<'static, ScriptApp> {
@@ -102,7 +102,7 @@ fn without_a_print_host() {
     let mut h = harness(app);
     for id in ["print.send", "print.printers"] {
         let e = h.state_mut().execute(id, json!({})).unwrap_err();
-        assert!(e.to_string().contains("needs the ScriptCraft window"), "{id}: {e}");
+        assert!(e.to_string().contains("needs the DraftCraft window"), "{id}: {e}");
     }
     // The Print window still writes a PDF and has no printer choice.
     h.state_mut().execute("ui.print", json!({})).unwrap();

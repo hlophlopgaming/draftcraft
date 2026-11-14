@@ -4,15 +4,15 @@
 //!
 //! Final Draft numbers sets from 1 and writes `RevisionID="0"` on unrevised text; `Color` is the
 //! revised text's colour and `PageColor` the page tint; `Name` is the whole label
-//! (`Blue Rev. (10/12/26)`). ScriptCraft writes set `i` as `ID="i+1"` and keeps its exact name
-//! and date in `ScriptCraftName` / `ScriptCraftDate`; the show-marks option stays
-//! ScriptCraft-only (`ScriptCraftShowMarks`).
+//! (`Blue Rev. (10/12/26)`). DraftCraft writes set `i` as `ID="i+1"` and keeps its exact name
+//! and date in `DraftCraftName` / `DraftCraftDate`; the show-marks option stays
+//! DraftCraft-only (`DraftCraftShowMarks`).
 //!
-//! Older ScriptCraft files (sets from `ID="0"`, the tint in `Color`, `RevisionMode="On…"`,
-//! `ScriptCraftColorPages`) still read.
+//! Older DraftCraft files (sets from `ID="0"`, the tint in `Color`, `RevisionMode="On…"`,
+//! `DraftCraftColorPages`) still read.
 
-use scriptcraft_doc::revision::{RevisionSet, Revisions, parse_color};
-use scriptcraft_doc::{Para, RevMark, Script, Style};
+use draftcraft_doc::revision::{RevisionSet, Revisions, parse_color};
+use draftcraft_doc::{Para, RevMark, Script, Style};
 
 use crate::esc;
 
@@ -51,7 +51,7 @@ pub(crate) fn write(out: &mut String, s: &Script) {
     }
     let yn = |b: bool| if b { "Yes" } else { "No" };
     out.push_str(&format!(
-        "  <Revisions ActiveSet=\"{}\" RevisionMode=\"{}\" ShowAllMarks=\"No\" ShowAllSets=\"No\" ShowPageColor=\"{}\" ScriptCraftShowMarks=\"{}\">\n",
+        "  <Revisions ActiveSet=\"{}\" RevisionMode=\"{}\" ShowAllMarks=\"No\" ShowAllSets=\"No\" ShowPageColor=\"{}\" DraftCraftShowMarks=\"{}\">\n",
         r.active + 1,
         yn(r.tracking),
         yn(r.color_pages),
@@ -60,7 +60,7 @@ pub(crate) fn write(out: &mut String, s: &Script) {
     for (i, st) in r.sets.iter().enumerate() {
         let [cr, cg, cb] = st.color;
         out.push_str(&format!(
-            "    <Revision Color=\"#000000000000\" FullRevision=\"No\" ID=\"{}\" Mark=\"{}\" Name=\"{}\" PageColor=\"#{cr:02X}{cr:02X}{cg:02X}{cg:02X}{cb:02X}{cb:02X}\" Style=\"\" ScriptCraftName=\"{}\" ScriptCraftDate=\"{}\"/>\n",
+            "    <Revision Color=\"#000000000000\" FullRevision=\"No\" ID=\"{}\" Mark=\"{}\" Name=\"{}\" PageColor=\"#{cr:02X}{cr:02X}{cg:02X}{cg:02X}{cb:02X}{cb:02X}\" Style=\"\" DraftCraftName=\"{}\" DraftCraftDate=\"{}\"/>\n",
             i + 1,
             esc(&st.mark),
             esc(&fd_name(st)),
@@ -124,7 +124,7 @@ pub(crate) struct SetIn {
     pub sc_date: Option<String>,
 }
 
-/// `RevisionMode`: Final Draft's `Yes`/`No`, older ScriptCraft files' `On`/`Off…`.
+/// `RevisionMode`: Final Draft's `Yes`/`No`, older DraftCraft files' `On`/`Off…`.
 pub(crate) fn mode(v: &str) -> bool {
     let v = v.trim();
     v.eq_ignore_ascii_case("yes") || v.starts_with("On")
@@ -132,11 +132,11 @@ pub(crate) fn mode(v: &str) -> bool {
 
 impl Read {
     pub fn add(&mut self, a: SetIn) {
-        if self.sets.len() >= scriptcraft_doc::revision::MAX_SETS {
+        if self.sets.len() >= draftcraft_doc::revision::MAX_SETS {
             return;
         }
         let id = a.id.and_then(|v| v.trim().parse::<u32>().ok()).unwrap_or(self.sets.len() as u32 + 1);
-        // The page tint: Final Draft's `PageColor`, or `Color` in older ScriptCraft files.
+        // The page tint: Final Draft's `PageColor`, or `Color` in older DraftCraft files.
         let tint = a.page_color.or(a.color).and_then(|c| parse_color(&c)).unwrap_or([0xff, 0xff, 0xff]);
         let (name, date) = match a.sc_name {
             Some(n) => (n, a.sc_date.unwrap_or_default()),
@@ -154,7 +154,7 @@ impl Read {
     }
 
     /// Final Draft's `RevisionID="0"` is unrevised text, unless the file has a set 0 (older
-    /// ScriptCraft files numbered sets from 0).
+    /// DraftCraft files numbered sets from 0).
     pub fn zero_is_unrevised(&self) -> bool {
         self.seen && !self.sets.iter().any(|(id, _)| *id == 0)
     }
@@ -217,8 +217,8 @@ pub(crate) fn push_run(revs: &mut Vec<RevMark>, start: usize, end: usize, id: Op
 
 #[cfg(test)]
 mod tests {
-    use scriptcraft_doc::revision::add_mark;
-    use scriptcraft_doc::{Element, Flag, Para, Pos, Script};
+    use draftcraft_doc::revision::add_mark;
+    use draftcraft_doc::{Element, Flag, Para, Pos, Script};
 
     #[test]
     fn revisions_round_trip() {
@@ -254,6 +254,6 @@ mod tests {
         assert_eq!(r.active, 1);
         assert!(!r.tracking);
         assert_eq!(r.sets[1].mark, "+");
-        assert_eq!(s.paras[0].revs, vec![scriptcraft_doc::RevMark { start: 4, end: 7, level: 1 }]);
+        assert_eq!(s.paras[0].revs, vec![draftcraft_doc::RevMark { start: 4, end: 7, level: 1 }]);
     }
 }

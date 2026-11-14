@@ -1,10 +1,10 @@
 # Control protocol
 
 The desktop app can be driven over a loopback JSON-lines socket — the same transport the MCP bridge
-(`scriptcraft-cli mcp --connect`) uses.
+(`draftcraft-cli mcp --connect`) uses.
 
 ```sh
-scriptcraft --control 7990            # or SCRIPTCRAFT_CONTROL_PORT=7990
+draftcraft --control 7990            # or DRAFTCRAFT_CONTROL_PORT=7990
 ```
 
 ## Keys
@@ -15,12 +15,12 @@ including on SIGTERM, SIGINT or SIGHUP (unsaved changes are kept as a recovery c
 Clients read the first line; a file whose process is no longer running is reported as stale.
 Every request must carry the key as `key`; requests with a missing or wrong key are refused.
 
-`<data>` is ScriptCraft's data folder (Craft-suite folder rules, see README › Settings and data):
-the platform data folder by default (macOS `~/Library/Application Support/scriptcraft`, Linux
-`~/.local/share/scriptcraft`, Windows `%LOCALAPPDATA%\scriptcraft`), or `<config>/data` when
-`--config-dir` or `SCRIPTCRAFT_CONFIG_DIR` redirects the app. Run the MCP bridge with the same
-`SCRIPTCRAFT_CONFIG_DIR` (or pass `SCRIPTCRAFT_CONTROL_KEY`) so it finds the key. With
-`SCRIPTCRAFT_CONFIG_DIR` set but empty (isolated) no key file is written. The server binds 127.0.0.1 only.
+`<data>` is DraftCraft's data folder (Craft-suite folder rules, see README › Settings and data):
+the platform data folder by default (macOS `~/Library/Application Support/draftcraft`, Linux
+`~/.local/share/draftcraft`, Windows `%LOCALAPPDATA%\draftcraft`), or `<config>/data` when
+`--config-dir` or `DRAFTCRAFT_CONFIG_DIR` redirects the app. Run the MCP bridge with the same
+`DRAFTCRAFT_CONFIG_DIR` (or pass `DRAFTCRAFT_CONTROL_KEY`) so it finds the key. With
+`DRAFTCRAFT_CONFIG_DIR` set but empty (isolated) no key file is written. The server binds 127.0.0.1 only.
 
 ## Requests
 
@@ -45,6 +45,6 @@ One JSON object per line; one reply per line, `{"id", "ok": true, "result"}` or 
 
 ## Headless screenshots
 
-`cargo run -p scriptcraft-ui-egui --example ui_shot -- script.jsonl` renders the window offscreen
+`cargo run -p draftcraft-ui-egui --example ui_shot -- script.jsonl` renders the window offscreen
 (wgpu) and accepts the same methods, plus `{"shot": "/abs/out.png"}` and `{"steps": n}`. The
 README images are made this way.

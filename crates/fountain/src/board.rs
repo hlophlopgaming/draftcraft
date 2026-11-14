@@ -1,19 +1,19 @@
 //! The beat board, bookmarks and beat links in Fountain.
 //!
-//! Fountain has no form for these, so ScriptCraft keeps them in one boneyard block at the end of
+//! Fountain has no form for these, so DraftCraft keeps them in one boneyard block at the end of
 //! the file, which other Fountain apps ignore:
 //!
 //! ```text
-//! /* ScriptCraft board: {"beats": [...], "anchors": [{"para": 12, "text": "INT. PIER", "bookmark": "Fog"}]} */
+//! /* DraftCraft board: {"beats": [...], "anchors": [{"para": 12, "text": "INT. PIER", "bookmark": "Fog"}]} */
 //! ```
 //!
 //! Anchors find their paragraph again by its text (nearest to the paragraph number written), so
 //! they survive the file being edited elsewhere as long as that paragraph's text does.
 
-use scriptcraft_doc::{Beat, Script};
+use draftcraft_doc::{Beat, Script};
 use serde::{Deserialize, Serialize};
 
-const MARK: &str = "/* ScriptCraft board:";
+const MARK: &str = "/* DraftCraft board:";
 /// How much of a paragraph's text an anchor keeps to find it again.
 const ANCHOR_CHARS: usize = 80;
 
@@ -39,7 +39,7 @@ fn key_text(t: &str) -> String {
     t.trim().chars().take(ANCHOR_CHARS).collect::<String>().to_uppercase()
 }
 
-/// Remove ScriptCraft's board block from the source (the last one counts).
+/// Remove DraftCraft's board block from the source (the last one counts).
 pub(crate) fn extract(src: &str) -> (String, Option<Meta>) {
     let Some(a) = src.rfind(MARK) else { return (src.to_string(), None) };
     let after = src.get(a + MARK.len()..).unwrap_or("");
@@ -53,10 +53,10 @@ pub(crate) fn extract(src: &str) -> (String, Option<Meta>) {
 
 /// Put the board and anchors back on a parsed script (before it is normalized).
 pub(crate) fn apply(meta: Meta, s: &mut Script) {
-    s.board.beats = meta.beats.into_iter().take(scriptcraft_doc::MAX_BEATS).collect();
+    s.board.beats = meta.beats.into_iter().take(draftcraft_doc::MAX_BEATS).collect();
     s.board.normalize();
     let keys: Vec<String> = s.paras.iter().map(|p| key_text(&p.text)).collect();
-    for a in meta.anchors.into_iter().take(scriptcraft_doc::MAX_PARAS) {
+    for a in meta.anchors.into_iter().take(draftcraft_doc::MAX_PARAS) {
         let want = key_text(&a.text);
         let Some(i) = keys.iter().enumerate().filter(|(_, k)| **k == want).map(|(i, _)| i).min_by_key(|i| i.abs_diff(a.para)) else {
             continue;
@@ -65,7 +65,7 @@ pub(crate) fn apply(meta: Meta, s: &mut Script) {
             if p.bookmark.is_none() {
                 p.bookmark = a.bookmark;
             }
-            p.beats.extend(a.beats.into_iter().take(scriptcraft_doc::MAX_BEATS));
+            p.beats.extend(a.beats.into_iter().take(draftcraft_doc::MAX_BEATS));
         }
     }
     let _ = s.normalize();

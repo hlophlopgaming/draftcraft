@@ -1,7 +1,7 @@
 //! Production dialogs: Page Setup (paper, headers and footers) and Print, plus printing itself.
 
 use egui::{RichText, vec2};
-use scriptcraft_engine::CmdError;
+use draftcraft_engine::CmdError;
 use serde_json::{Value, json};
 
 use crate::ScriptApp;
@@ -163,7 +163,7 @@ pub fn toggle_print(app: &mut ScriptApp) {
 pub fn print_now(app: &mut ScriptApp, p: &Value) -> Result<Value, CmdError> {
     let r = app.session.run("print.render", p)?;
     let name = r["name"].as_str().unwrap_or("Untitled.pdf").to_string();
-    let bytes = scriptcraft_engine::b64::decode(r["data"].as_str().unwrap_or("")).map_err(CmdError::Failed)?;
+    let bytes = draftcraft_engine::b64::decode(r["data"].as_str().unwrap_or("")).map_err(CmdError::Failed)?;
     let pages = r["pages"].clone();
     if let Some(h) = &app.host {
         h.save(&name, bytes);
@@ -182,7 +182,7 @@ pub fn print_now(app: &mut ScriptApp, p: &Value) -> Result<Value, CmdError> {
     #[cfg(not(target_arch = "wasm32"))]
     {
         let lang = app.prefs.appearance.language;
-        let dir = std::env::temp_dir().join("scriptcraft-print");
+        let dir = std::env::temp_dir().join("draftcraft-print");
         std::fs::create_dir_all(&dir)
             .map_err(|e| CmdError::Failed(lang.format("could not prepare the print file: {e}", &[("e", (e).to_string())])))?;
         let path = dir.join(format!("{}-{}", std::process::id(), name.replace(['/', '\\'], "-")));
@@ -322,13 +322,13 @@ fn page_setup(app: &mut ScriptApp, ctx: &egui::Context) {
         .show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.label(lang.text("Paper"));
-                for p in scriptcraft_doc::Paper::ALL {
+                for p in draftcraft_doc::Paper::ALL {
                     if ui.selectable_label(pg.paper == p, p.name()).clicked() && pg.paper != p {
                         changes.push(json!({"paper": p.id()}));
                     }
                 }
                 ui.label(
-                    RichText::new(lang.format("{lines} lines per page", &[("lines", (scriptcraft_layout::body_rows(pg.paper)).to_string())]))
+                    RichText::new(lang.format("{lines} lines per page", &[("lines", (draftcraft_layout::body_rows(pg.paper)).to_string())]))
                         .size(11.5)
                         .weak(),
                 );

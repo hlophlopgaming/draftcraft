@@ -2,7 +2,7 @@
 
 use std::hash::{DefaultHasher, Hash, Hasher};
 
-use scriptcraft_doc::{BeatBoard, MAX_PARAS, Para, Script, Settings, StructurePoint, TitlePage};
+use draftcraft_doc::{BeatBoard, MAX_PARAS, Para, Script, Settings, StructurePoint, TitlePage};
 use serde::{Deserialize, Serialize};
 
 /// Above this many cells a diff replaces the whole changed middle instead of running LCS.

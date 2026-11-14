@@ -12,7 +12,7 @@ fn run(s: &mut Session, id: &str, v: Value) -> Value {
 }
 
 fn session(fountain: &str) -> Session {
-    Session::new(scriptcraft_fountain::parse(fountain))
+    Session::new(draftcraft_fountain::parse(fountain))
 }
 
 const SCRIPT: &str = "INT. GARAGE - NIGHT\n\nAda wipes down a red motorbike. A wrench hangs from her belt.\n\nADA\nStart it.\n\nEXT. ROAD - DAWN\n\nThe red motorbike roars past a police car.\n\nBEN\nWas that her?\n";
@@ -69,7 +69,7 @@ fn notes_through_commands() {
 fn alternates_only_the_active_line_prints() {
     let mut s = session(SCRIPT);
     run(&mut s, "caret.set", json!({"para": 3, "off": 0}));
-    assert_eq!(s.element(), scriptcraft_doc::Element::Dialogue);
+    assert_eq!(s.element(), draftcraft_doc::Element::Dialogue);
     run(&mut s, "alt.add", json!({"text": "Kick it over."}));
     let r = run(&mut s, "alt.add", json!({"text": "Fire it up.", "use": true}));
     assert_eq!(r["active"], "Fire it up.");
@@ -88,7 +88,7 @@ fn alternates_only_the_active_line_prints() {
     assert!(!pdf.is_empty());
     // Every version is kept in FDX and comes back.
     let xml = run(&mut s, "document.fdx", json!({}))["xml"].as_str().unwrap_or("").to_string();
-    let back = scriptcraft_fdx::parse(&xml).unwrap_or_default();
+    let back = draftcraft_fdx::parse(&xml).unwrap_or_default();
     assert_eq!(back.paras[3].text, "Start it.");
     assert_eq!(back.paras[3].alternates.len(), 2);
     let all = run(&mut s, "alt.list", json!({"all": true}));

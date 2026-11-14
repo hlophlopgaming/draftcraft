@@ -9,7 +9,7 @@
 //!
 //! Locking a layout again keeps its A/B labels as the new locked pages.
 
-use scriptcraft_doc::{Script, expand_page_label, next_label};
+use draftcraft_doc::{Script, expand_page_label, next_label};
 
 /// What an omitted scene's heading prints.
 pub const OMITTED: &str = "OMITTED";

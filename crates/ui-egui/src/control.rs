@@ -170,7 +170,7 @@ pub fn encode_shot(img: &egui::ColorImage, path: Option<&str>) -> Value {
 }
 
 fn base64(data: &[u8]) -> String {
-    scriptcraft_engine::b64::encode(data)
+    draftcraft_engine::b64::encode(data)
 }
 
 #[cfg(test)]

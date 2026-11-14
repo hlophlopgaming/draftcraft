@@ -1,7 +1,7 @@
 //! Three-way merge of scripts, and carrying positions through a change. See
 //! `docs/collaboration.md`.
 
-use scriptcraft_doc::{Beat, BeatBoard, Element, Para, Pos, Script, Style};
+use draftcraft_doc::{Beat, BeatBoard, Element, Para, Pos, Script, Style};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use serde_json::Value;

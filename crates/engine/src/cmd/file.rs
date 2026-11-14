@@ -33,7 +33,7 @@ pub fn specs() -> Vec<CommandSpec> {
 }
 
 fn new(s: &mut Session, _: &Value) -> CmdResult {
-    s.replace_script(scriptcraft_doc::Script::new());
+    s.replace_script(draftcraft_doc::Script::new());
     s.path = None;
     Ok(json!({}))
 }
@@ -58,7 +58,7 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
 }
 
 /// Take an imported script: not tied to its file (it can't be saved back), so it starts unsaved.
-fn imported(s: &mut Session, script: scriptcraft_doc::Script, format: Format, name: &str, notes: Vec<String>) -> Value {
+fn imported(s: &mut Session, script: draftcraft_doc::Script, format: Format, name: &str, notes: Vec<String>) -> Value {
     s.replace_script(script);
     s.path = None;
     s.dirty = true;

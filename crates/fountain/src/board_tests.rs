@@ -1,5 +1,5 @@
 use super::*;
-use scriptcraft_doc::{CardColor, Element, Para, Script};
+use draftcraft_doc::{CardColor, Element, Para, Script};
 
 fn boarded() -> Script {
     let mut s = Script::from_paras(vec![
@@ -24,7 +24,7 @@ fn boarded() -> Script {
 fn board_and_bookmarks_round_trip_in_a_boneyard_block() {
     let s = boarded();
     let text = write(&s);
-    assert_eq!(text.matches("/* ScriptCraft board:").count(), 1, "{text}");
+    assert_eq!(text.matches("/* DraftCraft board:").count(), 1, "{text}");
     assert!(text.trim_end().ends_with("*/"), "{text}");
     let back = parse(&text);
     assert_eq!(back.paras.len(), s.paras.len(), "{text}");
@@ -33,7 +33,7 @@ fn board_and_bookmarks_round_trip_in_a_boneyard_block() {
         assert_eq!((&a.text, &a.bookmark, &a.beats), (&b.text, &b.bookmark, &b.beats));
     }
     // A script without a board or bookmarks writes no block.
-    assert!(!write(&Script::from_paras(vec![Para::new(Element::Action, "x")]).unwrap_or_default()).contains("ScriptCraft board"));
+    assert!(!write(&Script::from_paras(vec![Para::new(Element::Action, "x")]).unwrap_or_default()).contains("DraftCraft board"));
 }
 
 #[test]
@@ -45,7 +45,7 @@ fn anchors_find_their_paragraph_after_outside_edits() {
     assert_eq!(back.bookmark_para("Fog"), Some(7));
     assert_eq!(back.beat_scene(1), Some(1));
     // Garbage in the block is ignored; the script still reads.
-    let bad = "INT. A - DAY\n\n/* ScriptCraft board: {\"beats\": [ {\"id\": \"x\"} ], */\n\nAction.\n";
+    let bad = "INT. A - DAY\n\n/* DraftCraft board: {\"beats\": [ {\"id\": \"x\"} ], */\n\nAction.\n";
     let back = parse(bad);
     assert!(back.board.is_empty());
     assert!(back.paras.iter().any(|p| p.text == "Action."));

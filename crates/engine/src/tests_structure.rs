@@ -111,8 +111,8 @@ fn structure_survives_fdx_and_fountain_through_the_session() {
     s.run("structure.add", &json!({"title": "Two", "before": 2, "color": "pink"})).unwrap();
     let want = titles(&mut s);
     for fmt in ["fdx", "fountain"] {
-        let text = if fmt == "fdx" { scriptcraft_fdx::write(&s.script) } else { scriptcraft_fountain::write(&s.script) };
-        let script = if fmt == "fdx" { scriptcraft_fdx::parse(&text).unwrap() } else { scriptcraft_fountain::parse(&text) };
+        let text = if fmt == "fdx" { draftcraft_fdx::write(&s.script) } else { draftcraft_fountain::write(&s.script) };
+        let script = if fmt == "fdx" { draftcraft_fdx::parse(&text).unwrap() } else { draftcraft_fountain::parse(&text) };
         let mut back = Session::new(script);
         assert_eq!(titles(&mut back), want, "{fmt}");
         assert_eq!(back.script.structure_point(1).and_then(|p| p.color).map(|c| c.id()), Some("pink"), "{fmt}");

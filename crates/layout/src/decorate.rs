@@ -1,14 +1,14 @@
 //! Page decorations added after pagination: headers and footers (with their fields filled in).
 
-use scriptcraft_doc::page_setup::{Fields, HeaderFooter, expand};
-use scriptcraft_doc::{Paper, Script};
-use scriptcraft_geom::{CHAR_W, LINE_H, inch};
+use draftcraft_doc::page_setup::{Fields, HeaderFooter, expand};
+use draftcraft_doc::{Paper, Script};
+use draftcraft_geom::{CHAR_W, LINE_H, inch};
 
 use crate::{LineKind, Page, deco};
 
 /// Rows of body text on a page of `paper` (54 on Letter, 58 on A4).
 pub fn body_rows(paper: Paper) -> usize {
-    let r = (paper.height_pt() - scriptcraft_geom::TOP - scriptcraft_geom::BOTTOM) / LINE_H;
+    let r = (paper.height_pt() - draftcraft_geom::TOP - draftcraft_geom::BOTTOM) / LINE_H;
     if r.is_finite() && r >= 1.0 { r as usize } else { 1 }
 }
 

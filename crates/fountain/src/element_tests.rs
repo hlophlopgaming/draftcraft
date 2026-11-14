@@ -1,6 +1,6 @@
 //! Shot and General survive Fountain (element notes at the end of the line).
 use super::*;
-use scriptcraft_doc::{Element, Note, Para, Script, StructureKind, StructurePoint};
+use draftcraft_doc::{Element, Note, Para, Script, StructureKind, StructurePoint};
 
 fn all_eight() -> Script {
     let mut dual = Para::new(Element::Character, "BEN");
@@ -79,10 +79,10 @@ fn coexists_with_sections_synopses_notes_emphasis_and_the_board() {
     s.set_bookmark(2, Some("Keys")).ok();
     let id = s.board.add("Keys", "The keys matter.", None, 0.0, 0.0).unwrap_or(0);
     s.link_beat(id, Some(0)).ok();
-    let it = scriptcraft_doc::Style { italic: true, ..scriptcraft_doc::Style::PLAIN };
+    let it = draftcraft_doc::Style { italic: true, ..draftcraft_doc::Style::PLAIN };
     s.paras.push(Para::styled(
         Element::Shot,
-        &[("WIDE - ".into(), scriptcraft_doc::Style::PLAIN), ("the".into(), it), (" road".into(), scriptcraft_doc::Style::PLAIN)],
+        &[("WIDE - ".into(), draftcraft_doc::Style::PLAIN), ("the".into(), it), (" road".into(), draftcraft_doc::Style::PLAIN)],
     ));
     let s = Script::from_paras(s.paras.clone())
         .map(|mut x| {

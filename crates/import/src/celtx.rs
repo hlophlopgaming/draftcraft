@@ -10,7 +10,7 @@
 //! `<u>` and `font-weight` / `font-style` / `text-decoration` styles) and the title, taken from
 //! the first `<dc:title>` in `project.rdf`.
 
-use scriptcraft_doc::{Element, Script, Style};
+use draftcraft_doc::{Element, Script, Style};
 
 use crate::html::{Tok, tokens};
 use crate::shape::{Builder, Styled};

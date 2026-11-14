@@ -21,7 +21,7 @@ env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: "1"
   # Set but empty: isolated, so no test or tool ever writes a real settings profile on a runner.
-  SCRIPTCRAFT_CONFIG_DIR: ""
+  DRAFTCRAFT_CONFIG_DIR: ""
 
 jobs:
   checks:

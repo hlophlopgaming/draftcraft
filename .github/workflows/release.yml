@@ -23,20 +23,20 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Build release binaries
-        run: cargo build --release -p scriptcraft -p scriptcraft-cli
+        run: cargo build --release -p draftcraft -p draftcraft-cli
       - name: Package Windows archive
         shell: bash
         run: |
-          mkdir -p scriptcraft-windows-x64
-          cp target/release/scriptcraft.exe scriptcraft-windows-x64/
-          cp target/release/scriptcraft-cli.exe scriptcraft-windows-x64/
-          cp README.md LICENSE-MIT LICENSE-APACHE NOTICE ATTRIBUTION.md scriptcraft-windows-x64/
-          cd scriptcraft-windows-x64
-          7z a ../scriptcraft-windows-x64.zip * -r
+          mkdir -p draftcraft-windows-x64
+          cp target/release/draftcraft.exe draftcraft-windows-x64/
+          cp target/release/draftcraft-cli.exe draftcraft-windows-x64/
+          cp README.md LICENSE-MIT LICENSE-APACHE NOTICE ATTRIBUTION.md draftcraft-windows-x64/
+          cd draftcraft-windows-x64
+          7z a ../draftcraft-windows-x64.zip * -r
       - uses: actions/upload-artifact@v4
         with:
           name: windows-x64
-          path: scriptcraft-windows-x64.zip
+          path: draftcraft-windows-x64.zip
 
   build-macos:
     name: Build macOS (Universal)
@@ -48,27 +48,27 @@ jobs:
           targets: aarch64-apple-darwin,x86_64-apple-darwin
       - uses: Swatinem/rust-cache@v2
       - name: Build arm64 binaries
-        run: cargo build --release --target aarch64-apple-darwin -p scriptcraft -p scriptcraft-cli
+        run: cargo build --release --target aarch64-apple-darwin -p draftcraft -p draftcraft-cli
       - name: Build x86_64 binaries
-        run: cargo build --release --target x86_64-apple-darwin -p scriptcraft -p scriptcraft-cli
+        run: cargo build --release --target x86_64-apple-darwin -p draftcraft -p draftcraft-cli
       - name: Create Universal .app bundle and archive
         run: |
           VERSION=$(awk -F'"' '/^version = /{print $2; exit}' Cargo.toml)
-          STAGE="scriptcraft-macos-universal"
-          APP="${STAGE}/ScriptCraft.app"
+          STAGE="draftcraft-macos-universal"
+          APP="${STAGE}/DraftCraft.app"
           mkdir -p "${APP}/Contents/MacOS" "${APP}/Contents/Resources"
 
           lipo -create \
-            target/aarch64-apple-darwin/release/scriptcraft \
-            target/x86_64-apple-darwin/release/scriptcraft \
-            -output "${APP}/Contents/MacOS/scriptcraft"
-          chmod +x "${APP}/Contents/MacOS/scriptcraft"
+            target/aarch64-apple-darwin/release/draftcraft \
+            target/x86_64-apple-darwin/release/draftcraft \
+            -output "${APP}/Contents/MacOS/draftcraft"
+          chmod +x "${APP}/Contents/MacOS/draftcraft"
 
           lipo -create \
-            target/aarch64-apple-darwin/release/scriptcraft-cli \
-            target/x86_64-apple-darwin/release/scriptcraft-cli \
-            -output "${STAGE}/scriptcraft-cli"
-          chmod +x "${STAGE}/scriptcraft-cli"
+            target/aarch64-apple-darwin/release/draftcraft-cli \
+            target/x86_64-apple-darwin/release/draftcraft-cli \
+            -output "${STAGE}/draftcraft-cli"
+          chmod +x "${STAGE}/draftcraft-cli"
 
           cat > "${APP}/Contents/Info.plist" <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
@@ -76,11 +76,11 @@ jobs:
           <plist version="1.0">
           <dict>
             <key>CFBundleName</key>
-            <string>ScriptCraft</string>
+            <string>DraftCraft</string>
             <key>CFBundleDisplayName</key>
-            <string>ScriptCraft</string>
+            <string>DraftCraft</string>
             <key>CFBundleIdentifier</key>
-            <string>com.scriptcraft.app</string>
+            <string>com.draftcraft.app</string>
             <key>CFBundleVersion</key>
             <string>${VERSION}</string>
             <key>CFBundleShortVersionString</key>
@@ -88,7 +88,7 @@ jobs:
             <key>CFBundlePackageType</key>
             <string>APPL</string>
             <key>CFBundleExecutable</key>
-            <string>scriptcraft</string>
+            <string>draftcraft</string>
             <key>LSMinimumSystemVersion</key>
             <string>11.0</string>
             <key>NSHighResolutionCapable</key>
@@ -98,14 +98,14 @@ jobs:
           EOF
 
           codesign --force --deep --sign - "${APP}"
-          codesign --force --sign - "${STAGE}/scriptcraft-cli"
+          codesign --force --sign - "${STAGE}/draftcraft-cli"
 
           cp README.md LICENSE-MIT LICENSE-APACHE NOTICE ATTRIBUTION.md "${STAGE}/"
-          ditto -c -k --keepParent "${STAGE}" scriptcraft-macos-universal.zip
+          ditto -c -k --keepParent "${STAGE}" draftcraft-macos-universal.zip
       - uses: actions/upload-artifact@v4
         with:
           name: macos-universal
-          path: scriptcraft-macos-universal.zip
+          path: draftcraft-macos-universal.zip
 
   build-linux:
     name: Build Linux (x86_64)
@@ -121,29 +121,29 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Build release binaries
-        run: cargo build --release -p scriptcraft -p scriptcraft-cli
+        run: cargo build --release -p draftcraft -p draftcraft-cli
       - name: Package tarball and .deb
         run: |
           VERSION=$(awk -F'"' '/^version = /{print $2; exit}' Cargo.toml)
-          strip target/release/scriptcraft target/release/scriptcraft-cli
+          strip target/release/draftcraft target/release/draftcraft-cli
 
-          STAGE="scriptcraft-linux-x86_64"
+          STAGE="draftcraft-linux-x86_64"
           mkdir -p "${STAGE}"
-          cp target/release/scriptcraft target/release/scriptcraft-cli "${STAGE}/"
+          cp target/release/draftcraft target/release/draftcraft-cli "${STAGE}/"
           cp README.md LICENSE-MIT LICENSE-APACHE NOTICE ATTRIBUTION.md "${STAGE}/"
-          tar -czf scriptcraft-linux-x86_64.tar.gz "${STAGE}"
+          tar -czf draftcraft-linux-x86_64.tar.gz "${STAGE}"
 
           DEB="deb-pkg"
-          mkdir -p "${DEB}/DEBIAN" "${DEB}/usr/bin" "${DEB}/usr/share/applications" "${DEB}/usr/share/doc/scriptcraft"
-          cp target/release/scriptcraft "${DEB}/usr/bin/scriptcraft"
-          cp target/release/scriptcraft-cli "${DEB}/usr/bin/scriptcraft-cli"
-          cp README.md LICENSE-MIT LICENSE-APACHE NOTICE ATTRIBUTION.md "${DEB}/usr/share/doc/scriptcraft/"
+          mkdir -p "${DEB}/DEBIAN" "${DEB}/usr/bin" "${DEB}/usr/share/applications" "${DEB}/usr/share/doc/draftcraft"
+          cp target/release/draftcraft "${DEB}/usr/bin/draftcraft"
+          cp target/release/draftcraft-cli "${DEB}/usr/bin/draftcraft-cli"
+          cp README.md LICENSE-MIT LICENSE-APACHE NOTICE ATTRIBUTION.md "${DEB}/usr/share/doc/draftcraft/"
 
-          cat > "${DEB}/usr/share/applications/scriptcraft.desktop" <<EOF
+          cat > "${DEB}/usr/share/applications/draftcraft.desktop" <<EOF
           [Desktop Entry]
-          Name=ScriptCraft
+          Name=DraftCraft
           Comment=Screenwriting application for .fdx and .fountain scripts
-          Exec=scriptcraft %F
+          Exec=draftcraft %F
           Terminal=false
           Type=Application
           Categories=Office;WordProcessor;TextEditor;
@@ -151,25 +151,25 @@ jobs:
           EOF
 
           cat > "${DEB}/DEBIAN/control" <<EOF
-          Package: scriptcraft
+          Package: draftcraft
           Version: ${VERSION}
           Section: editors
           Priority: optional
           Architecture: amd64
           Depends: libc6, libgcc-s1, libgtk-3-0, libxkbcommon0
-          Maintainer: ScriptCraft Contributors <https://github.com/NoJuanNobody/scriptcraft>
+          Maintainer: DraftCraft Contributors <https://github.com/hlophlopgaming/draftcraft>
           Description: Fast, local-first screenwriting application
-           ScriptCraft is a screenwriting editor, CLI, and MCP server written in Rust
+           DraftCraft is a screenwriting editor, CLI, and MCP server written in Rust
            with native Final Draft (.fdx) and Fountain (.fountain) support.
           EOF
 
-          dpkg-deb --build --root-owner-group "${DEB}" scriptcraft-linux-x86_64.deb
+          dpkg-deb --build --root-owner-group "${DEB}" draftcraft-linux-x86_64.deb
       - uses: actions/upload-artifact@v4
         with:
           name: linux-x86_64
           path: |
-            scriptcraft-linux-x86_64.tar.gz
-            scriptcraft-linux-x86_64.deb
+            draftcraft-linux-x86_64.tar.gz
+            draftcraft-linux-x86_64.deb
 
   build-web:
     name: Build Web (WASM)
@@ -188,13 +188,13 @@ jobs:
       - name: Build web bundle
         run: |
           cargo xtask web
-          cp README.md LICENSE-MIT LICENSE-APACHE NOTICE ATTRIBUTION.md apps/scriptcraft-web/dist/
-          cd apps/scriptcraft-web/dist
-          zip -r ../../../scriptcraft-web.zip .
+          cp README.md LICENSE-MIT LICENSE-APACHE NOTICE ATTRIBUTION.md apps/draftcraft-web/dist/
+          cd apps/draftcraft-web/dist
+          zip -r ../../../draftcraft-web.zip .
       - uses: actions/upload-artifact@v4
         with:
           name: web-wasm
-          path: scriptcraft-web.zip
+          path: draftcraft-web.zip
 
   publish:
     name: Publish Release

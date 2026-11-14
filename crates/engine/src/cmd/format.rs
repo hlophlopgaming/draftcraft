@@ -1,6 +1,6 @@
 //! Character formatting: bold, italic, underline.
 
-use scriptcraft_doc::{Flag, Style};
+use draftcraft_doc::{Flag, Style};
 use serde_json::{Value, json};
 
 use crate::{CmdResult, CommandSpec, Session};

@@ -8,7 +8,7 @@ Settings** (`settings.element`). Change behaviour, this doc and the tests togeth
 
 Final Draft's behaviour was not observed directly for this release (it is not installed on the dev
 machine). The flow below follows its widely documented conventions; rows marked *ours* are
-ScriptCraft's own choice where the convention is unclear.
+DraftCraft's own choice where the convention is unclear.
 
 ## Enter
 

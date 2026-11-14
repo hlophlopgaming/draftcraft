@@ -2,14 +2,14 @@
 //! drafts.
 
 use egui::Ui;
-use scriptcraft_doc::Template;
+use draftcraft_doc::Template;
 use serde_json::json;
 
 use crate::ScriptApp;
 use egui::text::LayoutJob;
 use egui::{Color32, FontId, Painter, Rect, RichText, Stroke, TextFormat, pos2, vec2};
-use scriptcraft_doc::track::{self, ChangeKind};
-use scriptcraft_layout::{Line, LineKind};
+use draftcraft_doc::track::{self, ChangeKind};
+use draftcraft_layout::{Line, LineKind};
 use serde_json::Value;
 
 /// File › New from Template.
@@ -79,8 +79,8 @@ pub fn paint_changes(app: &ScriptApp, p: &Painter, line: &Line, pr: Rect, z: f32
     if para.changes.is_empty() {
         return;
     }
-    let cw = scriptcraft_geom::CHAR_W;
-    let lh = scriptcraft_geom::LINE_H;
+    let cw = draftcraft_geom::CHAR_W;
+    let lh = draftcraft_geom::LINE_H;
     let top = pr.top() + line.y * z;
     let x_of = |off: usize| pr.left() + (line.x + col(line, off) as f32 * cw) * z;
     let last_line = line.end >= para.text.len();
@@ -129,7 +129,7 @@ pub fn paint_changes(app: &ScriptApp, p: &Painter, line: &Line, pr: Rect, z: f32
 }
 
 /// UI commands of this module.
-pub(crate) fn command(app: &mut ScriptApp, id: &str, p: &Value) -> Result<Value, scriptcraft_engine::CmdError> {
+pub(crate) fn command(app: &mut ScriptApp, id: &str, p: &Value) -> Result<Value, draftcraft_engine::CmdError> {
     match id {
         "ui.trackChanges" => app.drafts.changes = p.get("open").and_then(Value::as_bool).unwrap_or(!app.drafts.changes),
         "ui.compareWindow" => app.drafts.compare_open = p.get("open").and_then(Value::as_bool).unwrap_or(!app.drafts.compare_open),
@@ -142,7 +142,7 @@ pub(crate) fn command(app: &mut ScriptApp, id: &str, p: &Value) -> Result<Value,
                 h.open(app.inbox.clone());
                 return Ok(json!({"pending": "choose a draft"}));
             }
-            let Some(path) = app.pick(false, "Compare with Draft", &scriptcraft_engine::io::OPEN_EXTENSIONS, "") else { return Ok(json!({})) };
+            let Some(path) = app.pick(false, "Compare with Draft", &draftcraft_engine::io::OPEN_EXTENSIONS, "") else { return Ok(json!({})) };
             return run_compare(app, json!({"path": path}));
         }
         _ => {}
@@ -151,7 +151,7 @@ pub(crate) fn command(app: &mut ScriptApp, id: &str, p: &Value) -> Result<Value,
 }
 
 /// Compare and open the window with the result.
-pub(crate) fn run_compare(app: &mut ScriptApp, params: Value) -> Result<Value, scriptcraft_engine::CmdError> {
+pub(crate) fn run_compare(app: &mut ScriptApp, params: Value) -> Result<Value, draftcraft_engine::CmdError> {
     let r = app.execute("compare.with", params)?;
     app.drafts.compare = Some(r.clone());
     app.drafts.compare_open = true;

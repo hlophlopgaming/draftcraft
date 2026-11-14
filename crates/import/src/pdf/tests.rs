@@ -1,4 +1,4 @@
-use scriptcraft_doc::Element;
+use draftcraft_doc::Element;
 
 /// A test PDF: pages of `(x inches, baseline inches from the top, text)` in Courier 12, with
 /// optional bold lines (`*` prefix) and a ToUnicode-free simple font.

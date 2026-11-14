@@ -3,7 +3,7 @@
 
 use std::path::PathBuf;
 
-use scriptcraft_doc::{TAG_CATEGORIES, category_rgb};
+use draftcraft_doc::{TAG_CATEGORIES, category_rgb};
 use serde_json::{Value, json};
 
 use super::notes::range_param;
@@ -30,7 +30,7 @@ fn hex(rgb: [u8; 3]) -> String {
 
 fn add(s: &mut Session, v: &Value) -> CmdResult {
     let category = p::req_str(v, "category")?;
-    let cat = scriptcraft_doc::clean_category(category).ok_or_else(|| CmdError::Params("the category is empty".into()))?;
+    let cat = draftcraft_doc::clean_category(category).ok_or_else(|| CmdError::Params("the category is empty".into()))?;
     let (a, b) = range_param(s, v);
     if a == b {
         return Err(CmdError::Params("select the words to tag".into()));

@@ -1,7 +1,7 @@
 //! Production breakdown: tagged items (props, wardrobe, vehicles…) per scene, and as CSV.
 
-use scriptcraft_doc::Script;
-use scriptcraft_layout::Layout;
+use draftcraft_doc::Script;
+use draftcraft_layout::Layout;
 use serde::Serialize;
 
 use crate::reports;

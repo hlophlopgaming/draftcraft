@@ -17,7 +17,7 @@
 //! - **Corrections**: "undo that", "scratch that", "delete that" (undo the last step).
 //! - **Escape**: "literally" + word types the word itself ("literally period").
 
-use scriptcraft_doc::Element;
+use draftcraft_doc::Element;
 
 /// Longest phrase taken (bytes).
 pub const MAX_PHRASE: usize = 20_000;

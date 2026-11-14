@@ -1,7 +1,7 @@
 //! Final Draft-style typing, pinned (see docs/typing-parity.md). Keys go through the same
 //! commands the keyboard uses.
 
-use scriptcraft_doc::{Element, Script};
+use draftcraft_doc::{Element, Script};
 use serde_json::json;
 
 use crate::Session;
@@ -64,7 +64,7 @@ fn enter_flow_table() {
         (Shot, "ANGLE", Action),
         (General, "x", General),
     ] {
-        let mut s = Session::new(Script::from_paras(vec![scriptcraft_doc::Para::new(from, text)]).unwrap());
+        let mut s = Session::new(Script::from_paras(vec![draftcraft_doc::Para::new(from, text)]).unwrap());
         s.run("caret.docEnd", &json!({})).unwrap();
         s.run("text.enter", &json!({})).unwrap();
         assert_eq!(s.script.paras[1].element, to, "Enter after {from}");
@@ -131,7 +131,7 @@ fn capitals_for_headings_cues_and_transitions() {
     assert_eq!(s.script.paras[1].text, "Gulls.");
     assert_eq!(s.script.paras[2].text, "SAM (V.O.)");
     assert_eq!(s.script.paras[3].text, "Not again.");
-    assert_eq!(s.script.paras[4], scriptcraft_doc::Para::new(Element::Transition, "SMASH CUT TO:"));
+    assert_eq!(s.script.paras[4], draftcraft_doc::Para::new(Element::Transition, "SMASH CUT TO:"));
 }
 
 #[test]
@@ -153,7 +153,7 @@ fn enter_at_start_and_middle() {
     s.run("caret.set", &json!({"para": 1, "off": 0})).unwrap();
     keys(&mut s, &["⏎"]);
     assert_eq!(els(&s)[1], (Element::Action, String::new()), "empty paragraph inserted above");
-    assert_eq!(s.sel.focus, scriptcraft_doc::Pos::new(2, 0));
+    assert_eq!(s.sel.focus, draftcraft_doc::Pos::new(2, 0));
     s.run("caret.set", &json!({"para": 2, "off": 5})).unwrap();
     keys(&mut s, &["⏎"]);
     assert_eq!(els(&s)[2], (Element::Action, "Hello".into()));
@@ -167,7 +167,7 @@ fn backspace_joins_paragraphs() {
     s.run("caret.set", &json!({"para": 2, "off": 0})).unwrap();
     keys(&mut s, &["⌫"]);
     assert_eq!(s.script.paras[1].text, "One.Two.");
-    assert_eq!(s.sel.focus, scriptcraft_doc::Pos::new(1, 4));
+    assert_eq!(s.sel.focus, draftcraft_doc::Pos::new(1, 4));
 }
 
 #[test]

@@ -1,17 +1,17 @@
 //! Page setup in FDX, in Final Draft's form (see `docs/fdx-format.md`):
 //!
 //! - Paper: `<PageLayout><PageSize Width="8.50" Height="11.00"/></PageLayout>` (inches; A4 is
-//!   8.27 × 11.69). Older ScriptCraft files' `ScriptCraftPaper` still reads.
+//!   8.27 × 11.69). Older DraftCraft files' `DraftCraftPaper` still reads.
 //! - Header and footer: one `<Paragraph Alignment="Left">` each, the three slots separated by
 //!   tabs to a centre and a right `<Tabstop>`, as Final Draft writes its default header. Older
-//!   ScriptCraft files (a paragraph per slot, by `Alignment`) still read.
+//!   DraftCraft files (a paragraph per slot, by `Alignment`) still read.
 //! - Fields: `{page}` is `<DynamicLabel Type="Page #"/>`, `{revision}` `Last Revised`; Final
-//!   Draft's `Collated Revisions` reads as `{revision}` and `Date` as `{date}`. ScriptCraft's
-//!   other fields are `<DynamicLabel Type="ScriptCraft:title"/>` and so on.
-//! - The title-page option is ScriptCraft-only (`ScriptCraftTitlePage`). The title page's own
+//!   Draft's `Collated Revisions` reads as `{revision}` and `Date` as `{date}`. DraftCraft's
+//!   other fields are `<DynamicLabel Type="DraftCraft:title"/>` and so on.
+//! - The title-page option is DraftCraft-only (`DraftCraftTitlePage`). The title page's own
 //!   `<HeaderAndFooter>` (inside `<TitlePage>`) is not read.
 
-use scriptcraft_doc::{HeaderFooter, PageSetup, Paper};
+use draftcraft_doc::{HeaderFooter, PageSetup, Paper};
 
 use crate::esc;
 
@@ -27,7 +27,7 @@ pub(crate) fn dynamic_label(ty: &str) -> Option<String> {
     if t.eq_ignore_ascii_case("Date") {
         return Some("{date}".into());
     }
-    let f = t.strip_prefix("ScriptCraft:")?;
+    let f = t.strip_prefix("DraftCraft:")?;
     matches!(f, "pages" | "title" | "author" | "date" | "revision" | "revname" | "revdate").then(|| format!("{{{f}}}"))
 }
 
@@ -46,7 +46,7 @@ fn slot_children(template: &str) -> String {
         let label = match name.as_str() {
             "page" => Some("Page #".to_string()),
             "revision" => Some("Last Revised".to_string()),
-            "pages" | "title" | "author" | "date" | "revname" | "revdate" => Some(format!("ScriptCraft:{name}")),
+            "pages" | "title" | "author" | "date" | "revname" | "revdate" => Some(format!("DraftCraft:{name}")),
             _ => None,
         };
         match label {
@@ -118,7 +118,7 @@ pub(crate) fn write(out: &mut String, pg: &PageSetup) {
         "  <PageLayout BottomMargin=\"72\" FooterMargin=\"36\" HeaderMargin=\"36\" TopMargin=\"72\">\n    <PageSize Height=\"{h:.2}\" Width=\"{w:.2}\"/>\n  </PageLayout>\n"
     ));
     out.push_str(&format!(
-        "  <HeaderAndFooter FooterFirstPage=\"{}\" FooterVisible=\"{}\" HeaderFirstPage=\"{}\" HeaderVisible=\"{}\" StartingPage=\"1\" ScriptCraftTitlePage=\"{}\">\n",
+        "  <HeaderAndFooter FooterFirstPage=\"{}\" FooterVisible=\"{}\" HeaderFirstPage=\"{}\" HeaderVisible=\"{}\" StartingPage=\"1\" DraftCraftTitlePage=\"{}\">\n",
         yn(pg.footer_first_page),
         yn(!pg.footer.is_empty()),
         yn(pg.header_first_page),
@@ -207,13 +207,13 @@ impl Read {
 
 #[cfg(test)]
 mod tests {
-    use scriptcraft_doc::{Element, Para, Script};
+    use draftcraft_doc::{Element, Para, Script};
 
     #[test]
     fn page_setup_round_trips() {
         let mut s = Script::from_paras(vec![Para::new(Element::Action, "Hello.")]).unwrap();
         let pg = &mut s.settings.page;
-        pg.paper = scriptcraft_doc::Paper::A4;
+        pg.paper = draftcraft_doc::Paper::A4;
         pg.header.left = "{title} & co".into();
         pg.header.right = "{revision}  {page}.".into();
         pg.footer.center = "Page {page} of {pages} {odd}".into();
@@ -261,7 +261,7 @@ mod tests {
         let pg = &s.settings.page;
         assert_eq!((pg.header.left.as_str(), pg.header.center.as_str(), pg.header.right.as_str()), ("", "{revision}", "{page}."));
         assert!(pg.footer.is_empty());
-        assert_eq!(pg.paper, scriptcraft_doc::Paper::A4);
+        assert_eq!(pg.paper, draftcraft_doc::Paper::A4);
         // Without tab stops: the last piece is the right slot.
         let mut r = super::Read::default();
         r.add(false, "Left", "{title}\t{page}.", &[]);
@@ -269,12 +269,12 @@ mod tests {
     }
 
     #[test]
-    fn reads_older_scriptcraft_page_setup() {
-        let xml = r#"<FinalDraft DocumentType="Script" Version="5"><Content/><PageLayout ScriptCraftPaper="a4"/>
-<HeaderAndFooter HeaderVisible="Yes"><Header><Paragraph Alignment="Left" Type="Header"><DynamicLabel Type="ScriptCraft:title"/></Paragraph>
+    fn reads_older_draftcraft_page_setup() {
+        let xml = r#"<FinalDraft DocumentType="Script" Version="5"><Content/><PageLayout DraftCraftPaper="a4"/>
+<HeaderAndFooter HeaderVisible="Yes"><Header><Paragraph Alignment="Left" Type="Header"><DynamicLabel Type="DraftCraft:title"/></Paragraph>
 <Paragraph Alignment="Right" Type="Header"><DynamicLabel Type="Page #"/><Text>.</Text></Paragraph></Header></HeaderAndFooter></FinalDraft>"#;
         let s = crate::parse(xml).unwrap();
-        assert_eq!(s.settings.page.paper, scriptcraft_doc::Paper::A4);
+        assert_eq!(s.settings.page.paper, draftcraft_doc::Paper::A4);
         assert_eq!((s.settings.page.header.left.as_str(), s.settings.page.header.right.as_str()), ("{title}", "{page}."));
     }
 }

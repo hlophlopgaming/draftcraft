@@ -6,8 +6,8 @@
 //! elsewhere is **moved**. What remains is **added** or **removed**. Duplicate paragraphs are
 //! matched in order, one to one.
 
-use scriptcraft_doc::track::lcs_pairs;
-use scriptcraft_doc::{Element, Script};
+use draftcraft_doc::track::lcs_pairs;
+use draftcraft_doc::{Element, Script};
 use serde::Serialize;
 
 /// Most cells for the paragraph and word tables (bigger inputs fall back to coarser diffs).
@@ -155,7 +155,7 @@ fn scene_names(s: &Script) -> Vec<String> {
 /// Compare an older draft with a newer one.
 pub fn compare(old: &Script, new: &Script) -> Report {
     let (o, n) = (&old.paras, &new.paras);
-    let key_eq = |a: &scriptcraft_doc::Para, b: &scriptcraft_doc::Para| a.element == b.element && a.text == b.text;
+    let key_eq = |a: &draftcraft_doc::Para, b: &draftcraft_doc::Para| a.element == b.element && a.text == b.text;
     let mut pre = 0;
     while let (Some(a), Some(b)) = (o.get(pre), n.get(pre)) {
         if !key_eq(a, b) {
@@ -342,7 +342,7 @@ pub fn text_report(r: &Report) -> String {
 
 #[cfg(test)]
 mod tests {
-    use scriptcraft_doc::{Element, Para, Script};
+    use draftcraft_doc::{Element, Para, Script};
 
     use super::*;
 
@@ -428,7 +428,7 @@ mod tests {
 
     #[test]
     fn structure_points_bookmarks_and_beats_are_not_differences() {
-        use scriptcraft_doc::{Element, Para, Script, StructureKind, StructurePoint};
+        use draftcraft_doc::{Element, Para, Script, StructureKind, StructurePoint};
         let a = Script::from_paras(vec![
             Para::new(Element::SceneHeading, "INT. A - DAY"),
             Para::new(Element::Action, "One."),

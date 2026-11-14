@@ -21,24 +21,24 @@
 //! Unknown paragraph types (`Cast List`, `New Act`, `Lyrics`…) import as General.
 //!
 //! Scene headings' `SceneProperties` carry the index-card summary and colour (`Color`, written
-//! in Final Draft's 48-bit `#RRRRGGGGBBBB` form); card tags use a ScriptCraft-only
-//! `ScriptCraftTags` attribute.
+//! in Final Draft's 48-bit `#RRRRGGGGBBBB` form); card tags use a DraftCraft-only
+//! `DraftCraftTags` attribute.
 //!
-//! `docs/fdx-format.md` lists every element and attribute ScriptCraft reads and writes, which
-//! are Final Draft's own form (with the evidence) and which are ScriptCraft-only.
+//! `docs/fdx-format.md` lists every element and attribute DraftCraft reads and writes, which
+//! are Final Draft's own form (with the evidence) and which are DraftCraft-only.
 //!
-//! Production locks use ScriptCraft-only names: `<ScriptCraftProduction LockedPages="Yes"
-//! LockedSceneNumbers="Yes"/>` under the root, and on paragraphs `ScriptCraftOmitted="Yes"`
-//! (an omitted scene's heading; its text stays in the file) and `ScriptCraftLockedPages="12,12A"`
+//! Production locks use DraftCraft-only names: `<DraftCraftProduction LockedPages="Yes"
+//! LockedSceneNumbers="Yes"/>` under the root, and on paragraphs `DraftCraftOmitted="Yes"`
+//! (an omitted scene's heading; its text stays in the file) and `DraftCraftLockedPages="12,12A"`
 //! (the locked pages that start with that paragraph). Scene numbers use `Number`, shown per
 //! `<SceneNumberOptions ShowNumbersOnLeft ShowNumbersOnRight>`; (MORE)/(CONT'D) follow
 //! `<MoresAndContinueds><DialogueBreaks>`.
 //! Script notes are `<ScriptNote ID Author Color Name Type>` placed among the paragraph's text
 //! runs where the note starts (Final Draft's form), holding the note's text as paragraphs, plus a
-//! ScriptCraft `Range="start,length"` (characters) for the exact range; a note without one
+//! DraftCraft `Range="start,length"` (characters) for the exact range; a note without one
 //! covers the rest of its paragraph. Production tags and alternate lines have no FDX form we
-//! know of and use ScriptCraft-only elements: `<ScriptCraftTag Range="start,length"
-//! Category="Props"/>` and `<ScriptCraftAlternate><Text>…</Text></ScriptCraftAlternate>`.
+//! know of and use DraftCraft-only elements: `<DraftCraftTag Range="start,length"
+//! Category="Props"/>` and `<DraftCraftAlternate><Text>…</Text></DraftCraftAlternate>`.
 //! Read-aloud voices: Final Draft's `<Cast>`/`<Actors>` (see `voices.rs`). The title page: see
 //! `title.rs`.
 //!
@@ -46,7 +46,7 @@
 //! their `Summary`), see the `outline` module.
 //!
 //! `<ElementSettings Type="…">` carry each element's indents and spacing (`ParagraphSpec`),
-//! capitals (`FontSpec Style="AllCaps"`) and Enter target (`Behavior ReturnKey`). ScriptCraft's
+//! capitals (`FontSpec Style="AllCaps"`) and Enter target (`Behavior ReturnKey`). DraftCraft's
 //! Tab targets have no FDX equivalent and are not written.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
@@ -60,7 +60,7 @@ mod voices;
 
 use quick_xml::Reader;
 use quick_xml::events::Event;
-use scriptcraft_doc::{Align, Alternate, CardColor, Element, ElementFormats, MAX_PARA_BYTES, MAX_PARAS, Note, Para, Script, Style, Tagged};
+use draftcraft_doc::{Align, Alternate, CardColor, Element, ElementFormats, MAX_PARA_BYTES, MAX_PARAS, Note, Para, Script, Style, Tagged};
 
 /// Largest input we parse, bytes.
 pub const MAX_INPUT: usize = 128 << 20;
@@ -110,7 +110,7 @@ struct Open {
     runs: Vec<(String, Style)>,
     style: Style,
     summary: String,
-    color: Option<scriptcraft_doc::CardColor>,
+    color: Option<draftcraft_doc::CardColor>,
     tags: Vec<String>,
     omitted: bool,
     page_lock: Vec<String>,
@@ -126,16 +126,16 @@ struct Open {
     /// The current `<Text>`'s `RevisionID`.
     rev: Option<u32>,
     /// Revised byte ranges (levels are raw revision IDs until remapped).
-    revs: Vec<scriptcraft_doc::RevMark>,
+    revs: Vec<draftcraft_doc::RevMark>,
     /// `Bookmark`.
     bookmark: Option<String>,
-    /// Linked beats (`ScriptCraftBeats`).
+    /// Linked beats (`DraftCraftBeats`).
     beats: Vec<u32>,
     /// Tracked changes (character offsets until the paragraph is built).
-    changes: Vec<scriptcraft_doc::Change>,
+    changes: Vec<draftcraft_doc::Change>,
     /// The current `<Text>` is `AllCaps` (title page lines are uppercased).
     caps: bool,
-    /// A title page line's `ScriptCraftField`.
+    /// A title page line's `DraftCraftField`.
     field: Option<String>,
     /// A header or footer line's tab stop types, in order.
     tabs: Vec<String>,
@@ -155,7 +155,7 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
     let mut dual_chars: Option<usize> = None;
     let mut root_seen = false;
     let mut formats = ElementFormats::default();
-    let mut cur_fmt: Option<(Element, scriptcraft_doc::ElementFormat)> = None;
+    let mut cur_fmt: Option<(Element, draftcraft_doc::ElementFormat)> = None;
     // (locked pages, locked scene numbers, show scene numbers — older files) when the file says.
     let mut production: Option<(bool, bool, Option<bool>)> = None;
     // `SceneNumberOptions`: numbers shown in either margin.
@@ -253,10 +253,10 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
                             style: Style::PLAIN,
                             summary: String::new(),
                             // Outline paragraphs' colour (scene headings take theirs from SceneProperties).
-                            color: attr("ScriptCraftColor").and_then(|c| parse_color(&c)),
+                            color: attr("DraftCraftColor").and_then(|c| parse_color(&c)),
                             tags: Vec::new(),
-                            omitted: attr("ScriptCraftOmitted").is_some_and(|v| v.trim().eq_ignore_ascii_case("yes")),
-                            page_lock: attr("ScriptCraftLockedPages").map(|v| locked_labels(&v)).unwrap_or_default(),
+                            omitted: attr("DraftCraftOmitted").is_some_and(|v| v.trim().eq_ignore_ascii_case("yes")),
+                            page_lock: attr("DraftCraftLockedPages").map(|v| locked_labels(&v)).unwrap_or_default(),
                             wrapper: false,
                             in_text: false,
                             notes: Vec::new(),
@@ -267,10 +267,10 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
                             rev: None,
                             revs: Vec::new(),
                             bookmark: attr("Bookmark"),
-                            beats: attr("ScriptCraftBeats").map(|v| beat_read.links(&v)).unwrap_or_default(),
+                            beats: attr("DraftCraftBeats").map(|v| beat_read.links(&v)).unwrap_or_default(),
                             changes: Vec::new(),
                             caps: false,
-                            field: attr("ScriptCraftField"),
+                            field: attr("DraftCraftField"),
                             tabs: Vec::new(),
                         };
                         if empty {
@@ -295,15 +295,15 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
                     "Item" if stack.iter().any(|n| n == "DisplayBoard") => {
                         beat_read.item(attr("Id"), attr("Left"), attr("Top"), attr("Width"), attr("Height"));
                     }
-                    "ScriptCraftFormat" if !in_title => {
+                    "DraftCraftFormat" if !in_title => {
                         scene_letters = attr("SceneLetters").is_some_and(|v| v.trim().eq_ignore_ascii_case("yes"));
                     }
-                    "ScriptCraftProduction" if !in_title => {
+                    "DraftCraftProduction" if !in_title => {
                         let yes = |k: &str| attr(k).is_some_and(|v| v.trim().eq_ignore_ascii_case("yes"));
                         production = Some((yes("LockedPages"), yes("LockedSceneNumbers"), page::yes(attr("ShowSceneNumbers"))));
                     }
                     "PageLayout" if !in_title => {
-                        if let Some(p) = attr("ScriptCraftPaper").and_then(|p| scriptcraft_doc::Paper::parse(&p)) {
+                        if let Some(p) = attr("DraftCraftPaper").and_then(|p| draftcraft_doc::Paper::parse(&p)) {
                             page_read.paper = Some(p);
                         }
                     }
@@ -333,7 +333,7 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
                         page_read.footer_visible = page::yes(attr("FooterVisible"));
                         page_read.header_first = page::yes(attr("HeaderFirstPage"));
                         page_read.footer_first = page::yes(attr("FooterFirstPage"));
-                        page_read.title_page = page::yes(attr("ScriptCraftTitlePage"));
+                        page_read.title_page = page::yes(attr("DraftCraftTitlePage"));
                     }
                     "DynamicLabel" => {
                         if let Some(o) = open.last_mut().filter(|o| matches!(o.kind, Kind::HeaderFooter(_)))
@@ -346,11 +346,11 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
                         rev_read.seen = true;
                         rev_read.active_id = attr("ActiveSet").and_then(|v| v.trim().parse().ok());
                         rev_read.tracking = attr("RevisionMode").map(|v| revision::mode(&v));
-                        rev_read.show_marks = page::yes(attr("ScriptCraftShowMarks"));
-                        rev_read.color_pages = page::yes(attr("ShowPageColor")).or(page::yes(attr("ScriptCraftColorPages")));
+                        rev_read.show_marks = page::yes(attr("DraftCraftShowMarks"));
+                        rev_read.color_pages = page::yes(attr("ShowPageColor")).or(page::yes(attr("DraftCraftColorPages")));
                     }
-                    "ScriptCraftVoices" if !in_title => voices_read.narrator(attr("Narrator")),
-                    "Voice" if stack.iter().any(|n| n == "ScriptCraftVoices") => voices_read.add(attr("Character"), attr("Name")),
+                    "DraftCraftVoices" if !in_title => voices_read.narrator(attr("Narrator")),
+                    "Voice" if stack.iter().any(|n| n == "DraftCraftVoices") => voices_read.add(attr("Character"), attr("Name")),
                     "Narrator" if stack.iter().any(|n| n == "Cast") => voices_read.cast_narrator(attr("Actor")),
                     "Member" if stack.iter().any(|n| n == "Cast") => voices_read.member(attr("Actor"), attr("Character")),
                     "Actor" if stack.iter().any(|n| n == "Actors") => voices_read.actor(attr("Name"), attr("MacVoice")),
@@ -361,13 +361,13 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
                             color: attr("Color"),
                             page_color: attr("PageColor"),
                             mark: attr("Mark"),
-                            sc_name: attr("ScriptCraftName"),
-                            sc_date: attr("ScriptCraftDate"),
+                            sc_name: attr("DraftCraftName"),
+                            sc_date: attr("DraftCraftDate"),
                         });
                     }
                     "SceneProperties" => {
                         let color = attr("Color").and_then(|c| parse_color(&c));
-                        let tags = attr("ScriptCraftTags").map(|t| scriptcraft_doc::clean_tags(t.split(','))).unwrap_or_default();
+                        let tags = attr("DraftCraftTags").map(|t| draftcraft_doc::clean_tags(t.split(','))).unwrap_or_default();
                         if let Some(o) = open.last_mut().filter(|o| o.kind == Kind::Body) {
                             o.color = color;
                             o.tags = tags;
@@ -375,7 +375,7 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
                     }
                     "ScriptNote" => {
                         // Final Draft anchors a note at its place among the text runs and gives
-                        // no range: it covers the rest of the paragraph. ScriptCraft adds `Range`.
+                        // no range: it covers the rest of the paragraph. DraftCraft adds `Range`.
                         let here = open.last().filter(|o| o.kind == Kind::Body).map_or(0, |o| o.text.chars().count());
                         let (start, len) = attr("Range").and_then(|r| parse_range(&r)).unwrap_or((here, usize::MAX));
                         // Final Draft's default marker colour is black: our default note colour.
@@ -393,25 +393,25 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
                             }
                         }
                     }
-                    "ScriptCraftChange" => {
+                    "DraftCraftChange" => {
                         if let Some(o) = open.last_mut().filter(|o| o.kind == Kind::Body)
                             && let Some(c) = track::read(&attr)
-                            && o.changes.len() < scriptcraft_doc::track::MAX_CHANGES
+                            && o.changes.len() < draftcraft_doc::track::MAX_CHANGES
                         {
                             o.changes.push(c);
                         }
                     }
-                    "ScriptCraftTrackChanges" if !in_title => {
+                    "DraftCraftTrackChanges" if !in_title => {
                         track_on = attr("On").is_some_and(|v| v.trim().eq_ignore_ascii_case("yes"));
                     }
-                    "ScriptCraftTag" => {
+                    "DraftCraftTag" => {
                         if let (Some((start, len)), Some(cat)) = (attr("Range").and_then(|r| parse_range(&r)), attr("Category"))
                             && let Some(o) = open.last_mut().filter(|o| o.kind == Kind::Body)
                         {
                             o.tagged.push((start, len, cat));
                         }
                     }
-                    "ScriptCraftAlternate" if !empty => {
+                    "DraftCraftAlternate" if !empty => {
                         if let Some(o) = open.last_mut().filter(|o| o.kind == Kind::Body) {
                             o.alt = Some(Vec::new());
                         }
@@ -463,11 +463,11 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
                             o.notes.push(n);
                         }
                     }
-                    "ScriptCraftAlternate" => {
+                    "DraftCraftAlternate" => {
                         if let Some(o) = open.last_mut().filter(|o| o.kind == Kind::Body)
                             && let Some(runs) = o.alt.take()
                         {
-                            o.alts.push(scriptcraft_doc::alternate_from_runs(&runs));
+                            o.alts.push(draftcraft_doc::alternate_from_runs(&runs));
                         }
                     }
                     "ElementSettings" => {
@@ -592,7 +592,7 @@ fn push_text(o: &mut Open, s: &str) {
 }
 
 /// A scene colour: `#RRGGBB` or Final Draft's 48-bit `#RRRRGGGGBBBB`. White means none.
-fn parse_color(c: &str) -> Option<scriptcraft_doc::CardColor> {
+fn parse_color(c: &str) -> Option<draftcraft_doc::CardColor> {
     let h = c.trim().trim_start_matches('#');
     let step = match h.len() {
         6 => 2,
@@ -604,7 +604,7 @@ fn parse_color(c: &str) -> Option<scriptcraft_doc::CardColor> {
     if rgb.iter().all(|v| *v >= 0xf0) {
         return None;
     }
-    Some(scriptcraft_doc::CardColor::nearest(rgb))
+    Some(draftcraft_doc::CardColor::nearest(rgb))
 }
 
 /// `12,12A,13` → locked page labels (at most 1000, each short).
@@ -742,23 +742,23 @@ fn para_xml(out: &mut String, indent: &str, p: &Para) {
     para_xml_with(out, indent, p, None);
 }
 
-/// A paragraph, with the heading's linked beats' keys (`ScriptCraftBeats`) when it has any.
+/// A paragraph, with the heading's linked beats' keys (`DraftCraftBeats`) when it has any.
 fn para_xml_with(out: &mut String, indent: &str, p: &Para, beat_links: Option<String>) {
     out.push_str(&format!("{indent}<Paragraph Type=\"{}\"", p.element.name()));
     if let Some(b) = &p.bookmark {
         out.push_str(&format!(" Bookmark=\"{}\"", esc(b)));
     }
     if let Some(l) = beat_links {
-        out.push_str(&format!(" ScriptCraftBeats=\"{}\"", esc(&l)));
+        out.push_str(&format!(" DraftCraftBeats=\"{}\"", esc(&l)));
     }
     if let Some(n) = p.scene_number.as_deref().filter(|n| !n.trim().is_empty()) {
         out.push_str(&format!(" Number=\"{}\"", esc(n.trim())));
     }
     if p.omitted {
-        out.push_str(" ScriptCraftOmitted=\"Yes\"");
+        out.push_str(" DraftCraftOmitted=\"Yes\"");
     }
     if !p.page_lock.is_empty() {
-        out.push_str(&format!(" ScriptCraftLockedPages=\"{}\"", esc(&p.page_lock.join(","))));
+        out.push_str(&format!(" DraftCraftLockedPages=\"{}\"", esc(&p.page_lock.join(","))));
     }
     out.push_str(">\n");
     if p.element == Element::SceneHeading && (!p.summary.trim().is_empty() || p.color.is_some() || !p.tags.is_empty()) {
@@ -767,7 +767,7 @@ fn para_xml_with(out: &mut String, indent: &str, p: &Para, beat_links: Option<St
             attrs.push_str(&format!(" Color=\"{}\"", color_attr(c)));
         }
         if !p.tags.is_empty() {
-            attrs.push_str(&format!(" ScriptCraftTags=\"{}\"", esc(&p.tags.join(", "))));
+            attrs.push_str(&format!(" DraftCraftTags=\"{}\"", esc(&p.tags.join(", "))));
         }
         out.push_str(&format!("{indent}  <SceneProperties{attrs} Title=\"\">\n"));
         if !p.summary.trim().is_empty() {
@@ -819,19 +819,19 @@ fn para_xml_with(out: &mut String, indent: &str, p: &Para, beat_links: Option<St
     emit_notes(out, usize::MAX, &mut next_note);
     for t in &p.tagged {
         out.push_str(&format!(
-            "{indent}  <ScriptCraftTag Range=\"{},{}\" Category=\"{}\"/>\n",
+            "{indent}  <DraftCraftTag Range=\"{},{}\" Category=\"{}\"/>\n",
             chars(t.start),
             chars(t.end).saturating_sub(chars(t.start)),
             esc(&t.category)
         ));
     }
     for a in &p.alternates {
-        out.push_str(&format!("{indent}  <ScriptCraftAlternate>\n"));
+        out.push_str(&format!("{indent}  <DraftCraftAlternate>\n"));
         let alt = Para { text: a.text.clone(), spans: a.spans.clone(), ..Para::new(p.element, "") };
         for (t, st) in alt.runs() {
             out.push_str(&format!("{indent}    <Text{}>{}</Text>\n", style_attr(st), esc(t)));
         }
-        out.push_str(&format!("{indent}  </ScriptCraftAlternate>\n"));
+        out.push_str(&format!("{indent}  </DraftCraftAlternate>\n"));
     }
     track::write_para(out, indent, p);
     out.push_str(&format!("{indent}</Paragraph>\n"));
@@ -877,12 +877,12 @@ pub fn write(s: &Script) -> String {
     let yn = |b: bool| if b { "Yes" } else { "No" };
     if st.pages_locked || st.scene_numbers_locked {
         out.push_str(&format!(
-            "  <ScriptCraftProduction LockedPages=\"{}\" LockedSceneNumbers=\"{}\"/>\n",
+            "  <DraftCraftProduction LockedPages=\"{}\" LockedSceneNumbers=\"{}\"/>\n",
             yn(st.pages_locked),
             yn(st.scene_numbers_locked),
         ));
     }
-    // Final Draft's (MORE)/(CONT'D) and scene number options. ScriptCraft has no scene
+    // Final Draft's (MORE)/(CONT'D) and scene number options. DraftCraft has no scene
     // (CONTINUED) and prints numbers in both margins or neither.
     let more = yn(st.more_contd);
     out.push_str(&format!(
@@ -913,7 +913,7 @@ pub fn write(s: &Script) -> String {
         outline::write_settings(&mut out);
     }
     if s.settings.scene_letters {
-        out.push_str("  <ScriptCraftFormat SceneLetters=\"Yes\"/>\n");
+        out.push_str("  <DraftCraftFormat SceneLetters=\"Yes\"/>\n");
     }
     page::write(&mut out, &s.settings.page);
     track::write_root(&mut out, s);

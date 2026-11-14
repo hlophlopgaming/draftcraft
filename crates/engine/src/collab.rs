@@ -1,9 +1,9 @@
 //! Real-time collaboration in a session (#25): hosting or joining, applied each frame by
-//! [`Session::collab_tick`]. The merge and protocol live in `scriptcraft-collab`; this module
+//! [`Session::collab_tick`]. The merge and protocol live in `draftcraft-collab`; this module
 //! connects them to the session (remote changes, carets, undo history). `docs/collaboration.md`.
 
-use scriptcraft_collab::{Peer, Sel};
-use scriptcraft_doc::Script;
+use draftcraft_collab::{Peer, Sel};
+use draftcraft_doc::Script;
 use serde_json::{Value, json};
 
 use crate::{Selection, Session};
@@ -14,8 +14,8 @@ const SHARED_UNDO: usize = 100;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub(crate) enum Role {
-    Host { host: Box<scriptcraft_collab::Host>, srv: scriptcraft_collab::net::Server },
-    Client { client: Box<scriptcraft_collab::Client>, link: scriptcraft_collab::net::Link },
+    Host { host: Box<draftcraft_collab::Host>, srv: draftcraft_collab::net::Server },
+    Client { client: Box<draftcraft_collab::Client>, link: draftcraft_collab::net::Link },
 }
 
 /// The session's collaboration state.
@@ -71,7 +71,7 @@ impl Collab {
             Some(Role::Host { host, srv }) => {
                 let mut addrs = vec![format!("127.0.0.1:{}", srv.port())];
                 if srv.lan()
-                    && let Some(ip) = scriptcraft_collab::net::lan_ip()
+                    && let Some(ip) = draftcraft_collab::net::lan_ip()
                 {
                     addrs.insert(0, format!("{ip}:{}", srv.port()));
                 }
@@ -102,10 +102,10 @@ impl Session {
             return;
         }
         let old = std::mem::replace(&mut self.script, new);
-        let t = |p| scriptcraft_collab::transform_pos(&old, &self.script, p);
+        let t = |p| draftcraft_collab::transform_pos(&old, &self.script, p);
         self.sel = Selection { anchor: t(self.sel.anchor), focus: t(self.sel.focus) };
         let new = self.script.clone();
-        self.rebase_history(SHARED_UNDO, &mut |snap| scriptcraft_collab::merge3(&old, &new, snap));
+        self.rebase_history(SHARED_UNDO, &mut |snap| draftcraft_collab::merge3(&old, &new, snap));
         self.invalidate();
         self.dirty = true;
         self.clamp_selection();
@@ -116,14 +116,14 @@ impl Session {
     pub fn collab_tick(&mut self) -> bool {
         #[cfg(not(target_arch = "wasm32"))]
         {
-            use scriptcraft_collab::net::NetEvent;
-            use scriptcraft_collab::{Event, Out};
+            use draftcraft_collab::net::NetEvent;
+            use draftcraft_collab::{Event, Out};
             let Some(role) = self.collab.role.take() else { return false };
             let before = self.revision();
             let sel = sel_of(&self.sel);
             let role = match role {
                 Role::Host { mut host, srv } => {
-                    let route = |host: &scriptcraft_collab::Host, outs: Vec<Out>| {
+                    let route = |host: &draftcraft_collab::Host, outs: Vec<Out>| {
                         for o in outs {
                             match o {
                                 Out::To(id, m) => srv.send(id, &m),
@@ -207,7 +207,7 @@ pub fn peers_json(c: &Collab) -> Value {
         .peers()
         .iter()
         .map(|p| {
-            let [r, g, b] = scriptcraft_collab::COLORS.get(usize::from(p.color)).copied().unwrap_or([0, 0, 0]);
+            let [r, g, b] = draftcraft_collab::COLORS.get(usize::from(p.color)).copied().unwrap_or([0, 0, 0]);
             json!({"id": p.id, "name": p.name, "host": p.host, "you": Some(p.id) == me, "color": format!("#{r:02x}{g:02x}{b:02x}"),
                 "caret": p.sel.map(|s| crate::cmd::pos_json(s.focus)), "anchor": p.sel.map(|s| crate::cmd::pos_json(s.anchor))})
         })

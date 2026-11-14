@@ -1,7 +1,7 @@
 //! Templates: new scripts for features, TV (single and multi-camera) and the stage, or a
 //! template's formatting applied to the open script.
 
-use scriptcraft_doc::{Pos, Template};
+use draftcraft_doc::{Pos, Template};
 use serde_json::{Value, json};
 
 use crate::{CmdError, CmdResult, CommandSpec, Selection, Session, p};
@@ -71,8 +71,8 @@ fn current(s: &mut Session, _: &Value) -> CmdResult {
 
 #[cfg(test)]
 mod tests {
-    use scriptcraft_doc::Element;
-    use scriptcraft_layout::LineKind;
+    use draftcraft_doc::Element;
+    use draftcraft_layout::LineKind;
     use serde_json::json;
 
     use crate::Session;
@@ -145,7 +145,7 @@ mod tests {
         s.run("template.apply", &json!({"template": "stage-play"})).unwrap();
         let l = s.layout();
         let cue = l.pages.iter().flat_map(|p| &p.lines).find(|x| x.element == Some(Element::Character)).unwrap();
-        let w = (cue.text.chars().count() + cue.suffix.chars().count()) as f32 * scriptcraft_geom::CHAR_W;
+        let w = (cue.text.chars().count() + cue.suffix.chars().count()) as f32 * draftcraft_geom::CHAR_W;
         let mid = cue.x + w / 2.0;
         assert!((mid - 4.5 * 72.0).abs() < 8.0, "centred cue at {mid}");
     }

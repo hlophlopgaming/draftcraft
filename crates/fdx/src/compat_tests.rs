@@ -2,7 +2,7 @@
 //! files saved by Final Draft (see `docs/fdx-format.md`). No Final Draft file is copied here.
 
 use super::*;
-use scriptcraft_doc::{CardColor, Paper, RevMark};
+use draftcraft_doc::{CardColor, Paper, RevMark};
 
 /// A small script in the shape Final Draft 12/13 saves (`Version="6"`): unrevised runs carry
 /// `RevisionID="0"`, sets start at 1, the default header has the revision label at a centre
@@ -118,8 +118,8 @@ fn writes_final_drafts_forms() {
     ] {
         assert!(xml.contains(want), "missing {want}:\n{xml}");
     }
-    // Retired ScriptCraft-only names are no longer written.
-    for gone in ["ScriptCraftPaper", "ScriptCraftColorPages", "ShowSceneNumbers=", "RevisionMode=\"On", "Type=\"Title Page\"", "Type=\"Header\""] {
+    // Retired DraftCraft-only names are no longer written.
+    for gone in ["DraftCraftPaper", "DraftCraftColorPages", "ShowSceneNumbers=", "RevisionMode=\"On", "Type=\"Title Page\"", "Type=\"Header\""] {
         assert!(!xml.contains(gone), "still writes {gone}");
     }
     // And it all comes back.
@@ -130,17 +130,17 @@ fn writes_final_drafts_forms() {
 }
 
 #[test]
-fn older_scriptcraft_files_still_read() {
-    // v0.3/v0.4 ScriptCraft: sets from ID 0 (RevisionID="0" is the first set), the page tint
-    // in Color, RevisionMode="On", ScriptCraftColorPages, ScriptCraftPaper, ShowSceneNumbers.
+fn older_draftcraft_files_still_read() {
+    // v0.3/v0.4 DraftCraft: sets from ID 0 (RevisionID="0" is the first set), the page tint
+    // in Color, RevisionMode="On", DraftCraftColorPages, DraftCraftPaper, ShowSceneNumbers.
     let xml = r##"<FinalDraft DocumentType="Script" Template="No" Version="5"><Content>
 <Paragraph Type="Scene Heading" Number="3"><Text>INT. A - DAY</Text></Paragraph>
 <Paragraph Type="Action"><Text RevisionID="0">White text. </Text><Text RevisionID="1">Blue text.</Text></Paragraph></Content>
-<ScriptCraftProduction LockedPages="No" LockedSceneNumbers="No" ShowSceneNumbers="No"/>
-<PageLayout BottomMargin="72" FooterMargin="36" HeaderMargin="36" TopMargin="72" ScriptCraftPaper="a4"/>
-<Revisions ActiveSet="1" RevisionMode="On" ShowAllMarks="No" ShowAllSets="No" ScriptCraftShowMarks="Yes" ScriptCraftColorPages="Yes">
-<Revision Color="#FFFFFFFFFFFF" FullRevision="No" ID="0" Mark="*" Name="White" ScriptCraftDate=""/>
-<Revision Color="#CFCFE2E2F7F7" FullRevision="No" ID="1" Mark="*" Name="Blue" ScriptCraftDate="10/12/26"/>
+<DraftCraftProduction LockedPages="No" LockedSceneNumbers="No" ShowSceneNumbers="No"/>
+<PageLayout BottomMargin="72" FooterMargin="36" HeaderMargin="36" TopMargin="72" DraftCraftPaper="a4"/>
+<Revisions ActiveSet="1" RevisionMode="On" ShowAllMarks="No" ShowAllSets="No" DraftCraftShowMarks="Yes" DraftCraftColorPages="Yes">
+<Revision Color="#FFFFFFFFFFFF" FullRevision="No" ID="0" Mark="*" Name="White" DraftCraftDate=""/>
+<Revision Color="#CFCFE2E2F7F7" FullRevision="No" ID="1" Mark="*" Name="Blue" DraftCraftDate="10/12/26"/>
 </Revisions>
 <SceneNumberOptions ShowNumbersOnLeft="Yes" ShowNumbersOnRight="Yes"/></FinalDraft>"##;
     let s = parse(xml).unwrap();

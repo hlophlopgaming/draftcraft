@@ -1,6 +1,6 @@
-{"badge": "ScriptCraft v0.4 · PR #47"}
+{"badge": "DraftCraft v0.4 · PR #47"}
 {"speaker": "silent"}
-{"title": "ScriptCraft v0.4: structure and collaboration (PR #47)", "sub": "Every frame is the real app, driven through its own menus, keys and clicks"}
+{"title": "DraftCraft v0.4: structure and collaboration (PR #47)", "sub": "Every frame is the real app, driven through its own menus, keys and clicks"}
 // Keep today's sample as the "older draft" for the compare segment.
 {"cmd": "file.exportFdx", "params": {"path": "@WORK@/night-signal-draft1.fdx"}}
 {"hold": 2.5}

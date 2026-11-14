@@ -34,7 +34,7 @@ await shots(4);
 await key("Enter", "Enter", "\r", 0, 13);
 for (const ch of "ext. browser tab - night") await key(ch, "", ch);
 await key("Enter", "Enter", "\r", 0, 13);
-for (const ch of "ScriptCraft runs here too, compiled to WebAssembly.") await key(ch, "", ch);
+for (const ch of "DraftCraft runs here too, compiled to WebAssembly.") await key(ch, "", ch);
 await shots(8);
 await key("b", "KeyB", undefined, 4, 66);
 await shots(10);

@@ -91,7 +91,7 @@ fn converge(h: &HostThread, cs: &mut [&mut Session]) -> Vec<String> {
 }
 
 fn join(h: &HostThread, name: &str) -> Session {
-    let mut s = Session::new(scriptcraft_doc::Script::new());
+    let mut s = Session::new(draftcraft_doc::Script::new());
     let v = s.run("collab.join", &json!({"addr": h.addr, "key": h.key, "name": name})).unwrap();
     assert_eq!(v["role"], "client");
     s
@@ -104,7 +104,7 @@ fn three_windows_edit_live_and_converge() {
     let mut b = join(&h, "Cy");
     assert_eq!(texts(&a), h.texts());
     // Bad key and a busy session are refused.
-    let mut x = Session::new(scriptcraft_doc::Script::new());
+    let mut x = Session::new(draftcraft_doc::Script::new());
     let e = x.run("collab.join", &json!({"addr": h.addr, "key": "nope", "name": "X"})).unwrap_err();
     assert!(e.to_string().contains("wrong session key"), "{e}");
     assert!(a.run("collab.host", &json!({})).is_err());
@@ -170,7 +170,7 @@ fn joining_protects_unsaved_work_and_bad_addresses_fail_cleanly() {
     let e = s.run("collab.join", &json!({"addr": h.addr, "key": h.key})).unwrap_err();
     assert!(e.to_string().contains("unsaved"));
     assert!(s.run("collab.join", &json!({"addr": h.addr, "key": h.key, "force": true})).is_ok());
-    let mut t = Session::new(scriptcraft_doc::Script::new());
+    let mut t = Session::new(draftcraft_doc::Script::new());
     for addr in ["", "nowhere", "127.0.0.1:1", "256.1.1.1:80", "::::"] {
         assert!(t.run("collab.join", &json!({"addr": addr, "key": "k"})).is_err(), "{addr}");
     }

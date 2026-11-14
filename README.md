@@ -1,12 +1,12 @@
-<h1 align="center">ScriptCraft</h1>
+<h1 align="center">DraftCraft</h1>
 
-<p align="center"><b>ScriptCraft is a free, open-source app for writing screenplays: you type, Enter and Tab pick the screenplay format for you, and it gives you industry-standard pages, Final Draft and Fountain files, and PDFs.</b></p>
+<p align="center"><b>DraftCraft is a free, open-source app for writing screenplays: you type, Enter and Tab pick the screenplay format for you, and it gives you industry-standard pages, Final Draft and Fountain files, and PDFs.</b></p>
 
 <p align="center">
-  <a href="https://nojuannobody.github.io/scriptcraft/explainer/explainer.mp4"><img src="docs/explainer/poster.png" alt="ScriptCraft explainer video: the app with a diner scene typed in, and a panel showing which screenplay element each key produced" width="720"></a>
+  <a href="https://hlophlopgaming.github.io/draftcraft/explainer/explainer.mp4"><img src="docs/explainer/poster.png" alt="DraftCraft explainer video: the app with a diner scene typed in, and a panel showing which screenplay element each key produced" width="720"></a>
   <br>
-  <a href="https://nojuannobody.github.io/scriptcraft/explainer/explainer.mp4">▶ Watch the 60-second explainer</a> ·
-  <a href="https://nojuannobody.github.io/scriptcraft/explainer/">Read the one-page explainer</a>
+  <a href="https://hlophlopgaming.github.io/draftcraft/explainer/explainer.mp4">▶ Watch the 60-second explainer</a> ·
+  <a href="https://hlophlopgaming.github.io/draftcraft/explainer/">Read the one-page explainer</a>
 </p>
 
 ### How it works for you
@@ -31,19 +31,19 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/NoJuanNobody/scriptcraft/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/NoJuanNobody/scriptcraft/actions/workflows/ci.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/hlophlopgaming/draftcraft/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/hlophlopgaming/draftcraft/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <img alt="Written in Rust" src="https://img.shields.io/badge/written%20in-Rust-2b47b5?style=flat-square&logo=rust&logoColor=white">
   <img alt="Runs on macOS, Windows, Linux and the web" src="https://img.shields.io/badge/runs%20on-macOS%20%C2%B7%20Windows%20%C2%B7%20Linux%20%C2%B7%20Web-3b5bdb?style=flat-square">
   <img alt="License: MIT OR Apache-2.0" src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-2b47b5?style=flat-square">
   <img alt="Agent-drivable over MCP" src="https://img.shields.io/badge/agents-MCP%20%C2%B7%20CLI-3b5bdb?style=flat-square">
-  <a href="https://github.com/NoJuanNobody/scriptcraft/releases/latest"><img alt="Version 0.5.0" src="https://img.shields.io/badge/version-0.5.0-6f8cff?style=flat-square"></a>
+  <a href="https://github.com/hlophlopgaming/draftcraft/releases/latest"><img alt="Version 0.5.0" src="https://img.shields.io/badge/version-0.5.0-6f8cff?style=flat-square"></a>
 </p>
 
 <br>
 
 <p align="center">
-  <img src="docs/images/hero.png" alt="ScriptCraft's page view: a Letter page in Courier with a scene of dialogue, character cues centred, a parenthetical, and (MORE) at the bottom of the page. The Navigator on the left lists four scenes with their summaries and page numbers; the toolbar shows the element picker set to Dialogue; the status bar reads Dialogue, Page 2 of 4, Scene 2 of 4, 699 words." width="100%">
-  <br><sub><b>Night Signal</b>, ScriptCraft's built-in original sample: page view, element picker, navigator with scene summaries.</sub>
+  <img src="docs/images/hero.png" alt="DraftCraft's page view: a Letter page in Courier with a scene of dialogue, character cues centred, a parenthetical, and (MORE) at the bottom of the page. The Navigator on the left lists four scenes with their summaries and page numbers; the toolbar shows the element picker set to Dialogue; the status bar reads Dialogue, Page 2 of 4, Scene 2 of 4, 699 words." width="100%">
+  <br><sub><b>Night Signal</b>, DraftCraft's built-in original sample: page view, element picker, navigator with scene summaries.</sub>
 </p>
 
 <p align="center">
@@ -59,17 +59,17 @@
 
 ## Downloads
 
-Pre-built binaries for **v0.5.0** are available on [GitHub Releases](https://github.com/NoJuanNobody/scriptcraft/releases/latest):
+Pre-built binaries for **v0.5.0** are available on [GitHub Releases](https://github.com/hlophlopgaming/draftcraft/releases/latest):
 
-- **macOS (Universal — Apple Silicon & Intel):** Download [`scriptcraft-macos-universal.zip`](https://github.com/NoJuanNobody/scriptcraft/releases/latest/download/scriptcraft-macos-universal.zip), extract, and open `ScriptCraft.app` (`scriptcraft-cli` is included alongside it).
-- **Windows (x64):** Download [`scriptcraft-windows-x64.zip`](https://github.com/NoJuanNobody/scriptcraft/releases/latest/download/scriptcraft-windows-x64.zip), extract the ZIP, and run `scriptcraft.exe` (`scriptcraft-cli.exe` included). See [docs/windows-setup.md](docs/windows-setup.md) for detailed instructions and troubleshooting.
-- **Linux (x86_64):** Download [`scriptcraft-linux-x86_64.tar.gz`](https://github.com/NoJuanNobody/scriptcraft/releases/latest/download/scriptcraft-linux-x86_64.tar.gz) or the Debian/Ubuntu package [`scriptcraft-linux-x86_64.deb`](https://github.com/NoJuanNobody/scriptcraft/releases/latest/download/scriptcraft-linux-x86_64.deb).
-- **Web (Browser / WASM):** Launch directly in your browser at [nojuannobody.github.io/scriptcraft/app/](https://nojuannobody.github.io/scriptcraft/app/), explore the landing page & interactive explainer at [nojuannobody.github.io/scriptcraft/](https://nojuannobody.github.io/scriptcraft/), or download [`scriptcraft-web.zip`](https://github.com/NoJuanNobody/scriptcraft/releases/latest/download/scriptcraft-web.zip).
+- **macOS (Universal — Apple Silicon & Intel):** Download [`draftcraft-macos-universal.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-macos-universal.zip), extract, and open `DraftCraft.app` (`draftcraft-cli` is included alongside it).
+- **Windows (x64):** Download [`draftcraft-windows-x64.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-windows-x64.zip), extract the ZIP, and run `draftcraft.exe` (`draftcraft-cli.exe` included). See [docs/windows-setup.md](docs/windows-setup.md) for detailed instructions and troubleshooting.
+- **Linux (x86_64):** Download [`draftcraft-linux-x86_64.tar.gz`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-x86_64.tar.gz) or the Debian/Ubuntu package [`draftcraft-linux-x86_64.deb`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-x86_64.deb).
+- **Web (Browser / WASM):** Launch directly in your browser at [hlophlopgaming.github.io/draftcraft/app/](https://hlophlopgaming.github.io/draftcraft/app/), explore the landing page & interactive explainer at [hlophlopgaming.github.io/draftcraft/](https://hlophlopgaming.github.io/draftcraft/), or download [`draftcraft-web.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-web.zip).
 
 ## A tour
 
-Every screenshot is ScriptCraft itself, rendered offscreen by its own UI harness
-(`cargo run -p scriptcraft-ui-egui --example ui_shot`).
+Every screenshot is DraftCraft itself, rendered offscreen by its own UI harness
+(`cargo run -p draftcraft-ui-egui --example ui_shot`).
 
 <table>
 <tr>
@@ -81,7 +81,7 @@ Every screenshot is ScriptCraft itself, rendered offscreen by its own UI harness
 </tr>
 </table>
 
-## Why ScriptCraft
+## Why DraftCraft
 
 - **Familiar.** Final Draft's element flow: Enter after a scene heading gives Action, Tab after
   Action gives a Character, Enter after a Character gives Dialogue, Tab in Dialogue gives a
@@ -112,7 +112,7 @@ Every screenshot is ScriptCraft itself, rendered offscreen by its own UI harness
 | **Window** | Menu bar, toolbar with element picker and B/I/U, page view with page breaks or a continuous speed view, split screen with two views, blinking caret, status bar (element · page x of y · scene · words), light and dark themes, zoom (menus, Ctrl/⌘+wheel, pinch, fit width); unsaved-changes prompts on close, quit and open; runs natively and in the browser |
 | **Drafts and production** | Revision mode with coloured pages, locked pages with A/B pages, omitted scenes, headers and footers, A4, script notes, alternate lines, production tagging and breakdown reports, print; track changes per author with accept/reject; Compare Drafts; templates for feature, TV single-camera, multi-camera and stage play |
 | **Together and aloud** | Real-time collaboration on a local network with names and carets ([docs/collaboration.md](docs/collaboration.md)); read aloud with a system voice per character; dictation that turns spoken phrases into formatted script |
-| **Agents** | `scriptcraft-cli` (convert, run, report, commands, parity), MCP server (headless or bridged to the window), keyed loopback control channel, headless screenshots |
+| **Agents** | `draftcraft-cli` (convert, run, report, commands, parity), MCP server (headless or bridged to the window), keyed loopback control channel, headless screenshots |
 
 The full Final Draft 13 comparison, including what's not done yet, is in
 [docs/parity-checklist.md](docs/parity-checklist.md): **63 implemented · 0 partial · 5 not yet**.
@@ -122,10 +122,10 @@ The full Final Draft 13 comparison, including what's not done yet, is in
 Requires Rust 1.95+ (edition 2024).
 
 ```sh
-git clone https://github.com/NoJuanNobody/scriptcraft && cd scriptcraft
-cargo run --release -p scriptcraft                       # opens the sample script
-cargo run --release -p scriptcraft -- --new              # blank script
-cargo run --release -p scriptcraft -- my-script.fdx      # open a Final Draft or Fountain file
+git clone https://github.com/hlophlopgaming/draftcraft && cd draftcraft
+cargo run --release -p draftcraft                       # opens the sample script
+cargo run --release -p draftcraft -- --new              # blank script
+cargo run --release -p draftcraft -- my-script.fdx      # open a Final Draft or Fountain file
 ```
 
 ### Russian / Русский
@@ -151,26 +151,26 @@ The browser supports switching for the current session (its settings are not per
 1. Copy `crates/ui-egui/locales/en.json` to `<code>.json` and translate its values, keeping keys and named placeholders (`{page}`, `{name}`, etc.).
 2. Add one entry to `languages!` in `crates/ui-egui/src/i18n.rs`, for example:
    `French, "fr", "Français", "../locales/fr.json";`
-3. Run `cargo test -p scriptcraft-ui-egui`. Catalogue tests check keys and placeholders; the menu and settings automatically use the registry.
+3. Run `cargo test -p draftcraft-ui-egui`. Catalogue tests check keys and placeholders; the menu and settings automatically use the registry.
 
 Catalogues are embedded for offline desktop and browser builds. Missing translations fall back to the English source string. Values such as filenames and script text are never translated or parsed as templates. For scripts outside the bundled fonts' coverage, add and attribute appropriate fonts as well.
 
 ### Settings and data
 
-ScriptCraft stores settings like the other Craft apps, through
+DraftCraft stores settings like the other Craft apps, through
 [`craft-settings`](https://github.com/storytold/craft-libs/tree/main/crates/settings): one
 commented `config.toml` (`[appearance]`, `[editing]`, `[files]`), saved half a second after a
 change, with a `.bak`, recovery of damaged files and hand edits preserved. The folder is the
-first match of `--config-dir <dir>`, `SCRIPTCRAFT_CONFIG_DIR` (set but empty = isolated: nothing
+first match of `--config-dir <dir>`, `DRAFTCRAFT_CONFIG_DIR` (set but empty = isolated: nothing
 read or written), a `portable` marker next to the app (settings in `config/` beside it), then the
-platform folder (`~/Library/Application Support/scriptcraft`, `%APPDATA%\scriptcraft`,
-`~/.config/scriptcraft`). Autosave recovery, backups and the user dictionary are not settings:
+platform folder (`~/Library/Application Support/draftcraft`, `%APPDATA%\draftcraft`,
+`~/.config/draftcraft`). Autosave recovery, backups and the user dictionary are not settings:
 they live in the data folder, so a settings reset never loses work. The first run imports an older
 `prefs.json` and leaves it in place. Help › About shows the folders in use.
 
 In the browser: `cargo xtask web` (needs `rustup target add wasm32-unknown-unknown` and
 `cargo install wasm-bindgen-cli` at the version in Cargo.lock), then serve
-`apps/scriptcraft-web/dist/` with any static server, e.g. `python3 -m http.server -d apps/scriptcraft-web/dist`.
+`apps/draftcraft-web/dist/` with any static server, e.g. `python3 -m http.server -d apps/draftcraft-web/dist`.
 
 Writing a scene: type `int. diner - night`, **Enter** (Action), type the action, **Tab**
 (Character), type `margo`, **Enter** (Dialogue), type the line, **Tab** for a parenthetical or
@@ -179,15 +179,15 @@ Writing a scene: type `int. diner - night`, **Enter** (Action), type the action,
 ## For agents: CLI, MCP and the control channel
 
 ```sh
-scriptcraft-cli convert draft.fountain draft.pdf        # also .fdx ↔ .fountain
-scriptcraft-cli report draft.fdx                        # characters, scenes, locations
-scriptcraft-cli commands                                # every command id, shortcut, params
-scriptcraft-cli run --cmd 'text.insert={"text":"INT. DINER - NIGHT"}' --cmd text.enter \
+draftcraft-cli convert draft.fountain draft.pdf        # also .fdx ↔ .fountain
+draftcraft-cli report draft.fdx                        # characters, scenes, locations
+draftcraft-cli commands                                # every command id, shortcut, params
+draftcraft-cli run --cmd 'text.insert={"text":"INT. DINER - NIGHT"}' --cmd text.enter \
     --cmd 'text.insert={"text":"Rain on the glass."}' --cmd text.tab \
     --cmd 'text.insert={"text":"MARGO"}' --cmd text.enter \
     --cmd 'text.insert={"text":"Coffee?"}' --save scene.pdf
-scriptcraft-cli mcp                                     # MCP server on stdio (headless)
-scriptcraft-cli mcp --connect 127.0.0.1:7990            # drive the running app (scriptcraft --control 7990)
+draftcraft-cli mcp                                     # MCP server on stdio (headless)
+draftcraft-cli mcp --connect 127.0.0.1:7990            # drive the running app (draftcraft --control 7990)
 ```
 
 - [docs/mcp.md](docs/mcp.md): MCP tools (`list_commands`, `execute`, `batch`, `inspect_script`,
@@ -202,16 +202,16 @@ below the UI depends on egui.
 
 | Layer | Crate | Job |
 |---|---|---|
-| L0 | `scriptcraft-geom` | Letter page and Courier metrics (10 cpi, 6 lpi, 54 lines) |
-| L1 | `scriptcraft-doc` | screenplay model: element-typed paragraphs, title page, settings, clamped edit primitives |
-| L1 | `scriptcraft-fonts`, `scriptcraft-spell`, `scriptcraft-control-key` | Courier Badi (OFL); offline English spelling (SCOWL); the control key file |
-| L2 | `scriptcraft-fountain`, `scriptcraft-fdx` | Fountain and Final Draft XML import/export |
-| L2 | `scriptcraft-layout` | pagination, (MORE)/(CONT'D), dual dialogue, caret and hit testing |
-| L3 | `scriptcraft-pdf` | PDF export with krilla |
-| L4 | `scriptcraft-engine` | Session, undo, **command registry**, typing flow, SmartType, reports, file I/O, Final Draft 13 catalog |
-| L5 | `scriptcraft-mcp` | MCP server, headless or bridged to the app |
-| L6 | `scriptcraft-ui-egui` | the egui window (swappable) and `ui_shot` |
-| apps | `scriptcraft`, `scriptcraft-cli`, `scriptcraft-web` | desktop app (eframe + wgpu), command line, browser app (WebGL) |
+| L0 | `draftcraft-geom` | Letter page and Courier metrics (10 cpi, 6 lpi, 54 lines) |
+| L1 | `draftcraft-doc` | screenplay model: element-typed paragraphs, title page, settings, clamped edit primitives |
+| L1 | `draftcraft-fonts`, `draftcraft-spell`, `draftcraft-control-key` | Courier Badi (OFL); offline English spelling (SCOWL); the control key file |
+| L2 | `draftcraft-fountain`, `draftcraft-fdx` | Fountain and Final Draft XML import/export |
+| L2 | `draftcraft-layout` | pagination, (MORE)/(CONT'D), dual dialogue, caret and hit testing |
+| L3 | `draftcraft-pdf` | PDF export with krilla |
+| L4 | `draftcraft-engine` | Session, undo, **command registry**, typing flow, SmartType, reports, file I/O, Final Draft 13 catalog |
+| L5 | `draftcraft-mcp` | MCP server, headless or bridged to the app |
+| L6 | `draftcraft-ui-egui` | the egui window (swappable) and `ui_shot` |
+| apps | `draftcraft`, `draftcraft-cli`, `draftcraft-web` | desktop app (eframe + wgpu), command line, browser app (WebGL) |
 
 **Everything is a command:** a `CommandSpec` (id, label, menu location, shortcut, params doc,
 `enabled`, `run`) in `crates/engine/src/cmd/*.rs`, dispatched identically by menus, shortcuts, CLI,
@@ -221,7 +221,7 @@ layers, parity doc up to date).
 ## Roadmap
 
 See [ROADMAP.md](ROADMAP.md); every gap is tracked as a
-[GitHub issue](https://github.com/NoJuanNobody/scriptcraft/issues) under milestones. v0.2–v0.5 are done apart from the items that need Final Draft 13 itself:
+[GitHub issue](https://github.com/hlophlopgaming/draftcraft/issues) under milestones. v0.2–v0.5 are done apart from the items that need Final Draft 13 itself:
 confirming its FDX form for tags, omitted scenes, alternates and locked pages (#42, #44) and
 checking the typing flow against it (#32).
 
@@ -237,6 +237,6 @@ MIT OR Apache-2.0 ([LICENSE-MIT](LICENSE-MIT), [LICENSE-APACHE](LICENSE-APACHE))
 Architecture patterns adapted from WordCraft (MIT OR Apache-2.0); see [NOTICE](NOTICE) and
 [ATTRIBUTION.md](ATTRIBUTION.md).
 
-ScriptCraft is a clean-room project: built from public file-format structure and widely documented
+DraftCraft is a clean-room project: built from public file-format structure and widely documented
 screenwriting conventions. It contains no Final Draft code, icons, images, templates, sample
-scripts or fonts. Final Draft is a trademark of its owner; ScriptCraft is not affiliated with it.
+scripts or fonts. Final Draft is a trademark of its owner; DraftCraft is not affiliated with it.

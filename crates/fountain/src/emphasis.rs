@@ -1,7 +1,7 @@
 //! Fountain emphasis: `*italic*`, `**bold**`, `***bold italic***`, `_underline_`; `\*` and `\_`
 //! are literal. An opening marker with no matching closer later in the paragraph is literal.
 
-use scriptcraft_doc::{Para, Style};
+use draftcraft_doc::{Para, Style};
 
 #[derive(Clone, PartialEq, Debug)]
 enum Tok {

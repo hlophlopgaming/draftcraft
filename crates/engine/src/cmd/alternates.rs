@@ -2,7 +2,7 @@
 //! version (the one laid out, printed and exported as script text); the others wait in its
 //! `alternates`. All commands act on the caret's paragraph.
 
-use scriptcraft_doc::{Alternate, Element, MAX_ALTERNATES};
+use draftcraft_doc::{Alternate, Element, MAX_ALTERNATES};
 use serde_json::{Value, json};
 
 use crate::{CmdError, CmdResult, CommandSpec, Session, p};

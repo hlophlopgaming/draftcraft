@@ -23,9 +23,9 @@ fn hostile_params_never_panic() {
             continue;
         }
         for j in &junk {
-            for start in [Session::sample(), Session::new(scriptcraft_doc::Script::new())] {
+            for start in [Session::sample(), Session::new(draftcraft_doc::Script::new())] {
                 let mut s = start;
-                s.sel.focus = scriptcraft_doc::Pos::new(3, 2);
+                s.sel.focus = draftcraft_doc::Pos::new(3, 2);
                 let _ = s.run(spec.id, j);
                 s.clamp_selection();
                 let _ = s.layout();
@@ -63,19 +63,19 @@ fn sample_is_a_few_pages() {
     assert_eq!(st["scenes"], 4);
     let l = s.layout();
     assert!(l.pages[0].title_page);
-    assert!(s.script.paras.iter().any(|p| p.element == scriptcraft_doc::Element::Shot));
+    assert!(s.script.paras.iter().any(|p| p.element == draftcraft_doc::Element::Shot));
     assert!(s.script.paras.iter().any(|p| p.dual));
 }
 
 #[test]
 fn sample_round_trips_through_fountain_and_fdx() {
     let s = Session::sample();
-    let fdx = scriptcraft_fdx::write(&s.script);
-    assert_eq!(scriptcraft_fdx::parse(&fdx).unwrap().paras, s.script.paras);
-    let f = scriptcraft_fountain::write(&s.script);
-    let back = scriptcraft_fountain::parse(&f);
+    let fdx = draftcraft_fdx::write(&s.script);
+    assert_eq!(draftcraft_fdx::parse(&fdx).unwrap().paras, s.script.paras);
+    let f = draftcraft_fountain::write(&s.script);
+    let back = draftcraft_fountain::parse(&f);
     assert_eq!(back.paras.len(), s.script.paras.len());
-    assert_eq!(scriptcraft_fountain::write(&back), f);
+    assert_eq!(draftcraft_fountain::write(&back), f);
 }
 
 #[test]
@@ -108,7 +108,7 @@ fn scenes_cards_and_numbers() {
     run(&mut s, "scene.numberAll", json!({}));
     assert_eq!(s.script.scenes()[2].number.as_deref(), Some("3"));
     let lay = s.layout();
-    assert!(lay.pages.iter().flat_map(|p| &p.lines).any(|l| l.kind == scriptcraft_layout::LineKind::SceneNumber));
+    assert!(lay.pages.iter().flat_map(|p| &p.lines).any(|l| l.kind == draftcraft_layout::LineKind::SceneNumber));
     run(&mut s, "scene.goto", json!({"index": 3}));
     assert_eq!(s.sel.focus.para, s.script.scenes()[3].para);
     run(&mut s, "scene.setColor", json!({"index": 1, "color": "pink"}));
@@ -138,10 +138,10 @@ fn find_and_replace() {
 
 #[test]
 fn clipboard_and_selection() {
-    let mut s = Session::new(scriptcraft_doc::Script::new());
+    let mut s = Session::new(draftcraft_doc::Script::new());
     run(&mut s, "text.insert", json!({"text": "int. a - day\nShe runs.\nLine two."}));
     assert_eq!(s.script.paras.len(), 3);
-    assert_eq!(s.script.paras[1].element, scriptcraft_doc::Element::Action);
+    assert_eq!(s.script.paras[1].element, draftcraft_doc::Element::Action);
     run(&mut s, "select.text", json!({"text": "runs"}));
     let c = run(&mut s, "edit.cut", json!({}));
     assert_eq!(c["text"], "runs");
@@ -156,7 +156,7 @@ fn clipboard_and_selection() {
 
 #[test]
 fn paste_keeps_elements() {
-    use scriptcraft_doc::Element::*;
+    use draftcraft_doc::Element::*;
     let mut s = Session::sample();
     // Copy from the shot through part of NELL's first line (cue, parenthetical, dialogue).
     let shot = s.script.paras.iter().position(|p| p.element == Shot).unwrap();
@@ -182,11 +182,11 @@ fn paste_keeps_elements() {
     run(&mut s, "edit.undo", json!({}));
     assert_eq!(s.script.paras.len(), before);
     // Fountain from elsewhere is parsed into elements.
-    let mut t = Session::new(scriptcraft_doc::Script::new());
+    let mut t = Session::new(draftcraft_doc::Script::new());
     run(&mut t, "edit.paste", json!({"text": "EXT. PIER - DAWN\n\nGulls wheel.\n\nSAM\n(quietly)\nNot again.\n"}));
     let els: Vec<_> = t.script.paras.iter().map(|p| p.element).collect();
     assert_eq!(els, vec![SceneHeading, Action, Character, Parenthetical, Dialogue]);
-    assert_eq!(t.sel.focus, scriptcraft_doc::Pos::new(4, 10));
+    assert_eq!(t.sel.focus, draftcraft_doc::Pos::new(4, 10));
     // Plain lines without blank lines are typed as before.
     run(&mut t, "edit.paste", json!({"text": " Two\nlines"}));
     assert_eq!(t.script.paras.last().unwrap().text, "lines");
@@ -215,7 +215,7 @@ fn caret_moves_by_line_through_the_layout() {
 
 #[test]
 fn dual_dialogue_toggle() {
-    let mut s = Session::new(scriptcraft_doc::Script::new());
+    let mut s = Session::new(draftcraft_doc::Script::new());
     run(&mut s, "text.insert", json!({"text": "x"}));
     for k in ["text.enter", "text.tab"] {
         run(&mut s, k, json!({}));
@@ -243,14 +243,14 @@ fn failed_commands_change_nothing() {
 
 #[test]
 fn files_round_trip() {
-    let dir = std::env::temp_dir().join(format!("scriptcraft-test-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!("draftcraft-test-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let mut s = Session::sample();
     for ext in ["fountain", "fdx"] {
         let p = dir.join(format!("night.{ext}"));
         run(&mut s, "file.saveAs", json!({"path": p.to_str().unwrap()}));
         assert!(!s.dirty);
-        let mut t = Session::new(scriptcraft_doc::Script::new());
+        let mut t = Session::new(draftcraft_doc::Script::new());
         run(&mut t, "file.open", json!({"path": p.to_str().unwrap()}));
         assert_eq!(t.script.scenes().len(), 4);
     }
@@ -264,7 +264,7 @@ fn files_round_trip() {
 
 #[test]
 fn bold_italic_underline() {
-    let mut s = Session::new(scriptcraft_doc::Script::new());
+    let mut s = Session::new(draftcraft_doc::Script::new());
     run(&mut s, "text.insert", json!({"text": "x"}));
     run(&mut s, "text.enter", json!({}));
     run(&mut s, "text.insert", json!({"text": "She is "}));
@@ -275,7 +275,7 @@ fn bold_italic_underline() {
     run(&mut s, "text.insert", json!({"text": " late."}));
     let p = &s.script.paras[1];
     assert_eq!(p.text, "She is very late.");
-    assert_eq!(p.spans, vec![scriptcraft_doc::Span { start: 7, end: 11, style: scriptcraft_doc::Style { bold: true, ..Default::default() } }]);
+    assert_eq!(p.spans, vec![draftcraft_doc::Span { start: 7, end: 11, style: draftcraft_doc::Style { bold: true, ..Default::default() } }]);
     run(&mut s, "select.text", json!({"text": "late"}));
     run(&mut s, "format.italic", json!({}));
     run(&mut s, "format.underline", json!({}));
@@ -331,7 +331,7 @@ fn load_and_export_data() {
     let mut s = Session::sample();
     let e = run(&mut s, "document.export", json!({"format": "fdx"}));
     assert_eq!(e["name"], "Night Signal.fdx");
-    let mut t = Session::new(scriptcraft_doc::Script::new());
+    let mut t = Session::new(draftcraft_doc::Script::new());
     run(&mut t, "file.load", json!({"name": "x.fdx", "data": e["data"]}));
     assert_eq!(t.script.paras, s.script.paras);
     run(&mut t, "file.load", json!({"name": "y.fountain", "text": "INT. A - DAY\n\nHi."}));
@@ -346,6 +346,6 @@ fn load_and_export_data() {
 #[test]
 fn sample_shot_comes_from_its_fountain_note() {
     let s = crate::sample::script();
-    let shots: Vec<&str> = s.paras.iter().filter(|p| p.element == scriptcraft_doc::Element::Shot).map(|p| p.text.as_str()).collect();
+    let shots: Vec<&str> = s.paras.iter().filter(|p| p.element == draftcraft_doc::Element::Shot).map(|p| p.text.as_str()).collect();
     assert_eq!(shots, vec!["CLOSE ON THE BAROMETER"]);
 }

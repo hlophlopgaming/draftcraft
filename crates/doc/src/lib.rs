@@ -1,4 +1,4 @@
-//! ScriptCraft L1: the screenplay model.
+//! DraftCraft L1: the screenplay model.
 //!
 //! A [`Script`] is an ordered list of [`Para`]graphs, each tagged with an [`Element`] type (Scene
 //! Heading, Action, Character, Parenthetical, Dialogue, Transition, Shot, General), plus the

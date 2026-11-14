@@ -114,7 +114,7 @@ fn hostile_input() {
 
 #[test]
 fn emphasis_round_trip() {
-    use scriptcraft_doc::Style;
+    use draftcraft_doc::Style;
     let src = "A *quiet* **loud** ***both*** _under_ and _**mixed**_ room. Literal \\* star, snake\\_case, 2*3.\n";
     let s = parse(src);
     let p = &s.paras[0];
@@ -137,7 +137,7 @@ fn emphasis_round_trip() {
 fn card_colour_and_tags() {
     let src = "INT. LAB - NIGHT\n\n= Ada wins.\n\n[[color: teal]]\n\n[[tags: climax, Ada]]\n\n[[an ordinary note]]\nBeakers bubble.\n";
     let s = parse(src);
-    assert_eq!(s.paras[0].color, Some(scriptcraft_doc::CardColor::Teal));
+    assert_eq!(s.paras[0].color, Some(draftcraft_doc::CardColor::Teal));
     assert_eq!(s.paras[0].tags, vec!["climax", "Ada"]);
     assert_eq!(s.paras[0].summary, "Ada wins.");
     assert_eq!(s.paras[1].text, "Beakers bubble.");

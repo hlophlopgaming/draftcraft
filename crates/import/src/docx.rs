@@ -15,7 +15,7 @@
 
 use quick_xml::Reader;
 use quick_xml::events::{BytesStart, Event};
-use scriptcraft_doc::{Element, Script, Style};
+use draftcraft_doc::{Element, Script, Style};
 
 use crate::shape::{self, Builder, Geometry, Styled, TitleBlocks};
 use crate::{Imported, zip};
@@ -229,7 +229,7 @@ fn read_document(xml: &str, styles: &Styles) -> (Vec<WPara>, f32, f32) {
     let mut guard = 0usize;
     loop {
         guard += 1;
-        if guard > 20_000_000 || paras.len() > scriptcraft_doc::MAX_PARAS {
+        if guard > 20_000_000 || paras.len() > draftcraft_doc::MAX_PARAS {
             break;
         }
         let ev = match r.read_event() {
@@ -505,7 +505,7 @@ pub fn import(bytes: &[u8]) -> Result<Imported, String> {
                 }
             }
         }
-        let parsed = scriptcraft_fountain::parse(&src);
+        let parsed = draftcraft_fountain::parse(&src);
         script.paras = parsed.paras;
         if script.title.is_empty() && !parsed.title.is_empty() {
             script.title = parsed.title;

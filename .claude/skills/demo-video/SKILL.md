@@ -1,9 +1,9 @@
 ---
 name: demo-video
-description: Record a narrated demo video of ScriptCraft that proves a PR or milestone works. It drives the real app window offscreen through its own menus, keys and clicks, shows the printed PDF, and then reviews the frames before sharing. Use when asked to "make a video", "make a clip", "record a demo", "prove it works", "verify the features in PR #N" or "show me v0.X working".
+description: Record a narrated demo video of DraftCraft that proves a PR or milestone works. It drives the real app window offscreen through its own menus, keys and clicks, shows the printed PDF, and then reviews the frames before sharing. Use when asked to "make a video", "make a clip", "record a demo", "prove it works", "verify the features in PR #N" or "show me v0.X working".
 ---
 
-# ScriptCraft demo video
+# DraftCraft demo video
 
 A tour is a JSON-lines script that `crates/ui-egui/examples/ui_demo.rs` plays against the real
 `ScriptApp`. It renders offscreen with wgpu, so a locked screen or a hidden window doesn't matter. It draws a
@@ -19,11 +19,11 @@ Requirements: ffmpeg; on macOS, `swift` for PDF pages (`docs/demo/pdf-pages.swif
 - Plan one segment per issue, in a sensible order. Later segments see earlier changes: once pages are
   locked, every later edit makes A pages; an omitted scene hides its text from `{"text": …}` targets.
 - Get exact names from the code, not memory:
-  - commands: `cargo run -q -p scriptcraft-cli -- commands`
+  - commands: `cargo run -q -p draftcraft-cli -- commands`
   - window commands: the `("ui.…", "Label", …)` table in `crates/ui-egui/src/lib.rs`
   - menu and button labels: `crates/ui-egui/src/chrome.rs` and the dialog files
 - Sample script text for targets is in `crates/engine/src/sample.fountain`. Scene and page facts:
-  `cargo run -q -p scriptcraft-cli -- run --sample --cmd scene.list --cmd page.list`.
+  `cargo run -q -p draftcraft-cli -- run --sample --cmd scene.list --cmd page.list`.
 
 ## 2. Write the tour: `docs/demo/<name>-tour.jsonl`
 
@@ -32,7 +32,7 @@ you'll use most:
 
 | Line | Does |
 |---|---|
-| `{"badge": "ScriptCraft v0.3 · PR #40"}` | corner label (first line) |
+| `{"badge": "DraftCraft v0.3 · PR #40"}` | corner label (first line) |
 | `{"title": "#13  Revision mode", "sub": "…"}` | caption for the segment |
 | `{"hold": 1.5}` | keep the picture for 1.5 s |
 | `{"point": {"label": "Production"}, "secs": 0.7}` then `{"click": "left"}` | use a real menu or button (also `"right"`, `"count": 2`) |
@@ -60,7 +60,7 @@ docs/demo/record-tour.sh docs/demo/<name>-tour.jsonl docs/demo/<name>-tour.mp4 <
 ```
 
 - `@ROOT@` is the repo; `@WORK@` is a fresh `<scratch>/<name>/run` folder for each recording.
-- Settings are isolated (`SCRIPTCRAFT_CONFIG_DIR=`).
+- Settings are isolated (`DRAFTCRAFT_CONFIG_DIR=`).
 - A recording takes about 15 s plus the build.
 - `no target {…}` on stderr means a `point` missed: fix the text or label.
 - A `cmd` error is printed too: fix it, don't ignore it.

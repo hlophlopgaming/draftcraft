@@ -1,6 +1,6 @@
 //! Free-form title pages.
 
-use scriptcraft_doc::{Align, Para, Script, Style, TitleLine};
+use draftcraft_doc::{Align, Para, Script, Style, TitleLine};
 
 use super::*;
 
@@ -23,7 +23,7 @@ fn free_form_title_pages_print_their_lines() {
     assert_eq!(t[1].0, "NIGHT");
     assert!((t[1].1 - (72.0 + (468.0 - 5.0 * CHAR_W) / 2.0)).abs() < 0.01, "centred between 1\" margins");
     assert_eq!(t[1].2, TOP + 2.0 * LINE_H, "the blank line keeps its row");
-    assert_eq!(page.lines[1].spans, vec![scriptcraft_doc::Span { start: 0, end: 5, style: underline }]);
+    assert_eq!(page.lines[1].spans, vec![draftcraft_doc::Span { start: 0, end: 5, style: underline }]);
     assert!((t[2].1 + 3.0 * CHAR_W - (612.0 - 72.0)).abs() < 0.01, "right-aligned at 1\" from the edge");
     assert_eq!(t.len(), 6, "the 149-character line wraps to three rows of at most 65");
     assert!(t.iter().all(|(text, x, _)| *x + text.chars().count() as f32 * CHAR_W <= 612.0 - 72.0 + 0.01));

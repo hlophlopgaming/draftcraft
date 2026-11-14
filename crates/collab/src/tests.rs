@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-use scriptcraft_doc::{Element, Flag, Para, Pos, Script};
+use draftcraft_doc::{Element, Flag, Para, Pos, Script};
 
 use crate::*;
 
@@ -511,7 +511,7 @@ fn two_sessions_over_loopback() {
 
 #[test]
 fn structure_bookmarks_and_beats_sync_while_the_other_types() {
-    use scriptcraft_doc::{StructureKind, StructurePoint};
+    use draftcraft_doc::{StructureKind, StructurePoint};
     let mut sim = Sim::new(sample(), 2);
     // Peer 0 adds an act, a bookmark, a beat linked to the scene and a point after the end.
     {
@@ -544,7 +544,7 @@ fn structure_bookmarks_and_beats_sync_while_the_other_types() {
 
 #[test]
 fn tracked_changes_sync_with_their_authors() {
-    use scriptcraft_doc::{ChangeKind, track};
+    use draftcraft_doc::{ChangeKind, track};
     let mut sim = Sim::new(sample(), 2);
     // Each peer records its own edit as a tracked change (as the engine does with track on).
     for (i, (pos, text, who)) in [(Pos::new(1, 0), "Then ", "Ana"), (Pos::new(4, 0), "Slowly, ", "Bo")].into_iter().enumerate() {

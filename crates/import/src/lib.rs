@@ -1,4 +1,4 @@
-//! ScriptCraft L3: import screenplays written in other apps.
+//! DraftCraft L3: import screenplays written in other apps.
 //!
 //! - **Word (`.docx`)**: paragraph styles named like screenplay elements (Scene Heading, Action,
 //!   Character, Dialogue, Parenthetical, Transition, Shot, General and common variants), else the
@@ -8,7 +8,7 @@
 //! - **Celtx**: legacy `.celtx` project archives (a ZIP holding the script as HTML whose
 //!   paragraphs carry element classes such as `sceneheading`, `action`, `character`, `dialog`,
 //!   `parenthetical`, `transition`, `shot`) and that HTML on its own. Current Celtx exports to
-//!   Final Draft or PDF, which ScriptCraft opens too.
+//!   Final Draft or PDF, which DraftCraft opens too.
 //! - **PDF**: text with positions; elements told by indent (see [`pdf`]).
 //!
 //! Every importer is panic-free on any input and caps what it reads.
@@ -21,7 +21,7 @@ mod pdf;
 mod shape;
 mod zip;
 
-use scriptcraft_doc::Script;
+use draftcraft_doc::Script;
 
 /// Largest file imported.
 pub const MAX_INPUT: usize = 128 << 20;
@@ -73,8 +73,8 @@ pub fn import(bytes: &[u8], kind: Kind) -> Result<Imported, String> {
         Kind::Pdf => pdf::import(bytes)?,
     };
     for p in &mut r.script.paras {
-        if p.text.len() > scriptcraft_doc::MAX_PARA_BYTES {
-            let mut cut = scriptcraft_doc::MAX_PARA_BYTES;
+        if p.text.len() > draftcraft_doc::MAX_PARA_BYTES {
+            let mut cut = draftcraft_doc::MAX_PARA_BYTES;
             while cut > 0 && !p.text.is_char_boundary(cut) {
                 cut -= 1;
             }

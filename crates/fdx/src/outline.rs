@@ -6,9 +6,9 @@
 //! (`Behavior PaginateAs="Outline"`, hidden text). That is what we write: acts as `Outline 1`,
 //! sequences as `Outline 2`, sections as `Outline 3` (deeper levels read as sections), just
 //! before the scene they open. The point's colour has no known FDX form and uses a
-//! ScriptCraft-only `ScriptCraftColor` attribute.
+//! DraftCraft-only `DraftCraftColor` attribute.
 
-use scriptcraft_doc::{CardColor, MAX_STRUCTURE, Para, StructureKind, StructurePoint};
+use draftcraft_doc::{CardColor, MAX_STRUCTURE, Para, StructureKind, StructurePoint};
 
 use crate::{Kind, Open, color_attr, esc};
 
@@ -79,7 +79,7 @@ impl Read {
 /// Write points as `Outline N` paragraphs with their `Summary`.
 pub(crate) fn write_points(out: &mut String, indent: &str, points: &[StructurePoint]) {
     for sp in points {
-        let color = sp.color.map(|c: CardColor| format!(" ScriptCraftColor=\"{}\"", color_attr(c))).unwrap_or_default();
+        let color = sp.color.map(|c: CardColor| format!(" DraftCraftColor=\"{}\"", color_attr(c))).unwrap_or_default();
         out.push_str(&format!(
             "{indent}<Paragraph Type=\"Outline {}\"{color}>\n{indent}  <Text>{}</Text>\n{indent}</Paragraph>\n",
             sp.kind.level(),

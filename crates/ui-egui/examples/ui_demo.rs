@@ -1,8 +1,8 @@
-//! Records a narrated demo video of ScriptCraft: drives the real window offscreen (wgpu) from a
+//! Records a narrated demo video of DraftCraft: drives the real window offscreen (wgpu) from a
 //! JSON-lines script, draws a pointer and a caption bar, and writes numbered PNG frames that
 //! `ffmpeg` turns into a video.
 //!
-//! `cargo run --release -p scriptcraft-ui-egui --example ui_demo -- demo.jsonl frames/`
+//! `cargo run --release -p draftcraft-ui-egui --example ui_demo -- demo.jsonl frames/`
 //!
 //! Script lines (one action each):
 //! - `{"title": "…", "sub": "…"}`: set the caption
@@ -22,7 +22,7 @@
 //!   PNG frames recorded elsewhere (the browser build); `"bar": "…"` sets the title bar text
 //! - `{"state": true}`: use a temporary settings folder (autosave, recent files, backups)
 //! - `{"recovery": true}`: leave an autosaved copy there and offer it, as after a crash
-//! - `{"badge": "ScriptCraft v0.3 · PR #40"}`: the label in the top-right corner
+//! - `{"badge": "DraftCraft v0.3 · PR #40"}`: the label in the top-right corner
 //! - `{"speaker": "silent"}` (first lines): a silent speech engine with a few voices, for Read Aloud
 //! - `{"peer": "join", "name": "Ana"}`: another person joins the window's hosted session (a second
 //!   session on its own thread, as another computer would); `{"peer": "cmd", "id": …, "params": …}`
@@ -35,8 +35,8 @@ use std::sync::Mutex;
 
 use egui::{Align2, Color32, FontId, Pos2, Rect, Stroke, pos2, vec2};
 use egui_kittest::kittest::Queryable;
-use scriptcraft_engine::Session;
-use scriptcraft_ui_egui::ScriptApp;
+use draftcraft_engine::Session;
+use draftcraft_ui_egui::ScriptApp;
 use serde_json::{Value, json};
 
 const FPS: f32 = 15.0;
@@ -190,7 +190,7 @@ fn overlay(ctx: &egui::Context) {
     let badge = Rect::from_min_size(pos2(screen.right() - 236.0, screen.top() + 52.0), vec2(220.0, 26.0));
     p.rect_filled(badge, 13.0, Color32::from_rgba_unmultiplied(59, 91, 219, 230));
     let label = BADGE.lock().map(|g| g.clone()).unwrap_or_default();
-    p.text(badge.center(), Align2::CENTER_CENTER, if label.is_empty() { "ScriptCraft" } else { &label }, FontId::proportional(13.5), Color32::WHITE);
+    p.text(badge.center(), Align2::CENTER_CENTER, if label.is_empty() { "DraftCraft" } else { &label }, FontId::proportional(13.5), Color32::WHITE);
     let covered = TERMINAL.lock().map(|g| g.is_some()).unwrap_or(false) || PICTURE.lock().map(|g| g.is_some()).unwrap_or(false);
     if let Some(at) = POINTER.lock().ok().and_then(|g| *g).filter(|_| !covered) {
         let pressed = PRESSED.lock().map(|g| *g).unwrap_or(false);
@@ -250,7 +250,7 @@ fn target_at(h: &mut egui_kittest::Harness<'_, ScriptApp>, rec: &mut Rec, t: &Va
         }
         let app = h.state_mut();
         let l = app.session.view_layout();
-        let c = l.caret(scriptcraft_doc::Pos::new(at.0, at.1 + text.len() / 2))?;
+        let c = l.caret(draftcraft_doc::Pos::new(at.0, at.1 + text.len() / 2))?;
         let pr = app.canvas.page_rects.get(c.page)?;
         let z = app.canvas.zoom;
         return Some(pr.min + vec2(c.x * z, (c.y + c.h * 0.6) * z));
@@ -284,7 +284,7 @@ fn main() {
     let mut app = ScriptApp::new(Session::sample());
     app.dialogs = false;
     if lines.iter().any(|l| l.get("speaker").is_some()) {
-        let mut s = scriptcraft_ui_egui::speech::SilentSpeaker::new(&["Samantha", "Daniel", "Karen", "Moira", "Tessa", "Fred", "Rishi"]);
+        let mut s = draftcraft_ui_egui::speech::SilentSpeaker::new(&["Samantha", "Daniel", "Karen", "Moira", "Tessa", "Fred", "Rishi"]);
         s.frames_per_line = 6;
         app.speaker = Some(Box::new(s));
     }
@@ -305,7 +305,7 @@ fn main() {
         );
     let mut rec = Rec { dir: dir.clone(), n: 0 };
     let mut peer: Option<Peer> = None;
-    let state_dir = std::env::temp_dir().join(format!("scriptcraft-demo-{}", std::process::id()));
+    let state_dir = std::env::temp_dir().join(format!("draftcraft-demo-{}", std::process::id()));
     for _ in 0..4 {
         step(&mut h);
     }
@@ -439,7 +439,7 @@ fn main() {
                 *g = l
                     .get("bar")
                     .and_then(Value::as_str)
-                    .unwrap_or("Google Chrome  ·  http://127.0.0.1:8765  ·  ScriptCraft compiled to WebAssembly")
+                    .unwrap_or("Google Chrome  ·  http://127.0.0.1:8765  ·  DraftCraft compiled to WebAssembly")
                     .to_string();
             }
             let mut files: Vec<PathBuf> = std::fs::read_dir(d).map(|r| r.flatten().map(|e| e.path()).collect()).unwrap_or_default();
@@ -522,9 +522,9 @@ fn main() {
             let _ = std::fs::remove_dir_all(&state_dir);
             let _ = std::fs::create_dir_all(&state_dir);
             let file = state_dir.join("Night Signal.fountain");
-            let _ = std::fs::write(&file, scriptcraft_engine::sample::FOUNTAIN);
+            let _ = std::fs::write(&file, draftcraft_engine::sample::FOUNTAIN);
             let app = h.state_mut();
-            app.use_folders(scriptcraft_control_key::Folders {
+            app.use_folders(draftcraft_control_key::Folders {
                 config: Some(state_dir.clone()),
                 data: Some(state_dir.clone()),
                 rule: "demo".into(),
@@ -533,10 +533,10 @@ fn main() {
             let _ = app.execute("file.open", json!({"path": file.to_str().unwrap_or("")}));
             rec.shot(&mut h);
         } else if l.get("recovery").is_some() {
-            let mut s = scriptcraft_engine::sample::script();
-            s.paras.insert(1, scriptcraft_doc::Para::new(scriptcraft_doc::Element::Action, "These words were typed just before the crash."));
-            let _ = scriptcraft_ui_egui::persist::write_recovery(&state_dir, Some(Path::new("Night Signal.fountain")), &s);
-            h.state_mut().recovery_offer = scriptcraft_ui_egui::persist::read_recovery(&state_dir);
+            let mut s = draftcraft_engine::sample::script();
+            s.paras.insert(1, draftcraft_doc::Para::new(draftcraft_doc::Element::Action, "These words were typed just before the crash."));
+            let _ = draftcraft_ui_egui::persist::write_recovery(&state_dir, Some(Path::new("Night Signal.fountain")), &s);
+            h.state_mut().recovery_offer = draftcraft_ui_egui::persist::read_recovery(&state_dir);
             rec.shot(&mut h);
         }
     }

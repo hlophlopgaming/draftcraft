@@ -1,6 +1,9 @@
-ScriptCraft
-Copyright 2026 the ScriptCraft contributors.
+DraftCraft
+Copyright 2026 the DraftCraft contributors.
 Licensed under the MIT license or the Apache License 2.0, at your option.
+
+DraftCraft is a fork of ScriptCraft (https://github.com/NoJuanNobody/scriptcraft),
+Copyright 2026 the ScriptCraft contributors, licensed MIT OR Apache-2.0.
 
 This project borrows small architectural patterns (command registry shape, MCP server framing,
 control-channel key file, headless ui_shot harness) from WordCraft
@@ -11,5 +14,5 @@ Courier Badi (derived from Courier Prime by Alan Dague-Greene for Quote-Unquote 
 by Dmitry Novikov and contributions by LaPingvino and the Courier Badi contributors) is licensed
 under the SIL Open Font License 1.1; see crates/fonts/fonts/OFL.txt.
 
-Final Draft is a trademark of its owner. ScriptCraft is not affiliated with or endorsed by it; the
+Final Draft is a trademark of its owner. DraftCraft is not affiliated with or endorsed by it; the
 name is used only to describe file-format compatibility and feature parity.

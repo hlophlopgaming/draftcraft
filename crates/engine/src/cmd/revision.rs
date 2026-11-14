@@ -1,6 +1,6 @@
 //! Revision mode: revision sets, the active set, and the marks on changed text.
 
-use scriptcraft_doc::revision::{MAX_SETS, RevisionSet, clear_marks, parse_color};
+use draftcraft_doc::revision::{MAX_SETS, RevisionSet, clear_marks, parse_color};
 use serde_json::{Value, json};
 
 use crate::{CmdError, CmdResult, CommandSpec, Session, p};
@@ -163,7 +163,7 @@ fn pages(s: &mut Session, _: &Value) -> CmdResult {
 
 #[cfg(test)]
 mod tests {
-    use scriptcraft_doc::Pos;
+    use draftcraft_doc::Pos;
     use serde_json::json;
 
     use crate::Session;
@@ -174,7 +174,7 @@ mod tests {
         s.run("revision.mode", &json!({"on": true, "set": "Pink"})).unwrap();
         s.run("revision.editSet", &json!({"date": "10/12/26"})).unwrap();
         // Typing in the first action paragraph is marked Pink.
-        let para = s.script.paras.iter().position(|p| p.element == scriptcraft_doc::Element::Action).unwrap();
+        let para = s.script.paras.iter().position(|p| p.element == draftcraft_doc::Element::Action).unwrap();
         s.sel = crate::Selection::caret(Pos::new(para, 0));
         s.run("text.insert", &json!({"text": "Suddenly, "})).unwrap();
         let p = &s.script.paras[para];
@@ -190,9 +190,9 @@ mod tests {
         // The page shows the mark and the header names the revision.
         let l = s.layout();
         let pi = l.para_page[para];
-        assert!(l.pages[pi].lines.iter().any(|x| x.kind == scriptcraft_layout::LineKind::RevisionMark && x.text == "*"));
+        assert!(l.pages[pi].lines.iter().any(|x| x.kind == draftcraft_layout::LineKind::RevisionMark && x.text == "*"));
         if l.pages[pi].number.unwrap_or(1) > 1 {
-            assert!(l.pages[pi].lines.iter().any(|x| x.kind == scriptcraft_layout::LineKind::Header && x.text.starts_with("Pink Rev. 10/12/26")));
+            assert!(l.pages[pi].lines.iter().any(|x| x.kind == draftcraft_layout::LineKind::Header && x.text.starts_with("Pink Rev. 10/12/26")));
         }
         // Undo removes the text and its mark together.
         s.run("edit.undo", &json!({})).unwrap();
@@ -214,7 +214,7 @@ mod tests {
 
     #[test]
     fn revision_sets() {
-        let mut s = Session::new(scriptcraft_doc::Script::new());
+        let mut s = Session::new(draftcraft_doc::Script::new());
         assert!(s.run("revision.set", &json!({"active": "Mauve"})).is_err());
         assert!(s.run("revision.set", &json!({"active": 99})).is_err());
         s.run("revision.set", &json!({"active": 3, "colorPages": true})).unwrap();

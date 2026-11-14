@@ -6,7 +6,7 @@
 
 use std::collections::BTreeMap;
 
-use scriptcraft_doc::{Element, Script, voices::character_key};
+use draftcraft_doc::{Element, Script, voices::character_key};
 use serde::Serialize;
 
 /// Most utterances in one plan.
@@ -204,7 +204,7 @@ pub fn cast_map(cast: &[(String, Option<String>)]) -> BTreeMap<String, Option<St
 
 #[cfg(test)]
 mod tests {
-    use scriptcraft_doc::{Alternate, Para};
+    use draftcraft_doc::{Alternate, Para};
 
     use super::*;
 
@@ -302,7 +302,7 @@ mod tests {
 
     #[test]
     fn structure_points_and_beats_are_not_read() {
-        use scriptcraft_doc::{StructureKind, StructurePoint};
+        use draftcraft_doc::{StructureKind, StructurePoint};
         let mut s = script();
         s.add_structure(StructurePoint::new(StructureKind::Act, "Act Secret", "Summary secret.", None), Some(0));
         s.add_structure(StructurePoint::new(StructureKind::Section, "Tail secret", "", None), None);

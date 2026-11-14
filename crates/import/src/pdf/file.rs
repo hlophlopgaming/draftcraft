@@ -45,7 +45,7 @@ impl File {
             })
         }) || find(b, b"/Encrypt").is_some();
         if encrypted {
-            return Err("this PDF is encrypted; ScriptCraft can't import it (print it to a new PDF first)".into());
+            return Err("this PDF is encrypted; DraftCraft can't import it (print it to a new PDF first)".into());
         }
         Ok(f)
     }

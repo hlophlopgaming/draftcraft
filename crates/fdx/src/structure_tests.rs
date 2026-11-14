@@ -1,5 +1,5 @@
 use super::*;
-use scriptcraft_doc::{StructureKind, StructurePoint};
+use draftcraft_doc::{StructureKind, StructurePoint};
 
 fn script() -> Script {
     let mut s = Script::from_paras(vec![
@@ -21,7 +21,7 @@ fn script() -> Script {
 fn structure_round_trips_as_outline_paragraphs() {
     let s = script();
     let xml = write(&s);
-    assert!(xml.contains("<Paragraph Type=\"Outline 1\" ScriptCraftColor="), "{xml}");
+    assert!(xml.contains("<Paragraph Type=\"Outline 1\" DraftCraftColor="), "{xml}");
     assert!(xml.contains("<Paragraph Type=\"Outline 2\">") && xml.contains("<Paragraph Type=\"Outline 3\">"));
     assert!(xml.contains("<Paragraph Type=\"Summary\">\n      <Text>Set up &lt;the&gt; world &amp; stakes.</Text>"));
     assert!(xml.contains("<ElementSettings Type=\"Outline 1\">"));
@@ -81,5 +81,5 @@ fn hostile_outline_paragraphs() {
     }
     let many: String = (0..6000).map(|i| format!("<Paragraph Type=\"Outline 1\"><Text>{i}</Text></Paragraph>")).collect();
     let s = parse(&format!("<FinalDraft><Content>{many}</Content></FinalDraft>")).unwrap_or_default();
-    assert_eq!(s.structure_count(), scriptcraft_doc::MAX_STRUCTURE);
+    assert_eq!(s.structure_count(), draftcraft_doc::MAX_STRUCTURE);
 }

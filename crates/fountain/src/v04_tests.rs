@@ -1,6 +1,6 @@
 //! Structure points, beats and bookmarks in one file.
 use super::*;
-use scriptcraft_doc::{Element, Para, Script, StructureKind, StructurePoint};
+use draftcraft_doc::{Element, Para, Script, StructureKind, StructurePoint};
 
 fn v04() -> Script {
     let mut s = Script::from_paras(vec![

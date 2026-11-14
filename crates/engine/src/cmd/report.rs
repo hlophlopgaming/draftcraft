@@ -110,23 +110,23 @@ fn layout(s: &mut Session, v: &Value) -> CmdResult {
 }
 
 fn fountain(s: &mut Session, _: &Value) -> CmdResult {
-    Ok(json!({"text": scriptcraft_fountain::write(&s.script)}))
+    Ok(json!({"text": draftcraft_fountain::write(&s.script)}))
 }
 
 fn fdx(s: &mut Session, _: &Value) -> CmdResult {
-    Ok(json!({"xml": scriptcraft_fdx::write(&s.script)}))
+    Ok(json!({"xml": draftcraft_fdx::write(&s.script)}))
 }
 
 fn set_fountain(s: &mut Session, v: &Value) -> CmdResult {
     let text = p::req_str(v, "text")?;
-    s.script = scriptcraft_fountain::parse(text);
+    s.script = draftcraft_fountain::parse(text);
     s.sel = crate::Selection::default();
     Ok(json!({"paragraphs": s.script.paras.len()}))
 }
 
 fn set_fdx(s: &mut Session, v: &Value) -> CmdResult {
     let xml = p::req_str(v, "xml")?;
-    s.script = scriptcraft_fdx::parse(xml).map_err(|e| CmdError::Failed(e.to_string()))?;
+    s.script = draftcraft_fdx::parse(xml).map_err(|e| CmdError::Failed(e.to_string()))?;
     s.sel = crate::Selection::default();
     Ok(json!({"paragraphs": s.script.paras.len()}))
 }

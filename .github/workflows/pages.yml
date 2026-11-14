@@ -39,7 +39,7 @@ jobs:
         run: |
           mkdir -p _site/app
           cp -R docs/. _site/
-          cp -R apps/scriptcraft-web/dist/. _site/app/
+          cp -R apps/draftcraft-web/dist/. _site/app/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

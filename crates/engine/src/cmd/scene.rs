@@ -1,6 +1,6 @@
 //! Scenes: navigator list, go to, index-card summaries, reordering, scene numbers.
 
-use scriptcraft_doc::{Element, Pos};
+use draftcraft_doc::{Element, Pos};
 use serde_json::{Value, json};
 
 use super::set_caret;
@@ -56,14 +56,14 @@ fn goto(s: &mut Session, v: &Value) -> CmdResult {
 fn set_summary(s: &mut Session, v: &Value) -> CmdResult {
     let para = scene_para(s, v)?;
     let text = p::req_str(v, "summary")?;
-    s.script.para_mut(para)?.summary = scriptcraft_doc::sanitize(text);
+    s.script.para_mut(para)?.summary = draftcraft_doc::sanitize(text);
     Ok(json!({"para": para}))
 }
 
 fn set_heading(s: &mut Session, v: &Value) -> CmdResult {
     let para = scene_para(s, v)?;
     let text = p::req_str(v, "heading")?;
-    s.script.para_mut(para)?.text = scriptcraft_doc::sanitize(text).to_uppercase();
+    s.script.para_mut(para)?.text = draftcraft_doc::sanitize(text).to_uppercase();
     Ok(json!({"para": para}))
 }
 
@@ -90,7 +90,7 @@ fn clear_numbers(s: &mut Session, _: &Value) -> CmdResult {
 
 fn set_number(s: &mut Session, v: &Value) -> CmdResult {
     let para = scene_para(s, v)?;
-    let n = scriptcraft_doc::sanitize(p::req_str(v, "number")?).trim().chars().take(8).collect::<String>();
+    let n = draftcraft_doc::sanitize(p::req_str(v, "number")?).trim().chars().take(8).collect::<String>();
     let p = s.script.para_mut(para)?;
     if p.element == Element::SceneHeading {
         p.scene_number = (!n.is_empty()).then_some(n);
@@ -103,7 +103,7 @@ fn set_color(s: &mut Session, v: &Value) -> CmdResult {
     let color = match v.get("color") {
         None | Some(Value::Null) => None,
         Some(Value::String(c)) if c.is_empty() || c == "none" => None,
-        Some(Value::String(c)) => Some(scriptcraft_doc::CardColor::parse(c).ok_or_else(|| CmdError::Params(format!("unknown colour `{c}`")))?),
+        Some(Value::String(c)) => Some(draftcraft_doc::CardColor::parse(c).ok_or_else(|| CmdError::Params(format!("unknown colour `{c}`")))?),
         Some(_) => return Err(CmdError::Params("`color` must be a colour name or null".into())),
     };
     s.script.para_mut(para)?.color = color;
@@ -113,8 +113,8 @@ fn set_color(s: &mut Session, v: &Value) -> CmdResult {
 fn set_tags(s: &mut Session, v: &Value) -> CmdResult {
     let para = scene_para(s, v)?;
     let tags: Vec<String> = match v.get("tags") {
-        Some(Value::String(t)) => scriptcraft_doc::clean_tags(t.split(',')),
-        Some(Value::Array(a)) => scriptcraft_doc::clean_tags(a.iter().filter_map(Value::as_str)),
+        Some(Value::String(t)) => draftcraft_doc::clean_tags(t.split(',')),
+        Some(Value::Array(a)) => draftcraft_doc::clean_tags(a.iter().filter_map(Value::as_str)),
         None | Some(Value::Null) => Vec::new(),
         Some(_) => return Err(CmdError::Params("`tags` must be a list or a comma-separated string".into())),
     };

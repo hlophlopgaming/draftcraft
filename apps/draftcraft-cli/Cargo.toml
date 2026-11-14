@@ -1,0 +1,16 @@
+[package]
+name = "draftcraft-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+description = "DraftCraft command line: convert, run commands, reports, MCP server"
+
+[lints]
+workspace = true
+
+[dependencies]
+draftcraft-doc = { workspace = true }
+draftcraft-engine = { workspace = true }
+draftcraft-mcp = { workspace = true }
+serde_json = { workspace = true }

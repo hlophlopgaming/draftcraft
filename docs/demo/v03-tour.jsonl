@@ -1,5 +1,5 @@
-{"badge": "ScriptCraft v0.3 · PR #40"}
-{"title": "ScriptCraft v0.3: production features (PR #40)", "sub": "Every frame is the real app, driven through its own menus, keys and clicks"}
+{"badge": "DraftCraft v0.3 · PR #40"}
+{"title": "DraftCraft v0.3: production features (PR #40)", "sub": "Every frame is the real app, driven through its own menus, keys and clicks"}
 {"hold": 2.5}
 // #15 Page setup: A4, header and footer
 {"title": "#15  Page Setup: A4 paper, headers and footers", "sub": "Fields like {page}, {title}, {date} and {revision}; first-page and title-page options"}
@@ -145,7 +145,7 @@
 {"hold": 2.6}
 {"cmd": "ui.view.page"}
 // #19 Print
-{"title": "#19  File > Print", "sub": "Page range, title page, revised pages only; ScriptCraft opens the PDF for printing"}
+{"title": "#19  File > Print", "sub": "Page range, title page, revised pages only; DraftCraft opens the PDF for printing"}
 {"key": "P", "cmd": true}
 {"hold": 1.2}
 {"point": {"label": "Only revised pages"}, "secs": 0.7}
@@ -158,8 +158,8 @@
 {"cmd": "file.exportPdf", "params": {"path": "@WORK@/v03.pdf"}}
 {"run": ["swift", "@ROOT@/docs/demo/pdf-pages.swift", "@WORK@/v03.pdf", "@WORK@/pdf_frames"]}
 {"point": {"xy": [1430, 890]}, "secs": 0.2}
-{"pictures": "@WORK@/pdf_frames", "frames_each": 38, "hold_last": 1.5, "bar": "Preview  ·  Night Signal.pdf  ·  printed by ScriptCraft"}
+{"pictures": "@WORK@/pdf_frames", "frames_each": 38, "hold_last": 1.5, "bar": "Preview  ·  Night Signal.pdf  ·  printed by DraftCraft"}
 {"pictures_off": true}
-{"title": "v0.3 production: #13–#20 in PR #40  ·  CI green on Linux, macOS, Windows", "sub": "github.com/NoJuanNobody/scriptcraft/pull/40"}
+{"title": "v0.3 production: #13–#20 in PR #40  ·  CI green on Linux, macOS, Windows", "sub": "github.com/hlophlopgaming/draftcraft/pull/40"}
 {"cmd": "caret.docStart"}
 {"hold": 3.5}

@@ -1,5 +1,5 @@
 use super::*;
-use scriptcraft_doc::{Flag, Pos};
+use draftcraft_doc::{Flag, Pos};
 
 fn annotated() -> Script {
     let mut s = Script::from_paras(vec![
@@ -15,8 +15,8 @@ fn annotated() -> Script {
     s.add_tag(Pos::new(1, 0), Pos::new(1, 3), "Cast");
     s.add_note(Pos::new(1, 4), Pos::new(1, 8), "Gentler: \"places\"?\nOr cut.", Some(CardColor::Blue), "Jo <editor>");
     s.add_note(Pos::new(0, 0), Pos::new(0, 0), "Check the café exists", None, "");
-    s.paras[3].alternates.push(scriptcraft_doc::Alternate::plain("Are you open?"));
-    s.paras[3].alternates.push(scriptcraft_doc::Alternate::plain("Open?"));
+    s.paras[3].alternates.push(draftcraft_doc::Alternate::plain("Are you open?"));
+    s.paras[3].alternates.push(draftcraft_doc::Alternate::plain("Open?"));
     s.set_flag(Pos::new(3, 0), Pos::new(3, 2), Flag::Italic, true);
     s
 }
@@ -32,7 +32,7 @@ fn notes_tags_and_alternates_round_trip() {
         ),
         "{xml}"
     );
-    assert!(xml.contains("<ScriptCraftTag Range=\"30,9\" Category=\"Set Dressing\"/>"), "{xml}");
+    assert!(xml.contains("<DraftCraftTag Range=\"30,9\" Category=\"Set Dressing\"/>"), "{xml}");
     let back = parse(&xml).unwrap_or_default();
     for (a, b) in s.paras.iter().zip(&back.paras) {
         assert_eq!(a.text, b.text);
@@ -57,9 +57,9 @@ fn script_notes_from_other_writers() {
         <ScriptNote MarkerColor="#FFFFFFFFFFFF" Writer="Sam"><Paragraph><Text>First</Text></Paragraph><Paragraph><Text>Second</Text></Paragraph></ScriptNote>
         <ScriptNote Range="3,999"><Paragraph><Text>Long range</Text></Paragraph></ScriptNote>
         <ScriptNote Range="x,y"/>
-        <ScriptCraftTag Range="0,999" Category="  props "/>
-        <ScriptCraftTag Range="0,3"/>
-        <ScriptCraftAlternate/>
+        <DraftCraftTag Range="0,999" Category="  props "/>
+        <DraftCraftTag Range="0,3"/>
+        <DraftCraftAlternate/>
       </Paragraph>
     </Content></FinalDraft>"##;
     let s = parse(xml).unwrap_or_default();

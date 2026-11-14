@@ -2,7 +2,7 @@
 //! (points and scenes in order, rearranged by moving items), and the story map.
 //! Points are numbered in reading order (`index`); outline items by their place in the outline.
 
-use scriptcraft_doc::{CardColor, OutlineItem, Pos, StructureKind, StructurePoint};
+use draftcraft_doc::{CardColor, OutlineItem, Pos, StructureKind, StructurePoint};
 use serde_json::{Value, json};
 
 use super::set_caret;
@@ -57,7 +57,7 @@ fn str_param(v: &Value, k: &str) -> Result<Option<String>, CmdError> {
     }
 }
 
-fn point_json(s: &Session, l: &scriptcraft_layout::Layout, index: usize, sp: &StructurePoint, para: Option<usize>) -> Value {
+fn point_json(s: &Session, l: &draftcraft_layout::Layout, index: usize, sp: &StructurePoint, para: Option<usize>) -> Value {
     let scene = para.and_then(|h| s.script.scene_of(h));
     json!({
         "index": index, "kind": sp.kind.id(), "title": sp.title, "summary": sp.summary, "color": sp.color.map(|c| c.id()),
@@ -92,7 +92,7 @@ fn add(s: &mut Session, v: &Value) -> CmdResult {
     let index = s
         .script
         .add_structure(StructurePoint::new(kind, &title, &summary, color), before)
-        .ok_or_else(|| CmdError::Failed(format!("too many structure points (the limit is {})", scriptcraft_doc::MAX_STRUCTURE)))?;
+        .ok_or_else(|| CmdError::Failed(format!("too many structure points (the limit is {})", draftcraft_doc::MAX_STRUCTURE)))?;
     Ok(json!({"index": index}))
 }
 

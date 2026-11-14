@@ -63,7 +63,7 @@ impl Language {
     }
 
     pub fn category(self, name: &str) -> &str {
-        if scriptcraft_doc::TAG_CATEGORIES.iter().any(|(standard, _)| *standard == name) { self.text(name) } else { name }
+        if draftcraft_doc::TAG_CATEGORIES.iter().any(|(standard, _)| *standard == name) { self.text(name) } else { name }
     }
 }
 

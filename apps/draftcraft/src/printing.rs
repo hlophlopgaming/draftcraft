@@ -6,12 +6,12 @@
 //!   is the PDF's registered print action (`Start-Process -Verb Print`, or `PrintTo` for a chosen
 //!   printer), once per copy. This needs a PDF app that registers those actions.
 //!
-//! The PDF goes in `<temp>/scriptcraft-print/<pid>-<n>-<name>.pdf`. A job's file is removed once
+//! The PDF goes in `<temp>/draftcraft-print/<pid>-<n>-<name>.pdf`. A job's file is removed once
 //! `lp` has handed it to CUPS; files opened in the viewer are removed when the app exits; files a
 //! previous run left behind (older than an hour) are removed at start.
 //!
-//! `SCRIPTCRAFT_PRINT=none` turns printing to printers off (the Print window then only writes the
-//! PDF); `SCRIPTCRAFT_PRINT=dry-run` lists the real printers but never sends a job (for checks).
+//! `DRAFTCRAFT_PRINT=none` turns printing to printers off (the Print window then only writes the
+//! PDF); `DRAFTCRAFT_PRINT=dry-run` lists the real printers but never sends a job (for checks).
 
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
@@ -19,7 +19,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime};
 
-use scriptcraft_ui_egui::printing::{PrintHost, PrintJob, Printer, sent_message};
+use draftcraft_ui_egui::printing::{PrintHost, PrintJob, Printer, sent_message};
 
 /// How long the printer list may take before it is given up.
 const LIST_TIMEOUT: Duration = Duration::from_secs(3);
@@ -89,7 +89,7 @@ fn run(mut c: Command, limit: Duration) -> Result<(bool, String, String), String
 
 /// The printing system for this computer, if any.
 pub fn detect() -> Option<SystemPrint> {
-    let choice = std::env::var("SCRIPTCRAFT_PRINT").unwrap_or_default();
+    let choice = std::env::var("DRAFTCRAFT_PRINT").unwrap_or_default();
     if choice.trim() == "none" {
         return None;
     }
@@ -100,7 +100,7 @@ pub fn detect() -> Option<SystemPrint> {
     } else {
         return None;
     };
-    let dir = std::env::temp_dir().join("scriptcraft-print");
+    let dir = std::env::temp_dir().join("draftcraft-print");
     remove_stale(&dir);
     Some(SystemPrint { backend, dry_run: choice.trim() == "dry-run", dir, n: 0, cached: None, done: Arc::default(), running: Arc::default() })
 }
@@ -232,7 +232,7 @@ impl PrintHost for SystemPrint {
             .clone()
             .or_else(|| self.cached.as_ref().and_then(|(_, l)| l.as_ref().ok()?.iter().find(|p| p.default).map(|p| p.name.clone())));
         let to = to.unwrap_or_else(|| "the default printer".into());
-        let copies = job.copies.clamp(1, scriptcraft_ui_egui::printing::MAX_COPIES);
+        let copies = job.copies.clamp(1, draftcraft_ui_egui::printing::MAX_COPIES);
         if self.dry_run {
             let _ = std::fs::remove_file(&path);
             if let Ok(mut d) = self.done.lock() {
@@ -373,7 +373,7 @@ mod tests {
 
     #[test]
     fn temp_files_are_cleaned_up() {
-        let dir = std::env::temp_dir().join(format!("scriptcraft-print-test-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("draftcraft-print-test-{}", std::process::id()));
         let mut h = SystemPrint {
             backend: Backend::Cups,
             dry_run: true,

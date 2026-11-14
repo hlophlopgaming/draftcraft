@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ScriptCraft</title>
+  <title>DraftCraft</title>
   <style>
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #dcdee3; }
     @media (prefers-color-scheme: dark) { html, body { background: #14161a; } }
@@ -12,10 +12,10 @@
   </style>
 </head>
 <body>
-  <div id="loading">Loading ScriptCraft…</div>
-  <canvas id="scriptcraft"></canvas>
+  <div id="loading">Loading DraftCraft…</div>
+  <canvas id="draftcraft"></canvas>
   <script type="module">
-    import init from "./scriptcraft_web.js";
+    import init from "./draftcraft_web.js";
     init().then(() => document.getElementById("loading").remove());
   </script>
 </body>

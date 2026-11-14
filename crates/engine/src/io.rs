@@ -1,10 +1,10 @@
 //! Reading and writing script files by extension: `.fountain` (also `.spmd`, `.txt`), `.fdx`;
 //! `.pdf` is exported, and imported by where its text sits; `.docx` and `.celtx` are imported
-//! only (see `scriptcraft-import`).
+//! only (see `draftcraft-import`).
 
 use std::path::Path;
 
-use scriptcraft_doc::Script;
+use draftcraft_doc::Script;
 
 /// Largest file we open.
 pub const MAX_FILE: u64 = 128 << 20;
@@ -51,15 +51,15 @@ impl Format {
             Format::Celtx => "celtx",
         }
     }
-    /// Opened by importing (ScriptCraft can't save the script back in this format).
+    /// Opened by importing (DraftCraft can't save the script back in this format).
     pub fn imported(self) -> bool {
         self.import_kind().is_some()
     }
-    fn import_kind(self) -> Option<scriptcraft_import::Kind> {
+    fn import_kind(self) -> Option<draftcraft_import::Kind> {
         match self {
-            Format::Pdf => Some(scriptcraft_import::Kind::Pdf),
-            Format::Docx => Some(scriptcraft_import::Kind::Docx),
-            Format::Celtx => Some(scriptcraft_import::Kind::Celtx),
+            Format::Pdf => Some(draftcraft_import::Kind::Pdf),
+            Format::Docx => Some(draftcraft_import::Kind::Docx),
+            Format::Celtx => Some(draftcraft_import::Kind::Celtx),
             Format::Fountain | Format::Fdx => None,
         }
     }
@@ -68,7 +68,7 @@ impl Format {
 /// Extensions that open (natively or by import).
 pub const OPEN_EXTENSIONS: [&str; 7] = ["fountain", "fdx", "spmd", "txt", "docx", "celtx", "pdf"];
 /// Extensions that are imported.
-pub const IMPORT_EXTENSIONS: [&str; 3] = scriptcraft_import::Kind::EXTENSIONS;
+pub const IMPORT_EXTENSIONS: [&str; 3] = draftcraft_import::Kind::EXTENSIONS;
 
 /// Decode text: UTF-8 (BOM dropped), else Latin-1.
 pub fn decode(bytes: &[u8]) -> String {
@@ -87,11 +87,11 @@ pub fn parse(bytes: &[u8], format: Format) -> Result<Script, String> {
 /// Parse file contents, with notes on how an imported file was read.
 pub fn parse_noted(bytes: &[u8], format: Format) -> Result<(Script, Vec<String>), String> {
     match format {
-        Format::Fountain => Ok((scriptcraft_fountain::parse(&decode(bytes)), Vec::new())),
-        Format::Fdx => scriptcraft_fdx::parse(&decode(bytes)).map(|s| (s, Vec::new())).map_err(|e| e.to_string()),
+        Format::Fountain => Ok((draftcraft_fountain::parse(&decode(bytes)), Vec::new())),
+        Format::Fdx => draftcraft_fdx::parse(&decode(bytes)).map(|s| (s, Vec::new())).map_err(|e| e.to_string()),
         Format::Pdf | Format::Docx | Format::Celtx => {
             let kind = format.import_kind().ok_or("not an imported format")?;
-            scriptcraft_import::import(bytes, kind).map(|r| (r.script, r.notes))
+            draftcraft_import::import(bytes, kind).map(|r| (r.script, r.notes))
         }
     }
 }
@@ -99,10 +99,10 @@ pub fn parse_noted(bytes: &[u8], format: Format) -> Result<(Script, Vec<String>)
 /// Encode a script in a format.
 pub fn encode(script: &Script, format: Format) -> Result<Vec<u8>, String> {
     match format {
-        Format::Fountain => Ok(scriptcraft_fountain::write(script).into_bytes()),
-        Format::Fdx => Ok(scriptcraft_fdx::write(script).into_bytes()),
-        Format::Pdf => scriptcraft_pdf::export(script).map_err(|e| e.to_string()),
-        Format::Docx | Format::Celtx => Err(format!("ScriptCraft opens {} files but can't save them; save as .fdx or .fountain", format.name())),
+        Format::Fountain => Ok(draftcraft_fountain::write(script).into_bytes()),
+        Format::Fdx => Ok(draftcraft_fdx::write(script).into_bytes()),
+        Format::Pdf => draftcraft_pdf::export(script).map_err(|e| e.to_string()),
+        Format::Docx | Format::Celtx => Err(format!("DraftCraft opens {} files but can't save them; save as .fdx or .fountain", format.name())),
     }
 }
 
@@ -128,7 +128,7 @@ pub fn read_noted(path: &Path) -> Result<(Script, Format, Vec<String>), String> 
 pub fn write(script: &Script, path: &Path) -> Result<Format, String> {
     let format = Format::of(path).ok_or_else(|| format!("unknown file type (use .fountain, .fdx or .pdf): {}", path.display()))?;
     if matches!(format, Format::Docx | Format::Celtx) {
-        return Err(format!("ScriptCraft opens {} files but can't save them; save as .fdx or .fountain", format.name()));
+        return Err(format!("DraftCraft opens {} files but can't save them; save as .fdx or .fountain", format.name()));
     }
     let bytes = encode(script, format)?;
     write_bytes(path, &bytes)?;

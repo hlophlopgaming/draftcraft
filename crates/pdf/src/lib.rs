@@ -9,10 +9,10 @@ use krilla::metadata::Metadata;
 use krilla::page::PageSettings;
 use krilla::paint::Fill;
 use krilla::text::{Font, TextDirection};
-use scriptcraft_doc::Script;
-use scriptcraft_doc::Style;
-use scriptcraft_geom::{CHAR_W, FONT_SIZE};
-use scriptcraft_layout::{Layout, layout};
+use draftcraft_doc::Script;
+use draftcraft_doc::Style;
+use draftcraft_geom::{CHAR_W, FONT_SIZE};
+use draftcraft_layout::{Layout, layout};
 
 #[derive(Debug, thiserror::Error, Clone, PartialEq)]
 pub enum PdfError {
@@ -48,7 +48,7 @@ impl Default for Selection {
 
 impl Selection {
     /// Whether this selection keeps a page.
-    pub fn keeps(&self, page: &scriptcraft_layout::Page) -> bool {
+    pub fn keeps(&self, page: &draftcraft_layout::Page) -> bool {
         if page.title_page {
             return self.title_page;
         }
@@ -72,7 +72,7 @@ pub fn export_layout(script: &Script, l: &Layout) -> Result<Vec<u8>, PdfError> {
 pub fn export_pages(script: &Script, l: &Layout, which: &[usize]) -> Result<Vec<u8>, PdfError> {
     let load = |b: &'static [u8]| Font::new(b.to_vec().into(), 0).ok_or(PdfError::Font);
     let faces =
-        [load(scriptcraft_fonts::REGULAR)?, load(scriptcraft_fonts::BOLD)?, load(scriptcraft_fonts::ITALIC)?, load(scriptcraft_fonts::BOLD_ITALIC)?];
+        [load(draftcraft_fonts::REGULAR)?, load(draftcraft_fonts::BOLD)?, load(draftcraft_fonts::ITALIC)?, load(draftcraft_fonts::BOLD_ITALIC)?];
     let face = |st: Style| faces[usize::from(st.bold) + 2 * usize::from(st.italic)].clone();
     let mut doc = Document::new();
     let settings = || PageSettings::from_wh(l.page_width(), l.paper.height_pt());
@@ -124,7 +124,7 @@ pub fn export_pages(script: &Script, l: &Layout, which: &[usize]) -> Result<Vec<
         p.finish();
     }
     let t = &script.title;
-    let mut meta = Metadata::new().creator("ScriptCraft".to_string()).producer("ScriptCraft (krilla)".to_string());
+    let mut meta = Metadata::new().creator("DraftCraft".to_string()).producer("DraftCraft (krilla)".to_string());
     if !t.title.trim().is_empty() {
         meta = meta.title(t.title.trim().to_string());
     }
@@ -137,7 +137,7 @@ pub fn export_pages(script: &Script, l: &Layout, which: &[usize]) -> Result<Vec<
 
 #[cfg(test)]
 mod tests {
-    use scriptcraft_doc::{Element, Para};
+    use draftcraft_doc::{Element, Para};
 
     use super::*;
 
@@ -148,8 +148,8 @@ mod tests {
         s.title.author = "Алёна Ёлкина".into();
         for (bold, italic) in [(false, false), (true, false), (false, true), (true, true)] {
             let end = s.paras[0].text.len();
-            s.set_flag(scriptcraft_doc::Pos::new(0, 0), scriptcraft_doc::Pos::new(0, end), scriptcraft_doc::Flag::Bold, bold);
-            s.set_flag(scriptcraft_doc::Pos::new(0, 0), scriptcraft_doc::Pos::new(0, end), scriptcraft_doc::Flag::Italic, italic);
+            s.set_flag(draftcraft_doc::Pos::new(0, 0), draftcraft_doc::Pos::new(0, end), draftcraft_doc::Flag::Bold, bold);
+            s.set_flag(draftcraft_doc::Pos::new(0, 0), draftcraft_doc::Pos::new(0, end), draftcraft_doc::Flag::Italic, italic);
             assert!(export(&s).unwrap().starts_with(b"%PDF-"));
         }
     }
@@ -163,9 +163,9 @@ mod tests {
         assert!(bytes.len() > 1000);
         assert!(export(&Script::new()).unwrap().starts_with(b"%PDF-"));
         let mut st = Script::from_paras(vec![Para::new(Element::Action, "Plain bold italic under")]).unwrap();
-        st.set_flag(scriptcraft_doc::Pos::new(0, 6), scriptcraft_doc::Pos::new(0, 10), scriptcraft_doc::Flag::Bold, true);
-        st.set_flag(scriptcraft_doc::Pos::new(0, 11), scriptcraft_doc::Pos::new(0, 17), scriptcraft_doc::Flag::Italic, true);
-        st.set_flag(scriptcraft_doc::Pos::new(0, 18), scriptcraft_doc::Pos::new(0, 23), scriptcraft_doc::Flag::Underline, true);
+        st.set_flag(draftcraft_doc::Pos::new(0, 6), draftcraft_doc::Pos::new(0, 10), draftcraft_doc::Flag::Bold, true);
+        st.set_flag(draftcraft_doc::Pos::new(0, 11), draftcraft_doc::Pos::new(0, 17), draftcraft_doc::Flag::Italic, true);
+        st.set_flag(draftcraft_doc::Pos::new(0, 18), draftcraft_doc::Pos::new(0, 23), draftcraft_doc::Flag::Underline, true);
         let styled = export(&st).unwrap();
         assert!(styled.len() > export(&Script::from_paras(vec![Para::new(Element::Action, "Plain bold italic under")]).unwrap()).unwrap().len());
     }

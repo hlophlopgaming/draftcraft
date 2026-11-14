@@ -2,22 +2,22 @@
 //!
 //! **Settings** go through [`craft_settings`] (storytold/craft-libs#22), like every Craft app:
 //! one commented `config.toml` in the config folder, saved half a second after a change, with a
-//! `.bak`, recovery of damaged files and schema migration. [`Prefs`] is ScriptCraft's settings
+//! `.bak`, recovery of damaged files and schema migration. [`Prefs`] is DraftCraft's settings
 //! type; the old `prefs.json` is imported on the first run and left in place.
 //!
-//! **Data** is not settings and lives in the data folder (`scriptcraft_control_key::Folders`), so
+//! **Data** is not settings and lives in the data folder (`draftcraft_control_key::Folders`), so
 //! a settings reset never loses work:
 //! - `recovery.json`: the autosaved copy of a script with unsaved changes (removed once saved)
 //! - `backups/`: the previous version of each file, kept before it is overwritten
 //! - `dictionary.txt`: the user dictionary, one word per line
 //!
 //! Nothing here touches the disk unless the app opened its folders; tests use temp folders and
-//! `SCRIPTCRAFT_CONFIG_DIR=` (empty) isolates a run completely.
+//! `DRAFTCRAFT_CONFIG_DIR=` (empty) isolates a run completely.
 
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-use scriptcraft_doc::Script;
+use draftcraft_doc::Script;
 use serde::{Deserialize, Serialize};
 
 /// The pre-0.3 settings file, imported once.
@@ -38,7 +38,7 @@ pub enum Theme {
     Dark,
 }
 
-/// ScriptCraft's settings: the sections of `config.toml`.
+/// DraftCraft's settings: the sections of `config.toml`.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Prefs {
@@ -121,7 +121,7 @@ impl Default for Speech {
 }
 
 impl craft_settings::Settings for Prefs {
-    const APP_ID: &'static str = scriptcraft_control_key::APP_ID;
+    const APP_ID: &'static str = draftcraft_control_key::APP_ID;
     const SCHEMA_VERSION: u32 = 2;
 
     fn migrate(from: u32, doc: &mut craft_settings::DocumentMut) -> Result<(), craft_settings::MigrateError> {
@@ -153,12 +153,12 @@ impl Prefs {
         self.files.autosave_seconds = self.files.autosave_seconds.min(3600);
         self.files.backups_kept = self.files.backups_kept.min(100);
         self.speech.rate = self.speech.rate.clamp(80, 400);
-        self.speech.narrator_voice = scriptcraft_doc::voices::clean_voice_name(&self.speech.narrator_voice).unwrap_or_default();
+        self.speech.narrator_voice = draftcraft_doc::voices::clean_voice_name(&self.speech.narrator_voice).unwrap_or_default();
         self
     }
 }
 
-/// ScriptCraft 0.2's `prefs.json`.
+/// DraftCraft 0.2's `prefs.json`.
 #[derive(Deserialize, Default)]
 #[serde(rename_all = "camelCase", default)]
 struct LegacyPrefs {
@@ -171,7 +171,7 @@ struct LegacyPrefs {
     backups: Option<u32>,
 }
 
-/// Parse ScriptCraft 0.2's `prefs.json` into [`Prefs`] (for [`craft_settings::LegacyFile`]).
+/// Parse DraftCraft 0.2's `prefs.json` into [`Prefs`] (for [`craft_settings::LegacyFile`]).
 pub fn parse_legacy_prefs(bytes: &[u8]) -> Result<Prefs, String> {
     let old: LegacyPrefs = serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
     let d = Prefs::default();
@@ -200,7 +200,7 @@ pub fn parse_legacy_prefs(bytes: &[u8]) -> Result<Prefs, String> {
 /// The settings store for these folders: `config.toml` in the config folder (in memory when
 /// isolated), importing the old `prefs.json` from the legacy folder on the first run.
 #[cfg(not(target_arch = "wasm32"))]
-pub fn open_settings(f: &scriptcraft_control_key::Folders) -> (craft_settings::SettingsStore<Prefs>, craft_settings::LoadReport) {
+pub fn open_settings(f: &draftcraft_control_key::Folders) -> (craft_settings::SettingsStore<Prefs>, craft_settings::LoadReport) {
     let location = f.config.clone().map_or(craft_settings::Location::Memory, craft_settings::Location::Dir);
     let mut opts = craft_settings::OpenOptions::new(location);
     if f.config.is_some()
@@ -308,7 +308,7 @@ pub const DICTIONARY: &str = "dictionary.txt";
 /// The user dictionary in `dir` (empty when missing or unreadable).
 pub fn load_words(dir: &Path) -> BTreeSet<String> {
     std::fs::read_to_string(dir.join(DICTIONARY))
-        .map(|t| t.lines().map(|l| scriptcraft_spell::key(l.trim())).filter(|w| !w.is_empty() && w.len() <= 64).take(100_000).collect())
+        .map(|t| t.lines().map(|l| draftcraft_spell::key(l.trim())).filter(|w| !w.is_empty() && w.len() <= 64).take(100_000).collect())
         .unwrap_or_default()
 }
 
@@ -325,7 +325,7 @@ mod tests {
     use super::*;
 
     fn tmp(name: &str) -> PathBuf {
-        let d = std::env::temp_dir().join(format!("scriptcraft-{name}-{}", std::process::id()));
+        let d = std::env::temp_dir().join(format!("draftcraft-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&d);
         d
     }
@@ -344,7 +344,7 @@ mod tests {
     #[test]
     fn prefs_recovery_backups() {
         let dir = tmp("state");
-        let folders = scriptcraft_control_key::Folders { config: Some(dir.clone()), data: Some(dir.clone()), rule: "test".into(), legacy: None };
+        let folders = draftcraft_control_key::Folders { config: Some(dir.clone()), data: Some(dir.clone()), rule: "test".into(), legacy: None };
         let (mut store, report) = open_settings(&folders);
         assert!(!report.has_problems());
         assert_eq!(store.get(), &Prefs::default());
@@ -372,7 +372,7 @@ mod tests {
         assert_eq!(wild.sanitized().appearance.zoom, 1.0);
         // Recovery.
         assert!(read_recovery(&dir).is_none());
-        let s = scriptcraft_engine::sample::script();
+        let s = draftcraft_engine::sample::script();
         write_recovery(&dir, Some(Path::new("/s/x.fdx")), &s).unwrap();
         let r = read_recovery(&dir).unwrap();
         assert_eq!(r.script, s);
@@ -404,7 +404,7 @@ mod tests {
             br#"{"recent":["/a.fdx"],"dark":true,"zoom":1.25,"spelling":false,"enterPicker":false,"autosaveSecs":30,"backups":2}"#,
         )
         .unwrap();
-        let folders = scriptcraft_control_key::Folders {
+        let folders = draftcraft_control_key::Folders {
             config: Some(dir.join("new")),
             data: Some(dir.join("data")),
             rule: "test".into(),
@@ -421,7 +421,7 @@ mod tests {
         assert!(old.join(LEGACY_PREFS).exists(), "the old file is left in place");
         assert!(parse_legacy_prefs(b"not json").is_err());
         // Isolated (no config folder): nothing is read or written.
-        let iso = scriptcraft_control_key::Folders { config: None, data: None, rule: "isolated".into(), legacy: Some(old) };
+        let iso = draftcraft_control_key::Folders { config: None, data: None, rule: "isolated".into(), legacy: Some(old) };
         let (mut store, _) = open_settings(&iso);
         assert!(!store.is_persistent());
         assert_eq!(store.get(), &Prefs::default());
@@ -432,7 +432,7 @@ mod tests {
 
     #[test]
     fn dictionary_round_trip() {
-        let dir = std::env::temp_dir().join(format!("scriptcraft-persist-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("draftcraft-persist-{}", std::process::id()));
         let words = ["hesper".to_string(), "glorp".to_string()].into_iter().collect();
         super::save_words(&dir, &words).unwrap();
         assert_eq!(super::load_words(&dir), words);

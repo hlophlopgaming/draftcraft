@@ -6,7 +6,7 @@
 //! bottom of the window when View › Story Map is on.
 
 use egui::{Align2, Color32, FontId, Id, Rect, RichText, Sense, Stroke, Ui, pos2, vec2};
-use scriptcraft_doc::StructureKind;
+use draftcraft_doc::StructureKind;
 use serde_json::json;
 
 use crate::ScriptApp;
@@ -45,7 +45,7 @@ pub fn panel(app: &mut ScriptApp, ui: &mut Ui) {
 pub fn strip(app: &mut ScriptApp, ui: &mut Ui) {
     let t = app.tokens();
     let l = app.session.layout();
-    let map = scriptcraft_engine::storymap::story_map(&app.session.script, &l);
+    let map = draftcraft_engine::storymap::story_map(&app.session.script, &l);
     let cur = app.session.script.scene_of(app.session.sel.focus.para);
     let (r, _) = ui.allocate_exact_size(vec2(ui.available_width(), HEIGHT), Sense::hover());
     let p = ui.painter_at(r);

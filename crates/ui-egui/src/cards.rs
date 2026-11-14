@@ -2,7 +2,7 @@
 //! Drag a card onto another to move the scene there; right-click for colour and tags.
 
 use egui::{Align2, Color32, FontId, Rect, RichText, Sense, Stroke, StrokeKind, Ui, vec2};
-use scriptcraft_doc::CardColor;
+use draftcraft_doc::CardColor;
 use serde_json::json;
 
 use crate::ScriptApp;
@@ -21,7 +21,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
     let t = app.tokens();
     let scenes = app.session.script.scenes();
     let l = app.session.layout();
-    let reports = scriptcraft_engine::reports::scenes(&app.session.script, &l);
+    let reports = draftcraft_engine::reports::scenes(&app.session.script, &l);
     let mut actions: Vec<(&str, serde_json::Value)> = Vec::new();
     let mut rects: Vec<Rect> = Vec::new();
     let mut drop_from: Option<usize> = None;
@@ -80,7 +80,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                         .map(|x| {
                             lang.format(
                                 "p.{page} · {length}",
-                                &[("page", x.page_label.clone()), ("length", (scriptcraft_engine::reports::eighths_label(x.eighths)).to_string())],
+                                &[("page", x.page_label.clone()), ("length", (draftcraft_engine::reports::eighths_label(x.eighths)).to_string())],
                             )
                         })
                         .unwrap_or_default();

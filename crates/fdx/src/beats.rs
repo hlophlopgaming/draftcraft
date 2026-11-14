@@ -7,12 +7,12 @@
 //!   `<DisplayBoards><DisplayBoard Type="Beat"><Item Id="uuid" Left Top Width Height/>`, the
 //!   `Item` sharing the `ListItem`'s id.
 //!
-//! A beat's link to a scene has no form we have seen; it is a ScriptCraft-only
-//! `ScriptCraftBeats="uuid,uuid"` attribute on the scene heading's `<Paragraph>`.
+//! A beat's link to a scene has no form we have seen; it is a DraftCraft-only
+//! `DraftCraftBeats="uuid,uuid"` attribute on the scene heading's `<Paragraph>`.
 
 use std::collections::HashMap;
 
-use scriptcraft_doc::{Beat, CardColor, Script, clean_beat_text, clean_beat_title};
+use draftcraft_doc::{Beat, CardColor, Script, clean_beat_text, clean_beat_title};
 
 use crate::{color_attr, esc, parse_color};
 
@@ -44,7 +44,7 @@ impl Read {
         if let Some(id) = self.ids.get(&k) {
             return Some(*id);
         }
-        if self.ids.len() >= scriptcraft_doc::MAX_BEATS * 2 {
+        if self.ids.len() >= draftcraft_doc::MAX_BEATS * 2 {
             return None;
         }
         let id = u32::try_from(self.ids.len() + 1).ok()?;
@@ -53,9 +53,9 @@ impl Read {
         Some(id)
     }
 
-    /// `ScriptCraftBeats="uuid,uuid"` on a heading → beat ids.
+    /// `DraftCraftBeats="uuid,uuid"` on a heading → beat ids.
     pub fn links(&mut self, v: &str) -> Vec<u32> {
-        v.split(',').take(scriptcraft_doc::MAX_BEATS).filter_map(|k| self.id(k)).collect()
+        v.split(',').take(draftcraft_doc::MAX_BEATS).filter_map(|k| self.id(k)).collect()
     }
 
     /// `<ListItem>` starts; only `Type="Beat"` items are read.
@@ -65,7 +65,7 @@ impl Read {
             return;
         }
         let Some(k) = id.as_deref().and_then(key) else { return };
-        if self.items.contains_key(&k) || self.id(&k).is_none() || self.items.len() >= scriptcraft_doc::MAX_BEATS {
+        if self.items.contains_key(&k) || self.id(&k).is_none() || self.items.len() >= draftcraft_doc::MAX_BEATS {
             return;
         }
         let color = color.and_then(|c| parse_color(&c));
@@ -99,8 +99,8 @@ impl Read {
         }
         let Some(k) = id.as_deref().and_then(key) else { return };
         let num = |v: Option<String>, d: f32| v.and_then(|v| v.trim().parse::<f32>().ok()).filter(|x| x.is_finite()).unwrap_or(d);
-        if self.places.len() < scriptcraft_doc::MAX_BEATS {
-            self.places.insert(k, (num(left, 0.0), num(top, 0.0), num(width, scriptcraft_doc::BEAT_W), num(height, scriptcraft_doc::BEAT_H)));
+        if self.places.len() < draftcraft_doc::MAX_BEATS {
+            self.places.insert(k, (num(left, 0.0), num(top, 0.0), num(width, draftcraft_doc::BEAT_W), num(height, draftcraft_doc::BEAT_H)));
         }
     }
 
@@ -112,7 +112,7 @@ impl Read {
             let (Some(id), Some((title, lines, color))) = (self.ids.get(k), self.items.get(k)) else { continue };
             let (x, y, w, h) = self.places.get(k).copied().unwrap_or_else(|| {
                 let n = beats.len() as f32;
-                (40.0 + (n % 5.0) * 280.0, 40.0 + (n / 5.0).floor() * 160.0, scriptcraft_doc::BEAT_W, scriptcraft_doc::BEAT_H)
+                (40.0 + (n % 5.0) * 280.0, 40.0 + (n / 5.0).floor() * 160.0, draftcraft_doc::BEAT_W, draftcraft_doc::BEAT_H)
             });
             let mut b = Beat::new(*id, &clean_beat_title(title), &clean_beat_text(&lines.join("\n")), *color, x, y);
             b.w = w;
@@ -157,7 +157,7 @@ pub(crate) fn write(out: &mut String, s: &Script) {
     out.push_str("    </DisplayBoard>\n  </DisplayBoards>\n");
 }
 
-/// A heading's `ScriptCraftBeats` attribute value (the linked beats' keys), if any.
+/// A heading's `DraftCraftBeats` attribute value (the linked beats' keys), if any.
 pub(crate) fn links_attr(s: &Script, beats: &[u32]) -> Option<String> {
     let keys: Vec<&str> = beats.iter().filter_map(|id| s.board.get(*id)).map(|b| b.key.as_str()).collect();
     (!keys.is_empty()).then(|| keys.join(","))

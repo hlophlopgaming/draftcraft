@@ -2,7 +2,7 @@
 //! element-by-indent rules (Courier 12 conventions), scene-heading and shot detection, and the
 //! title-page mapping.
 
-use scriptcraft_doc::{Element, Para, Span, Style, TitlePage};
+use draftcraft_doc::{Element, Para, Span, Style, TitlePage};
 
 /// Text with a style per character.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -93,7 +93,7 @@ impl Styled {
     }
 }
 
-/// Character cues repeated on a continued page carry one of these; they are dropped (ScriptCraft
+/// Character cues repeated on a continued page carry one of these; they are dropped (DraftCraft
 /// adds its own).
 pub const CONTD: [&str; 6] = ["(CONT'D)", "(CONT’D)", "(CONTD)", "(CONT.)", "(CONTINUING)", "(CONT)"];
 

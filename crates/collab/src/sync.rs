@@ -2,7 +2,7 @@
 
 use std::collections::{BTreeMap, VecDeque};
 
-use scriptcraft_doc::Script;
+use draftcraft_doc::Script;
 
 use crate::diff::{apply, diff};
 use crate::merge::merge3;
@@ -129,7 +129,7 @@ impl Host {
             return match msg {
                 ToHost::Hello { proto, key, name } => {
                     let reason = if proto != PROTO {
-                        Some("this ScriptCraft speaks a different collaboration protocol")
+                        Some("this DraftCraft speaks a different collaboration protocol")
                     } else if !crate::keys_match(&key, &self.key) {
                         Some("wrong session key")
                     } else if full {

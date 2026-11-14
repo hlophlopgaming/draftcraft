@@ -1,4 +1,4 @@
-//! Final Draft 13 feature catalog: what ScriptCraft implements, measured.
+//! Final Draft 13 feature catalog: what DraftCraft implements, measured.
 //!
 //! Feature names only (no Final Draft wording beyond them). `cargo xtask parity` writes
 //! `docs/parity-checklist.md` from this list; a test checks every command id exists.
@@ -111,7 +111,7 @@ pub const FEATURES: &[Feature] = &[
         "Alternate dialogue (Alts)",
         Done,
         &["alt.add", "alt.list", "alt.choose", "alt.next", "alt.previous", "alt.edit", "alt.delete", "ui.alternates"],
-        "only the active line prints and exports as script text; alternates kept in FDX (ScriptCraft-only)",
+        "only the active line prints and exports as script text; alternates kept in FDX (DraftCraft-only)",
     ),
     f("Writing", "Format Assistant", Missing, &[], ""),
     f(
@@ -133,14 +133,14 @@ pub const FEATURES: &[Feature] = &[
         "Element settings (indents, spacing, alignment, capitals, Enter/Tab)",
         Done,
         &["settings.elements", "settings.element", "settings.resetElements", "ui.elementSettings"],
-        "kept in FDX ElementSettings (Tab targets ScriptCraft-only); font is always Courier 12",
+        "kept in FDX ElementSettings (Tab targets DraftCraft-only); font is always Courier 12",
     ),
     f(
         "Writing",
         "Templates (TV, stage play, multi-camera)",
         Done,
         &["template.new", "template.apply", "template.list", "template.current"],
-        "feature, TV single-camera (teaser + acts), multi-camera (double-spaced dialogue, capitals, scene letters, a page per scene), stage play; ScriptCraft's own",
+        "feature, TV single-camera (teaser + acts), multi-camera (double-spaced dialogue, capitals, scene letters, a page per scene), stage play; DraftCraft's own",
     ),
     // Pagination
     f("Pagination", "Industry pagination (Letter, Courier 12, 6 lines/inch, 54 lines)", Done, &["document.layout"], ""),
@@ -233,7 +233,7 @@ pub const FEATURES: &[Feature] = &[
         "Production tagging / breakdown",
         Done,
         &["tag.add", "tag.remove", "tag.list", "tag.categories", "report.breakdown", "report.breakdownCsv", "file.exportBreakdown", "ui.toggleTags"],
-        "standard and custom categories; breakdown per scene; CSV export; tags kept in FDX (ScriptCraft-only)",
+        "standard and custom categories; breakdown per scene; CSV export; tags kept in FDX (DraftCraft-only)",
     ),
     f(
         "Production",
@@ -252,7 +252,7 @@ pub const FEATURES: &[Feature] = &[
             "ui.trackChanges",
             "ui.compare",
         ],
-        "per-author insertions, deletions, new paragraphs and element changes; accept/reject one, all or by author; compare two drafts by paragraph with word diffs (also `scriptcraft-cli compare`); kept in FDX (ScriptCraft-only)",
+        "per-author insertions, deletions, new paragraphs and element changes; accept/reject one, all or by author; compare two drafts by paragraph with word diffs (also `draftcraft-cli compare`); kept in FDX (DraftCraft-only)",
     ),
     f("Production", "Watermarks", Missing, &[], ""),
     f(
@@ -288,7 +288,7 @@ pub const FEATURES: &[Feature] = &[
         "Import from other formats (Word, Celtx, PDF)",
         Done,
         &["file.import", "file.open", "ui.import"],
-        "Word .docx by paragraph style, indent or text; legacy .celtx projects; PDF by indent (scene numbers, title page, dual dialogue); also `scriptcraft-cli convert`",
+        "Word .docx by paragraph style, indent or text; legacy .celtx projects; PDF by indent (scene numbers, title page, dual dialogue); also `draftcraft-cli convert`",
     ),
     // View
     f("View", "Page view with page breaks", Done, &["ui.view.page"], ""),
@@ -304,8 +304,8 @@ pub const FEATURES: &[Feature] = &[
         "cargo xtask web; open via the file picker, save as a download",
     ),
     // Automation (beyond Final Draft)
-    f("Automation", "Command-line conversion", Done, &["file.open", "file.exportPdf"], "scriptcraft-cli convert"),
-    f("Automation", "MCP server and JSON control channel", Done, &["document.inspect"], "scriptcraft-cli mcp"),
+    f("Automation", "Command-line conversion", Done, &["file.open", "file.exportPdf"], "draftcraft-cli convert"),
+    f("Automation", "MCP server and JSON control channel", Done, &["document.inspect"], "draftcraft-cli mcp"),
 ];
 
 /// Counts: (done, partial, missing).

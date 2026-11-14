@@ -1,6 +1,6 @@
 //! Page setup: paper size, headers and footers.
 
-use scriptcraft_doc::page_setup::{HeaderFooter, Paper, clean_slot};
+use draftcraft_doc::page_setup::{HeaderFooter, Paper, clean_slot};
 use serde_json::{Value, json};
 
 use crate::{CmdError, CmdResult, CommandSpec, Session, p};
@@ -28,7 +28,7 @@ pub(crate) fn get(s: &mut Session, _: &Value) -> CmdResult {
         "paperName": pg.paper.name(),
         "widthPt": pg.paper.width_pt(),
         "heightPt": pg.paper.height_pt(),
-        "linesPerPage": scriptcraft_layout::body_rows(pg.paper),
+        "linesPerPage": draftcraft_layout::body_rows(pg.paper),
         "header": hf_json(&pg.header),
         "footer": hf_json(&pg.footer),
         "headerFirstPage": pg.header_first_page,
@@ -105,9 +105,9 @@ mod tests {
         assert!(s.run("page.set", &json!({"paper": "legal"})).is_err());
         assert!(s.run("page.set", &json!({"header": {"middle": "x"}})).is_err());
         assert!(s.run("page.set", &json!({"header": "x"})).is_err());
-        assert_eq!(s.script.settings.page.paper, scriptcraft_doc::Paper::A4, "failed commands change nothing");
+        assert_eq!(s.script.settings.page.paper, draftcraft_doc::Paper::A4, "failed commands change nothing");
         s.run("edit.undo", &json!({})).unwrap();
-        assert_eq!(s.script.settings.page.paper, scriptcraft_doc::Paper::Letter, "undoable");
+        assert_eq!(s.script.settings.page.paper, draftcraft_doc::Paper::Letter, "undoable");
         s.run("edit.redo", &json!({})).unwrap();
         let v = s.run("page.reset", &json!({})).unwrap();
         assert_eq!(v["paper"], "a4", "reset keeps the paper");

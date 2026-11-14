@@ -6,7 +6,7 @@
 //! - `layers`: crates only depend on lower layers; nothing below the UI depends on egui
 //! - `stats`: lines of Rust per crate
 //! - `wasm`: check the browser build compiles (`wasm32-unknown-unknown`)
-//! - `web`: build the browser app into `apps/scriptcraft-web/dist/` (needs `wasm-bindgen-cli`)
+//! - `web`: build the browser app into `apps/draftcraft-web/dist/` (needs `wasm-bindgen-cli`)
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
@@ -62,7 +62,7 @@ fn ci() -> Result<(), String> {
         eprintln!("ci: skipping the browser build check (rustup target add wasm32-unknown-unknown)");
     }
     let doc = std::fs::read_to_string(root().join("docs/parity-checklist.md")).unwrap_or_default();
-    if doc != scriptcraft_engine::catalog::markdown() {
+    if doc != draftcraft_engine::catalog::markdown() {
         return Err("docs/parity-checklist.md is stale: run `cargo xtask parity`".into());
     }
     eprintln!("ci: all green");
@@ -71,8 +71,8 @@ fn ci() -> Result<(), String> {
 
 fn parity() -> Result<(), String> {
     let p = root().join("docs/parity-checklist.md");
-    std::fs::write(&p, scriptcraft_engine::catalog::markdown()).map_err(|e| e.to_string())?;
-    let (d, pa, m) = scriptcraft_engine::catalog::counts();
+    std::fs::write(&p, draftcraft_engine::catalog::markdown()).map_err(|e| e.to_string())?;
+    let (d, pa, m) = draftcraft_engine::catalog::counts();
     eprintln!("wrote {} ({d} implemented, {pa} partial, {m} not yet)", p.display());
     Ok(())
 }
@@ -122,20 +122,20 @@ fn assets() -> Result<(), String> {
 
 /// Layer of each crate (a crate may depend only on crates of a lower layer).
 const LAYERS: &[(&str, u8)] = &[
-    ("scriptcraft-geom", 0),
-    ("scriptcraft-doc", 1),
-    ("scriptcraft-fonts", 1),
-    ("scriptcraft-spell", 1),
-    ("scriptcraft-control-key", 1),
-    ("scriptcraft-fountain", 2),
-    ("scriptcraft-fdx", 2),
-    ("scriptcraft-layout", 2),
-    ("scriptcraft-pdf", 3),
-    ("scriptcraft-collab", 3),
-    ("scriptcraft-import", 3),
-    ("scriptcraft-engine", 4),
-    ("scriptcraft-mcp", 5),
-    ("scriptcraft-ui-egui", 6),
+    ("draftcraft-geom", 0),
+    ("draftcraft-doc", 1),
+    ("draftcraft-fonts", 1),
+    ("draftcraft-spell", 1),
+    ("draftcraft-control-key", 1),
+    ("draftcraft-fountain", 2),
+    ("draftcraft-fdx", 2),
+    ("draftcraft-layout", 2),
+    ("draftcraft-pdf", 3),
+    ("draftcraft-collab", 3),
+    ("draftcraft-import", 3),
+    ("draftcraft-engine", 4),
+    ("draftcraft-mcp", 5),
+    ("draftcraft-ui-egui", 6),
 ];
 
 const UI_DEPS: &[&str] = &["egui", "eframe", "winit", "rfd", "egui_kittest"];
@@ -144,7 +144,7 @@ fn layers() -> Result<(), String> {
     let r = root();
     let mut errs = Vec::new();
     for (name, layer) in LAYERS {
-        let dir = name.trim_start_matches("scriptcraft-");
+        let dir = name.trim_start_matches("draftcraft-");
         let toml = std::fs::read_to_string(r.join("crates").join(dir).join("Cargo.toml")).map_err(|e| format!("{name}: {e}"))?;
         for line in toml.lines() {
             let dep = line.split(['=', ' ']).next().unwrap_or("").trim();
@@ -197,18 +197,18 @@ fn wasm_target_installed() -> bool {
 }
 
 fn wasm() -> Result<(), String> {
-    cargo(&["clippy", "--target", "wasm32-unknown-unknown", "-p", "scriptcraft-web", "--", "-D", "warnings"])
+    cargo(&["clippy", "--target", "wasm32-unknown-unknown", "-p", "draftcraft-web", "--", "-D", "warnings"])
 }
 
 fn web() -> Result<(), String> {
-    cargo(&["build", "--release", "--target", "wasm32-unknown-unknown", "-p", "scriptcraft-web"])?;
+    cargo(&["build", "--release", "--target", "wasm32-unknown-unknown", "-p", "draftcraft-web"])?;
     let r = root();
     let target = std::env::var("CARGO_TARGET_DIR").map(PathBuf::from).unwrap_or_else(|_| r.join("target"));
-    let wasm = target.join("wasm32-unknown-unknown/release/scriptcraft-web.wasm");
-    let dist = r.join("apps/scriptcraft-web/dist");
+    let wasm = target.join("wasm32-unknown-unknown/release/draftcraft-web.wasm");
+    let dist = r.join("apps/draftcraft-web/dist");
     std::fs::create_dir_all(&dist).map_err(|e| e.to_string())?;
     let ok = Command::new("wasm-bindgen")
-        .args(["--target", "web", "--no-typescript", "--out-name", "scriptcraft_web", "--out-dir"])
+        .args(["--target", "web", "--no-typescript", "--out-name", "draftcraft_web", "--out-dir"])
         .arg(&dist)
         .arg(&wasm)
         .status()
@@ -217,7 +217,7 @@ fn web() -> Result<(), String> {
     if !ok {
         return Err("wasm-bindgen failed".into());
     }
-    std::fs::copy(r.join("apps/scriptcraft-web/index.html"), dist.join("index.html")).map_err(|e| e.to_string())?;
+    std::fs::copy(r.join("apps/draftcraft-web/index.html"), dist.join("index.html")).map_err(|e| e.to_string())?;
     eprintln!("web: wrote {} (serve it with any static server, e.g. `python3 -m http.server -d {}`)", dist.display(), dist.display());
     Ok(())
 }

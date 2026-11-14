@@ -1,4 +1,4 @@
-//! ScriptCraft's egui front end: a Final Draft-style window with a menu bar, a toolbar with the
+//! DraftCraft's egui front end: a Final Draft-style window with a menu bar, a toolbar with the
 //! element picker, a scene navigator, the page view, index cards, reports and a status bar.
 //!
 //! The UI is thin: every action goes through [`ScriptApp::execute`], which runs `ui.*` commands
@@ -28,7 +28,7 @@ pub mod theme;
 
 use std::sync::mpsc::Receiver;
 
-use scriptcraft_engine::{CmdError, Session};
+use draftcraft_engine::{CmdError, Session};
 use serde_json::{Value, json};
 
 pub use control::ControlRequest;
@@ -118,8 +118,8 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ("ui.exportPdf", "Export PDF…", "File", ""),
     ("ui.exportFdx", "Export Final Draft (FDX)…", "File", ""),
     ("ui.exportFountain", "Export Fountain…", "File", ""),
-    ("ui.about", "About ScriptCraft", "Help", ""),
-    ("ui.quit", "Quit ScriptCraft", "File", "Mod+Q"),
+    ("ui.about", "About DraftCraft", "Help", ""),
+    ("ui.quit", "Quit DraftCraft", "File", "Mod+Q"),
     ("ui.openRecent", "Open Recent", "File", ""),
     ("ui.clearRecent", "Clear Recent Files", "File", ""),
     ("ui.notes", "Show Script Notes", "Tools", ""),
@@ -192,7 +192,7 @@ pub struct ScriptApp {
     /// The data folder (recovery, backups, user dictionary); `None` in tests and when isolated.
     pub state_dir: Option<std::path::PathBuf>,
     /// Where settings and data live and which rule chose them (craft-settings folder rules).
-    pub folders: Option<scriptcraft_control_key::Folders>,
+    pub folders: Option<draftcraft_control_key::Folders>,
     /// Settings kept between runs (theme, zoom, spelling, recent files, autosave, backups).
     pub prefs: persist::Prefs,
     /// The `config.toml` store (craft-settings); saves during use. Not on the web yet.
@@ -302,17 +302,17 @@ impl ScriptApp {
         }
     }
 
-    /// Use ScriptCraft's folders (see [`scriptcraft_control_key::folders`]): open the settings
+    /// Use DraftCraft's folders (see [`draftcraft_control_key::folders`]): open the settings
     /// store (`config.toml`, importing the old `prefs.json` once), load the user dictionary and
     /// offer an autosaved script left by a run that did not end cleanly. Data left in the legacy
-    /// folder by ScriptCraft 0.2 is still found.
-    pub fn with_folders(mut self, f: scriptcraft_control_key::Folders) -> Self {
+    /// folder by DraftCraft 0.2 is still found.
+    pub fn with_folders(mut self, f: draftcraft_control_key::Folders) -> Self {
         self.use_folders(f);
         self
     }
 
     /// [`ScriptApp::with_folders`] on an app that is already running.
-    pub fn use_folders(&mut self, f: scriptcraft_control_key::Folders) {
+    pub fn use_folders(&mut self, f: draftcraft_control_key::Folders) {
         #[cfg(not(target_arch = "wasm32"))]
         {
             let (store, report) = persist::open_settings(&f);
@@ -344,7 +344,7 @@ impl ScriptApp {
 
     /// Keep settings and data in one folder (tests, demos).
     pub fn with_state_dir(self, dir: std::path::PathBuf) -> Self {
-        self.with_folders(scriptcraft_control_key::Folders { config: Some(dir.clone()), data: Some(dir), rule: "override".into(), legacy: None })
+        self.with_folders(draftcraft_control_key::Folders { config: Some(dir.clone()), data: Some(dir), rule: "override".into(), legacy: None })
     }
 
     /// Show loaded settings.
@@ -383,7 +383,7 @@ impl ScriptApp {
         if let Some(store) = self.settings.as_mut()
             && let Err(e) = store.flush()
         {
-            eprintln!("scriptcraft: settings not saved: {e}");
+            eprintln!("draftcraft: settings not saved: {e}");
         }
     }
 
@@ -730,13 +730,13 @@ impl ScriptApp {
             "ui.exportFdx" if self.host.is_some() && path.is_none() => return self.host_save("fdx"),
             "ui.exportFountain" if self.host.is_some() && path.is_none() => return self.host_save("fountain"),
             "ui.open" => {
-                let Some(path) = path.or_else(|| self.pick(false, "Open Script", &scriptcraft_engine::io::OPEN_EXTENSIONS, "")) else {
+                let Some(path) = path.or_else(|| self.pick(false, "Open Script", &draftcraft_engine::io::OPEN_EXTENSIONS, "")) else {
                     return Ok(json!({}));
                 };
                 return self.execute("file.open", json!({"path": path}));
             }
             "ui.import" => {
-                let Some(path) = path.or_else(|| self.pick(false, "Import from Word, Celtx or PDF", &scriptcraft_engine::io::IMPORT_EXTENSIONS, ""))
+                let Some(path) = path.or_else(|| self.pick(false, "Import from Word, Celtx or PDF", &draftcraft_engine::io::IMPORT_EXTENSIONS, ""))
                 else {
                     return Ok(json!({}));
                 };
@@ -775,7 +775,7 @@ impl ScriptApp {
     fn host_save(&mut self, format: &str) -> Result<Value, CmdError> {
         let v = self.session.run("document.export", &json!({"format": format}))?;
         let name = v["name"].as_str().unwrap_or("Untitled").to_string();
-        let bytes = scriptcraft_engine::b64::decode(v["data"].as_str().unwrap_or("")).map_err(CmdError::Failed)?;
+        let bytes = draftcraft_engine::b64::decode(v["data"].as_str().unwrap_or("")).map_err(CmdError::Failed)?;
         if let Some(h) = &self.host {
             h.save(&name, bytes);
         }
@@ -808,7 +808,7 @@ impl ScriptApp {
         let mut files = std::mem::take(&mut *self.inbox.lock().unwrap_or_else(|e| e.into_inner()));
         files.extend(dropped);
         for (name, bytes) in files {
-            let data = scriptcraft_engine::b64::encode(&bytes);
+            let data = draftcraft_engine::b64::encode(&bytes);
             if std::mem::take(&mut self.drafts.compare_pending) {
                 let _ = drafts::run_compare(self, json!({"name": name, "data": data}));
                 continue;
@@ -853,11 +853,11 @@ impl ScriptApp {
             return;
         }
         let mut fonts = egui::FontDefinitions::default();
-        fonts.font_data.insert("courier-badi".into(), std::sync::Arc::new(egui::FontData::from_static(scriptcraft_fonts::REGULAR)));
-        fonts.font_data.insert("courier-badi-bold".into(), std::sync::Arc::new(egui::FontData::from_static(scriptcraft_fonts::BOLD)));
+        fonts.font_data.insert("courier-badi".into(), std::sync::Arc::new(egui::FontData::from_static(draftcraft_fonts::REGULAR)));
+        fonts.font_data.insert("courier-badi-bold".into(), std::sync::Arc::new(egui::FontData::from_static(draftcraft_fonts::BOLD)));
         fonts.families.insert(egui::FontFamily::Name("courier".into()), vec!["courier-badi".into()]);
-        fonts.font_data.insert("courier-badi-italic".into(), std::sync::Arc::new(egui::FontData::from_static(scriptcraft_fonts::ITALIC)));
-        fonts.font_data.insert("courier-badi-bolditalic".into(), std::sync::Arc::new(egui::FontData::from_static(scriptcraft_fonts::BOLD_ITALIC)));
+        fonts.font_data.insert("courier-badi-italic".into(), std::sync::Arc::new(egui::FontData::from_static(draftcraft_fonts::ITALIC)));
+        fonts.font_data.insert("courier-badi-bolditalic".into(), std::sync::Arc::new(egui::FontData::from_static(draftcraft_fonts::BOLD_ITALIC)));
         fonts.families.insert(egui::FontFamily::Name("courier-bold".into()), vec!["courier-badi-bold".into()]);
         fonts.families.insert(egui::FontFamily::Name("courier-italic".into()), vec!["courier-badi-italic".into()]);
         fonts.families.insert(egui::FontFamily::Name("courier-bolditalic".into()), vec!["courier-badi-bolditalic".into()]);
@@ -921,7 +921,7 @@ impl ScriptApp {
             .and_then(|n| n.to_str())
             .unwrap_or(self.prefs.appearance.language.text("Untitled"))
             .to_string();
-        let title = format!("{name}{} — ScriptCraft", if self.session.dirty { " •" } else { "" });
+        let title = format!("{name}{} — DraftCraft", if self.session.dirty { " •" } else { "" });
         if title != self.sent_title {
             // The browser backend has no window title.
             #[cfg(not(target_arch = "wasm32"))]

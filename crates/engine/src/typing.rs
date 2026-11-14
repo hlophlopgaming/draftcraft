@@ -2,7 +2,7 @@
 //! targets are per-script element settings (`ElementFormat::default_for` has the defaults).
 //! The behaviour is documented in `docs/typing-parity.md` and pinned by `tests_typing.rs`.
 
-use scriptcraft_doc::{Element, Script};
+use draftcraft_doc::{Element, Script};
 
 /// The element a new paragraph gets after Enter at the end of `e` (this script's settings).
 pub fn enter_next(s: &Script, e: Element) -> Element {

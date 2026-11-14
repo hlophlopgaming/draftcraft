@@ -1,23 +1,23 @@
 [package]
-name = "scriptcraft-engine"
+name = "draftcraft-engine"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ScriptCraft engine: session, undo, command registry, Final Draft-style typing, SmartType, reports (L4)"
+description = "DraftCraft engine: session, undo, command registry, Final Draft-style typing, SmartType, reports (L4)"
 
 [lints]
 workspace = true
 
 [dependencies]
-scriptcraft-geom = { workspace = true }
-scriptcraft-doc = { workspace = true }
-scriptcraft-fountain = { workspace = true }
-scriptcraft-fdx = { workspace = true }
-scriptcraft-layout = { workspace = true }
-scriptcraft-pdf = { workspace = true }
-scriptcraft-spell = { workspace = true }
-scriptcraft-collab = { workspace = true }
-scriptcraft-import = { workspace = true }
+draftcraft-geom = { workspace = true }
+draftcraft-doc = { workspace = true }
+draftcraft-fountain = { workspace = true }
+draftcraft-fdx = { workspace = true }
+draftcraft-layout = { workspace = true }
+draftcraft-pdf = { workspace = true }
+draftcraft-spell = { workspace = true }
+draftcraft-collab = { workspace = true }
+draftcraft-import = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

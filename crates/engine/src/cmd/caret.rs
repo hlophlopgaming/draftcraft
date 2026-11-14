@@ -1,7 +1,7 @@
 //! Caret movement and selection (none of these change the script).
 
-use scriptcraft_doc::{Pos, next_boundary, prev_boundary, word_left, word_right};
-use scriptcraft_layout::LineKind;
+use draftcraft_doc::{Pos, next_boundary, prev_boundary, word_left, word_right};
+use draftcraft_layout::LineKind;
 use serde_json::Value;
 
 use super::{parse_pos, sel_result};

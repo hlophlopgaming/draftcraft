@@ -1,8 +1,8 @@
 //! The story map: scenes and structure points placed along the script's pages, for a timeline
 //! view of the structure against page count.
 
-use scriptcraft_doc::{CardColor, Script, StructureKind};
-use scriptcraft_layout::Layout;
+use draftcraft_doc::{CardColor, Script, StructureKind};
+use draftcraft_layout::Layout;
 use serde::Serialize;
 
 /// A scene on the map. Positions are in pages from the start of the script (`0.0` is the top of

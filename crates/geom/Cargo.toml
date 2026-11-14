@@ -1,9 +1,9 @@
 [package]
-name = "scriptcraft-geom"
+name = "draftcraft-geom"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ScriptCraft units and page geometry (L0)"
+description = "DraftCraft units and page geometry (L0)"
 
 [lints]
 workspace = true

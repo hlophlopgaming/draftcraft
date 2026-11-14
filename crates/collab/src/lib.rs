@@ -1,4 +1,4 @@
-//! ScriptCraft real-time collaboration (#25): differential synchronisation with a central
+//! DraftCraft real-time collaboration (#25): differential synchronisation with a central
 //! sequencer. One window hosts the authoritative script; others join with a session key, send
 //! patches against the version they last saw, and the host three-way merges them. Sync works on
 //! the document, not on commands. Design: `docs/collaboration.md`.

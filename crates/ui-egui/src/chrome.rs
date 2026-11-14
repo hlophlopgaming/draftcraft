@@ -1,7 +1,7 @@
 //! Window chrome: menu bar, toolbar, find bar, status bar, navigator, dialogs, shortcuts.
 
 use egui::{Key, Modifiers, RichText, Ui, vec2};
-use scriptcraft_doc::{Element, TitlePage};
+use draftcraft_doc::{Element, TitlePage};
 use serde_json::json;
 
 use crate::icons::{self, Icon};
@@ -180,7 +180,7 @@ pub fn menu_bar(app: &mut ScriptApp, ui: &mut Ui) {
                 check(app, ui, "Beat Board", v == View::BeatBoard, "ui.view.beats", json!({}));
                 check(app, ui, "Story Map", app.story_map, "ui.toggleStoryMap", json!({}));
                 ui.menu_button(lang.text("Add Structure Point"), |ui| {
-                    for k in scriptcraft_doc::StructureKind::ALL {
+                    for k in draftcraft_doc::StructureKind::ALL {
                         if ui.button(format!("{} Before This Scene", k.label())).clicked() {
                             app.run("structure.add", json!({"kind": k.id()}));
                             ui.close();
@@ -289,7 +289,7 @@ pub fn menu_bar(app: &mut ScriptApp, ui: &mut Ui) {
                 crate::drafts::tools_menu(app, ui);
             });
             ui.menu_button(lang.text("Help"), |ui| {
-                item(app, ui, "About ScriptCraft", "ui.about", "");
+                item(app, ui, "About DraftCraft", "ui.about", "");
                 item(app, ui, "Open Sample Script", "file.sample", "");
             });
         });
@@ -382,22 +382,22 @@ pub fn toolbar(app: &mut ScriptApp, ui: &mut Ui) {
                     .response
                     .on_hover_text(lang.text("Element of the current paragraph (Enter and Tab change it as you type)"));
                 ui.add_space(4.0);
-                let fs = scriptcraft_engine::cmd::format::caret_style(&app.session);
+                let fs = draftcraft_engine::cmd::format::caret_style(&app.session);
                 let (a, b) = app.session.sel.ordered();
-                let states: Vec<bool> = [scriptcraft_doc::Flag::Bold, scriptcraft_doc::Flag::Italic, scriptcraft_doc::Flag::Underline]
+                let states: Vec<bool> = [draftcraft_doc::Flag::Bold, draftcraft_doc::Flag::Italic, draftcraft_doc::Flag::Underline]
                     .iter()
                     .map(|f| if a == b { fs.get(*f) } else { app.session.script.all_have(a, b, *f) })
                     .collect();
                 for (k, (label, tip, id, f)) in [
-                    ("B", lang.text("Bold"), "format.bold", scriptcraft_doc::Flag::Bold),
-                    ("I", lang.text("Italic"), "format.italic", scriptcraft_doc::Flag::Italic),
-                    ("U", lang.text("Underline"), "format.underline", scriptcraft_doc::Flag::Underline),
+                    ("B", lang.text("Bold"), "format.bold", draftcraft_doc::Flag::Bold),
+                    ("I", lang.text("Italic"), "format.italic", draftcraft_doc::Flag::Italic),
+                    ("U", lang.text("Underline"), "format.underline", draftcraft_doc::Flag::Underline),
                 ]
                 .into_iter()
                 .enumerate()
                 {
                     let on = states.get(k).copied().unwrap_or(false);
-                    let mut text = RichText::new(label).font(crate::canvas::courier_styled(15.0, scriptcraft_doc::Style::PLAIN.with(f, true)));
+                    let mut text = RichText::new(label).font(crate::canvas::courier_styled(15.0, draftcraft_doc::Style::PLAIN.with(f, true)));
                     if on {
                         text = text.color(egui::Color32::WHITE);
                     }
@@ -406,9 +406,9 @@ pub fn toolbar(app: &mut ScriptApp, ui: &mut Ui) {
                         .on_hover_text(format!(
                             "{tip} ({})",
                             pretty_key(match f {
-                                scriptcraft_doc::Flag::Bold => "Mod+B",
-                                scriptcraft_doc::Flag::Italic => "Mod+I",
-                                scriptcraft_doc::Flag::Underline => "Mod+U",
+                                draftcraft_doc::Flag::Bold => "Mod+B",
+                                draftcraft_doc::Flag::Italic => "Mod+I",
+                                draftcraft_doc::Flag::Underline => "Mod+U",
                             })
                         ))
                         .clicked()
@@ -664,7 +664,7 @@ pub fn navigator(app: &mut ScriptApp, ui: &mut Ui) {
                 } else if app.nav_tab == 3 {
                     crate::bookmarks::tab(app, ui);
                 } else {
-                    let chars = scriptcraft_engine::reports::characters(&app.session.script, &l);
+                    let chars = draftcraft_engine::reports::characters(&app.session.script, &l);
                     for c in chars {
                         ui.horizontal(|ui| {
                             ui.label(RichText::new(&c.name).strong());
@@ -710,7 +710,7 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
                     egui::Grid::new("tp-lines").num_columns(5).spacing([6.0, 4.0]).show(ui, |ui| {
                         for (i, l) in lines.iter_mut().enumerate() {
                             egui::ComboBox::from_id_salt(("tp-align", i)).width(70.0).selected_text(lang.text(l.align.name())).show_ui(ui, |ui| {
-                                for a in [scriptcraft_doc::Align::Left, scriptcraft_doc::Align::Center, scriptcraft_doc::Align::Right] {
+                                for a in [draftcraft_doc::Align::Left, draftcraft_doc::Align::Center, draftcraft_doc::Align::Right] {
                                     lines_changed |= ui.selectable_value(&mut l.align, a, lang.text(a.name())).changed();
                                 }
                             });
@@ -737,7 +737,7 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
                 ui.add_space(6.0);
                 ui.horizontal(|ui| {
                     if ui.button(lang.text("Add Line")).clicked() {
-                        lines.push(scriptcraft_doc::TitleLine::new(scriptcraft_doc::Align::Center, ""));
+                        lines.push(draftcraft_doc::TitleLine::new(draftcraft_doc::Align::Center, ""));
                         lines_changed = true;
                     }
                     if ui.button(lang.text("Use Fields Instead")).on_hover_text(lang.text("Lay out the title page from its fields")).clicked() {
@@ -837,7 +837,7 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
                             changes.push(json!({"element": id, "spacing": sp}));
                         }
                         egui::ComboBox::from_id_salt(("align", id)).width(70.0).selected_text(lang.text(f.align.name())).show_ui(ui, |ui| {
-                            for a in [scriptcraft_doc::Align::Left, scriptcraft_doc::Align::Center, scriptcraft_doc::Align::Right] {
+                            for a in [draftcraft_doc::Align::Left, draftcraft_doc::Align::Center, draftcraft_doc::Align::Right] {
                                 if ui.selectable_label(f.align == a, lang.text(a.name())).clicked() {
                                     changes.push(json!({"element": id, "align": a.name()}));
                                 }
@@ -876,8 +876,8 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
     }
     if app.about {
         let mut open = true;
-        egui::Window::new(lang.text("About ScriptCraft")).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
-            ui.heading("ScriptCraft");
+        egui::Window::new(lang.text("About DraftCraft")).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
+            ui.heading("DraftCraft");
             ui.label(lang.format("Version {version}", &[("version", (env!("CARGO_PKG_VERSION")).to_string())]));
             ui.label(lang.text("Open-source screenwriting in pure Rust, by the ArtCraft community."));
             ui.label(lang.text("MIT OR Apache-2.0. Typeface: Courier Badi (SIL Open Font License 1.1)."));
@@ -911,7 +911,7 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
                     .unwrap_or(lang.text("an untitled script"))
                     .to_string();
                 ui.label(lang.format(
-                    "ScriptCraft did not close normally. An autosaved copy of {name} ({scenes} scenes) is available.",
+                    "DraftCraft did not close normally. An autosaved copy of {name} ({scenes} scenes) is available.",
                     &[("name", (name).to_string()), ("scenes", (r.script.scenes().len()).to_string())],
                 ));
                 ui.horizontal(|ui| {

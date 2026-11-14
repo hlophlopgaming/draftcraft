@@ -1,16 +1,16 @@
-//! Headless UI screenshots: renders the whole ScriptCraft window offscreen (wgpu), so it works
+//! Headless UI screenshots: renders the whole DraftCraft window offscreen (wgpu), so it works
 //! with a locked screen or a hidden window. Structure follows WordCraft's `ui_shot` (MIT OR
 //! Apache-2.0; see NOTICE).
 //!
-//! `cargo run -p scriptcraft-ui-egui --example ui_shot -- script.jsonl`
+//! `cargo run -p draftcraft-ui-egui --example ui_shot -- script.jsonl`
 //!
 //! The script is JSON lines: control-channel requests (`{"method": …, "params": …}`, see
 //! `docs/control-protocol.md`), `{"shot": "/abs/out.png"}` to save the window as PNG, or
 //! `{"steps": n}` to run extra frames, `{"speaker": "silent"}` for a silent speech engine, `{"printers": [names]}` for a fake print host. The window is 1440×900 points at 2× and opens the sample
 //! script unless the first line is `{"empty": true}`; `{"width": w, "height": h}` resizes it.
 
-use scriptcraft_engine::Session;
-use scriptcraft_ui_egui::{ControlRequest, ScriptApp};
+use draftcraft_engine::Session;
+use draftcraft_ui_egui::{ControlRequest, ScriptApp};
 
 static READY: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
@@ -26,14 +26,14 @@ fn main() {
     app.canvas.blink = false;
     // `{"speaker": "silent"}` anywhere: a silent speech engine with a few voices (Read Aloud).
     if lines.iter().any(|l| l.get("speaker").is_some()) {
-        let mut s = scriptcraft_ui_egui::speech::SilentSpeaker::new(&["Samantha", "Daniel", "Karen", "Moira", "Tessa", "Fred", "Rishi"]);
+        let mut s = draftcraft_ui_egui::speech::SilentSpeaker::new(&["Samantha", "Daniel", "Karen", "Moira", "Tessa", "Fred", "Rishi"]);
         s.frames_per_line = 40;
         app.speaker = Some(Box::new(s));
     }
     // `{"printers": ["Office", …]}`: a fake print host with these printers (prints nothing).
     if let Some(list) = lines.iter().find_map(|l| l.get("printers").and_then(|v| v.as_array())) {
         let names: Vec<&str> = list.iter().filter_map(|v| v.as_str()).collect();
-        app.printer = Some(Box::new(scriptcraft_ui_egui::printing::FakePrinter::new(&names)));
+        app.printer = Some(Box::new(draftcraft_ui_egui::printing::FakePrinter::new(&names)));
     }
     let w = lines.iter().find_map(|l| l.get("width").and_then(|v| v.as_f64())).unwrap_or(1440.0) as f32;
     let h = lines.iter().find_map(|l| l.get("height").and_then(|v| v.as_f64())).unwrap_or(900.0) as f32;

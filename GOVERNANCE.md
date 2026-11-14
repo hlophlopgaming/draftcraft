@@ -1,6 +1,6 @@
 # Governance
 
-ScriptCraft is a small project. This document says how it is run, so contributors know what to
+DraftCraft is a small project. This document says how it is run, so contributors know what to
 expect and how to take on more responsibility.
 
 ## Mission
@@ -50,7 +50,7 @@ changes, fixes and security credits.
 Be respectful and assume good intent. Harassment, personal attacks and discrimination are not
 tolerated. The maintainer may edit or remove comments, close discussions and, for repeated or serious
 violations, block accounts. To raise a concern privately, use a GitHub security advisory
-(<https://github.com/NoJuanNobody/scriptcraft/security/advisories/new>) or email
+(<https://github.com/hlophlopgaming/draftcraft/security/advisories/new>) or email
 <alondono11@gmail.com>.
 
 ## Security
@@ -60,7 +60,7 @@ See [SECURITY.md](SECURITY.md).
 ## Licensing and trademarks
 
 Code is `MIT OR Apache-2.0`. Contributions are accepted under the same terms. Final Draft is a
-trademark of its owner; ScriptCraft is not affiliated with it (see [NOTICE](NOTICE)).
+trademark of its owner; DraftCraft is not affiliated with it (see [NOTICE](NOTICE)).
 
 ## Changing this document
 

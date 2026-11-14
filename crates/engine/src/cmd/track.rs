@@ -1,8 +1,8 @@
 //! Track changes: record who inserted and deleted what; accept or reject each change.
-//! The recording itself happens in `Session::run` (see `scriptcraft_doc::track`).
+//! The recording itself happens in `Session::run` (see `draftcraft_doc::track`).
 
-use scriptcraft_doc::Pos;
-use scriptcraft_doc::track::{self, ChangeKind, ChangeRef};
+use draftcraft_doc::Pos;
+use draftcraft_doc::track::{self, ChangeKind, ChangeRef};
 use serde_json::{Value, json};
 
 use crate::{CmdError, CmdResult, CommandSpec, Selection, Session, p};
@@ -203,7 +203,7 @@ mod tests {
         s.run("text.backspace", &json!({})).unwrap();
         let l = s.layout();
         assert!(!l.pages.iter().flat_map(|p| &p.lines).any(|x| x.text.contains("Don't you dare")));
-        let fountain = scriptcraft_fountain::write(&s.script);
+        let fountain = draftcraft_fountain::write(&s.script);
         assert!(!fountain.contains("Don't you dare"));
     }
 }

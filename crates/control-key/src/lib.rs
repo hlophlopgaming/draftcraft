@@ -1,18 +1,18 @@
-//! Where ScriptCraft keeps things on disk, with the Craft suite's folder rules from
+//! Where DraftCraft keeps things on disk, with the Craft suite's folder rules from
 //! [`craft-settings`](https://github.com/storytold/craft-libs/tree/main/crates/settings)
 //! (storytold/craft-libs#22). One rule set for the app (which writes) and the MCP bridge (which
 //! reads the control key).
 //!
 //! - **Config folder** (`config.toml`): the first match of a `--config-dir` override,
-//!   `SCRIPTCRAFT_CONFIG_DIR` (set but empty = isolated: nothing is read or written), a
+//!   `DRAFTCRAFT_CONFIG_DIR` (set but empty = isolated: nothing is read or written), a
 //!   `portable` marker next to the executable (folder `config/` beside it), then the platform
-//!   folder (`~/Library/Application Support/scriptcraft`, `%APPDATA%\scriptcraft`,
-//!   `~/.config/scriptcraft`).
+//!   folder (`~/Library/Application Support/draftcraft`, `%APPDATA%\draftcraft`,
+//!   `~/.config/draftcraft`).
 //! - **Data folder** (autosave recovery, backups, user dictionary, control key): not settings,
 //!   so a settings reset never loses them. The platform data folder by default; `data/` inside
 //!   the config folder when that was chosen by an override, the variable or portable mode, so
 //!   everything moves together. None when isolated.
-//! - **Legacy folder**: where ScriptCraft 0.2 kept everything (`prefs.json`, …), read once for
+//! - **Legacy folder**: where DraftCraft 0.2 kept everything (`prefs.json`, …), read once for
 //!   the import and never modified.
 //!
 //! The key file pattern is adapted from WordCraft (MIT OR Apache-2.0; see NOTICE).
@@ -21,9 +21,9 @@
 use std::path::{Path, PathBuf};
 
 /// The Craft-suite application id (lowercase on every platform, craft-libs#12).
-pub const APP_ID: &str = "scriptcraft";
+pub const APP_ID: &str = "draftcraft";
 
-/// The folders ScriptCraft uses.
+/// The folders DraftCraft uses.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Folders {
     /// Where `config.toml` lives; `None` when isolated or in memory.
@@ -70,19 +70,19 @@ pub fn folders(_config_dir: Option<PathBuf>) -> Folders {
     Folders { config: None, data: None, rule: "browser: settings are not stored".into(), legacy: None }
 }
 
-/// Where ScriptCraft 0.2 kept its settings: macOS `~/Library/Application Support/ScriptCraft`,
-/// Windows `%APPDATA%\ScriptCraft`, otherwise `$XDG_CONFIG_HOME/scriptcraft` or
-/// `~/.config/scriptcraft`.
+/// Where DraftCraft 0.2 kept its settings: macOS `~/Library/Application Support/DraftCraft`,
+/// Windows `%APPDATA%\DraftCraft`, otherwise `$XDG_CONFIG_HOME/draftcraft` or
+/// `~/.config/draftcraft`.
 pub fn legacy_settings_dir() -> Option<PathBuf> {
     if cfg!(target_os = "macos") {
-        std::env::var_os("HOME").map(|h| PathBuf::from(h).join("Library/Application Support/ScriptCraft"))
+        std::env::var_os("HOME").map(|h| PathBuf::from(h).join("Library/Application Support/DraftCraft"))
     } else if cfg!(windows) {
-        std::env::var_os("APPDATA").map(|a| PathBuf::from(a).join("ScriptCraft"))
+        std::env::var_os("APPDATA").map(|a| PathBuf::from(a).join("DraftCraft"))
     } else {
         std::env::var_os("XDG_CONFIG_HOME")
             .map(PathBuf::from)
             .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".config")))
-            .map(|c| c.join("scriptcraft"))
+            .map(|c| c.join("draftcraft"))
     }
 }
 
@@ -125,15 +125,15 @@ pub fn process_alive(pid: u32) -> bool {
     }
 }
 
-/// The key for `port`: `SCRIPTCRAFT_CONTROL_KEY` when set, else the app's key file in the data
-/// folder (the same rules the app used, so set `SCRIPTCRAFT_CONFIG_DIR` the same way for both).
+/// The key for `port`: `DRAFTCRAFT_CONTROL_KEY` when set, else the app's key file in the data
+/// folder (the same rules the app used, so set `DRAFTCRAFT_CONFIG_DIR` the same way for both).
 /// A key file left by an app that is no longer running is reported as stale.
 pub fn find_key(port: u16) -> Result<String, String> {
-    if let Some(k) = std::env::var("SCRIPTCRAFT_CONTROL_KEY").ok().map(|k| k.trim().to_string()).filter(|k| !k.is_empty()) {
+    if let Some(k) = std::env::var("DRAFTCRAFT_CONTROL_KEY").ok().map(|k| k.trim().to_string()).filter(|k| !k.is_empty()) {
         return Ok(k);
     }
     let f = folders(None);
-    let dir = f.data.ok_or_else(|| format!("no data folder ({}): set SCRIPTCRAFT_CONTROL_KEY", f.rule))?;
+    let dir = f.data.ok_or_else(|| format!("no data folder ({}): set DRAFTCRAFT_CONTROL_KEY", f.rule))?;
     let path = key_path(&dir, port);
     match std::fs::read_to_string(&path).ok().as_deref().and_then(parse_key_file) {
         Some((_, Some(pid))) if !process_alive(pid) => Err(format!(
@@ -141,7 +141,7 @@ pub fn find_key(port: u16) -> Result<String, String> {
             path.display()
         )),
         Some((k, _)) => Ok(k),
-        None => Err(format!("no control key: set SCRIPTCRAFT_CONTROL_KEY, or start the app with --control {port} (it writes {})", path.display())),
+        None => Err(format!("no control key: set DRAFTCRAFT_CONTROL_KEY, or start the app with --control {port} (it writes {})", path.display())),
     }
 }
 
@@ -177,7 +177,7 @@ mod tests {
 
     fn probe(var: Option<&'static str>, exe: Option<PathBuf>) -> craft_settings::Probe {
         craft_settings::Probe {
-            env: Box::new(move |name| (name == "SCRIPTCRAFT_CONFIG_DIR").then_some(var).flatten().map(Into::into)),
+            env: Box::new(move |name| (name == "DRAFTCRAFT_CONFIG_DIR").then_some(var).flatten().map(Into::into)),
             exe_dir: exe,
             platform_config_dir: Some(PathBuf::from("/home/u/.config")),
         }
@@ -186,19 +186,19 @@ mod tests {
     #[test]
     fn folder_rules() {
         use craft_settings::Location;
-        let data = Some(PathBuf::from("/home/u/.local/share/scriptcraft"));
+        let data = Some(PathBuf::from("/home/u/.local/share/draftcraft"));
         // Platform default: config and data in their platform folders, lowercase id.
         let f = folders_with(&Location::Auto, &probe(None, None), data.clone(), None);
-        assert_eq!(f.config, Some(PathBuf::from("/home/u/.config").join("scriptcraft")));
+        assert_eq!(f.config, Some(PathBuf::from("/home/u/.config").join("draftcraft")));
         assert_eq!(f.data, data);
-        let old = Some(PathBuf::from("/home/u/.config/ScriptCraft-old"));
+        let old = Some(PathBuf::from("/home/u/.config/DraftCraft-old"));
         assert_eq!(folders_with(&Location::Auto, &probe(None, None), data.clone(), old.clone()).legacy, old);
         // The variable moves everything together, and never reads the real old profile.
         let f = folders_with(&Location::Auto, &probe(Some("/tmp/sc"), None), data.clone(), old.clone());
         assert_eq!(f.legacy, None);
         assert_eq!(f.config, Some(PathBuf::from("/tmp/sc")));
         assert_eq!(f.data, Some(PathBuf::from("/tmp/sc").join("data")));
-        assert!(f.rule.contains("SCRIPTCRAFT_CONFIG_DIR"));
+        assert!(f.rule.contains("DRAFTCRAFT_CONFIG_DIR"));
         // Set but empty: isolated, nothing anywhere.
         let f = folders_with(&Location::Auto, &probe(Some(""), None), data.clone(), None);
         assert_eq!((f.config, f.data), (None, None));
@@ -223,7 +223,7 @@ mod tests {
     fn legacy_folder_is_the_apps_old_folder() {
         if let Some(d) = legacy_settings_dir() {
             let name = d.file_name().and_then(|n| n.to_str()).unwrap_or("");
-            assert!(name == "scriptcraft" || name == "ScriptCraft", "{}", d.display());
+            assert!(name == "draftcraft" || name == "DraftCraft", "{}", d.display());
         }
     }
 }

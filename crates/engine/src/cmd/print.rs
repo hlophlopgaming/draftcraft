@@ -2,7 +2,7 @@
 //! `print.printers`: CUPS, the Windows print action, or the browser's print window), or opens it in
 //! the system's viewer; agents get the bytes from `print.render`.
 
-use scriptcraft_pdf::Selection;
+use draftcraft_pdf::Selection;
 use serde_json::{Value, json};
 
 use crate::{CmdError, CmdResult, CommandSpec, Session, p};
@@ -26,7 +26,7 @@ pub fn specs() -> Vec<CommandSpec> {
 
 /// Printers belong to the computer running the window, not to a headless session.
 fn needs_app(_: &mut Session, _: &Value) -> CmdResult {
-    Err(CmdError::Disabled("printing to a printer needs the ScriptCraft window; print.render gives the PDF".into()))
+    Err(CmdError::Disabled("printing to a printer needs the DraftCraft window; print.render gives the PDF".into()))
 }
 
 /// The page selection in `v`.
@@ -47,7 +47,7 @@ pub(crate) fn selection(v: &Value) -> Result<Selection, CmdError> {
 }
 
 /// Indices of the selected pages; an error when none.
-fn chosen(s: &mut Session, v: &Value) -> Result<(std::sync::Arc<scriptcraft_layout::Layout>, Vec<usize>), CmdError> {
+fn chosen(s: &mut Session, v: &Value) -> Result<(std::sync::Arc<draftcraft_layout::Layout>, Vec<usize>), CmdError> {
     let l = s.layout();
     let sel = selection(&with_labels_resolved(v, &l)?)?;
     let which = sel.pages(&l);
@@ -58,7 +58,7 @@ fn chosen(s: &mut Session, v: &Value) -> Result<(std::sync::Arc<scriptcraft_layo
 }
 
 /// `from`/`to` given as printed labels (`"12A"`, locked pages) become page numbers.
-fn with_labels_resolved(v: &Value, l: &scriptcraft_layout::Layout) -> Result<Value, CmdError> {
+fn with_labels_resolved(v: &Value, l: &draftcraft_layout::Layout) -> Result<Value, CmdError> {
     let mut v = v.clone();
     for k in ["from", "to"] {
         if let Some(label) = v.get(k).and_then(Value::as_str).map(|t| t.trim().trim_end_matches('.').to_string()) {
@@ -76,7 +76,7 @@ fn with_labels_resolved(v: &Value, l: &scriptcraft_layout::Layout) -> Result<Val
 }
 
 /// What each chosen page prints as: `title`, `12`, or `12A` when pages are locked.
-fn labels(l: &scriptcraft_layout::Layout, which: &[usize]) -> Vec<String> {
+fn labels(l: &draftcraft_layout::Layout, which: &[usize]) -> Vec<String> {
     which
         .iter()
         .filter_map(|i| l.pages.get(*i))
@@ -99,7 +99,7 @@ fn pages(s: &mut Session, v: &Value) -> CmdResult {
 
 fn render(s: &mut Session, v: &Value) -> CmdResult {
     let (l, which) = chosen(s, v)?;
-    let bytes = scriptcraft_pdf::export_pages(&s.script, &l, &which).map_err(|e| CmdError::Failed(e.to_string()))?;
+    let bytes = draftcraft_pdf::export_pages(&s.script, &l, &which).map_err(|e| CmdError::Failed(e.to_string()))?;
     let stem = s.path.as_ref().and_then(|p| p.file_stem()).and_then(|x| x.to_str()).map(str::to_string).unwrap_or_else(|| {
         let t = s.script.title.title.lines().next().unwrap_or("").trim();
         if t.is_empty() { "Untitled".to_string() } else { t.to_string() }

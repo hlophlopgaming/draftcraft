@@ -5,8 +5,8 @@
 
 use std::collections::HashSet;
 
-use scriptcraft_doc::{Element, Pos, Script};
-use scriptcraft_spell::{english, key, words};
+use draftcraft_doc::{Element, Pos, Script};
+use draftcraft_spell::{english, key, words};
 use serde_json::{Value, json};
 
 use crate::{CmdError, CmdResult, CommandSpec, Selection, Session, p};
@@ -37,7 +37,7 @@ pub fn script_words(s: &Script) -> HashSet<String> {
             add(&p.text);
         }
     }
-    for f in scriptcraft_doc::TitlePage::FIELDS {
+    for f in draftcraft_doc::TitlePage::FIELDS {
         add(s.title.get(f).unwrap_or(""));
     }
     out

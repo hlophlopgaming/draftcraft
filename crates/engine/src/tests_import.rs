@@ -1,7 +1,7 @@
-//! Import round trips: a script exported by ScriptCraft (PDF) comes back with the same elements
+//! Import round trips: a script exported by DraftCraft (PDF) comes back with the same elements
 //! and text; `.docx` / `.celtx` / `.pdf` open through the file commands.
 
-use scriptcraft_doc::{Element, Script, Span, Style};
+use draftcraft_doc::{Element, Script, Span, Style};
 use serde_json::json;
 
 use crate::Session;
@@ -106,7 +106,7 @@ fn file_commands_import() {
 
 #[test]
 fn every_template_and_a4_round_trip_through_pdf() {
-    use scriptcraft_doc::{Paper, Template};
+    use draftcraft_doc::{Paper, Template};
     for t in Template::ALL {
         for paper in [Paper::Letter, Paper::A4] {
             let mut s = crate::sample::script();

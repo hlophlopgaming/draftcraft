@@ -3,12 +3,12 @@
 //! (or `espeak`, or speech-dispatcher's `spd-say`) on Linux. Stop kills the child.
 //!
 //! Speech to text: when whisper.cpp's `whisper-cli` and a model are found, audio files can be
-//! transcribed on this computer (`SCRIPTCRAFT_WHISPER` and `SCRIPTCRAFT_WHISPER_MODEL` override
+//! transcribed on this computer (`DRAFTCRAFT_WHISPER` and `DRAFTCRAFT_WHISPER_MODEL` override
 //! the search; models are looked for in `~/.whisper/models` and `~/.cache/whisper`). Non-WAV
 //! audio is converted with `ffmpeg` when it is installed. Nothing is bundled or downloaded.
 //!
-//! `SCRIPTCRAFT_TTS` picks the engine (`say`, `sapi`, `espeak-ng`, `espeak`, `spd-say`, `none`);
-//! `SCRIPTCRAFT_TTS_OUT=<dir>` makes `say` and espeak write each line to a numbered audio file
+//! `DRAFTCRAFT_TTS` picks the engine (`say`, `sapi`, `espeak-ng`, `espeak`, `spd-say`, `none`);
+//! `DRAFTCRAFT_TTS_OUT=<dir>` makes `say` and espeak write each line to a numbered audio file
 //! there instead of playing it (for checks without sound).
 
 use std::io::Write;
@@ -16,7 +16,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
 
-use scriptcraft_ui_egui::speech::{SpeechHost, Voice};
+use draftcraft_ui_egui::speech::{SpeechHost, Voice};
 
 /// Longest text handed to the engine at once (characters).
 const MAX_TEXT: usize = 8000;
@@ -59,7 +59,7 @@ fn command(program: &Path) -> Command {
 
 /// The speech engine for this computer, if any.
 pub fn detect() -> Option<SystemSpeech> {
-    let choice = std::env::var("SCRIPTCRAFT_TTS").unwrap_or_default();
+    let choice = std::env::var("DRAFTCRAFT_TTS").unwrap_or_default();
     let backend = match choice.trim() {
         "none" => return None,
         "say" => Some(Backend::Say),
@@ -77,14 +77,14 @@ pub fn detect() -> Option<SystemSpeech> {
             find_in_path("espeak-ng").or_else(|| find_in_path("espeak")).map(Backend::Espeak).or_else(|| find_in_path("spd-say").map(Backend::SpdSay))
         }
     })?;
-    let out_dir = std::env::var_os("SCRIPTCRAFT_TTS_OUT").map(PathBuf::from).filter(|d| std::fs::create_dir_all(d).is_ok());
+    let out_dir = std::env::var_os("DRAFTCRAFT_TTS_OUT").map(PathBuf::from).filter(|d| std::fs::create_dir_all(d).is_ok());
     Some(SystemSpeech { backend, child: None, out_dir, n: 0, whisper: find_whisper(), heard: Arc::default() })
 }
 
 /// whisper.cpp's command-line program and a model.
 fn find_whisper() -> Option<(PathBuf, PathBuf)> {
-    let bin = std::env::var_os("SCRIPTCRAFT_WHISPER").map(PathBuf::from).filter(|p| p.is_file()).or_else(|| find_in_path("whisper-cli"))?;
-    let model = std::env::var_os("SCRIPTCRAFT_WHISPER_MODEL").map(PathBuf::from).filter(|p| p.is_file()).or_else(|| {
+    let bin = std::env::var_os("DRAFTCRAFT_WHISPER").map(PathBuf::from).filter(|p| p.is_file()).or_else(|| find_in_path("whisper-cli"))?;
+    let model = std::env::var_os("DRAFTCRAFT_WHISPER_MODEL").map(PathBuf::from).filter(|p| p.is_file()).or_else(|| {
         let home = std::env::var_os("HOME").or_else(|| std::env::var_os("USERPROFILE")).map(PathBuf::from)?;
         let mut found: Vec<PathBuf> = [home.join(".whisper/models"), home.join(".cache/whisper")]
             .iter()
@@ -317,7 +317,7 @@ impl Drop for SystemSpeech {
 
 /// Run whisper.cpp on an audio file (converted to 16 kHz mono WAV with ffmpeg when possible).
 fn transcribe(bin: &Path, model: &Path, input: &Path) -> Result<String, String> {
-    let tmp = std::env::temp_dir().join(format!("scriptcraft-dictation-{}.wav", std::process::id()));
+    let tmp = std::env::temp_dir().join(format!("draftcraft-dictation-{}.wav", std::process::id()));
     let wav = match find_in_path("ffmpeg") {
         Some(ff) => {
             let ok = command(&ff)

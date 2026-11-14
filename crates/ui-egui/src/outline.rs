@@ -7,7 +7,7 @@
 //! rectangles of the last frame are in egui temp data under [`rows_id`].
 
 use egui::{Align2, Color32, FontId, Id, Rect, RichText, Sense, Stroke, Ui, pos2, vec2};
-use scriptcraft_doc::{CardColor, StructureKind, StructurePoint};
+use draftcraft_doc::{CardColor, StructureKind, StructurePoint};
 use serde_json::{Value, json};
 
 use crate::ScriptApp;
@@ -41,7 +41,7 @@ fn drag_id() -> Id {
 
 pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
     let t = app.tokens();
-    let outline = scriptcraft_engine::cmd::structure::outline_json(&mut app.session);
+    let outline = draftcraft_engine::cmd::structure::outline_json(&mut app.session);
     let items: Vec<Value> = outline["items"].as_array().cloned().unwrap_or_default();
     let mut actions: Vec<(&'static str, Value)> = Vec::new();
     let mut rows: Vec<Rect> = Vec::new();
@@ -337,8 +337,8 @@ pub fn nav_points(app: &mut ScriptApp, ui: &mut Ui, points: &[StructurePoint], f
 
 /// On the page: a non-printing label above a scene heading that opens acts, sequences or
 /// sections (`ACT TWO › THE CALL`), in the points' colour.
-pub fn paint_marker(app: &ScriptApp, p: &egui::Painter, line: &scriptcraft_layout::Line, pr: Rect, z: f32) {
-    if line.kind != scriptcraft_layout::LineKind::Body || line.start != 0 {
+pub fn paint_marker(app: &ScriptApp, p: &egui::Painter, line: &draftcraft_layout::Line, pr: Rect, z: f32) {
+    if line.kind != draftcraft_layout::LineKind::Body || line.start != 0 {
         return;
     }
     let Some(para) = line.para.and_then(|i| app.session.script.para(i)) else { return };

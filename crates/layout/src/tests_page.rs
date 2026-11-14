@@ -1,6 +1,6 @@
 //! Paper sizes, headers and footers.
 
-use scriptcraft_doc::{HeaderFooter, Para, Script};
+use draftcraft_doc::{HeaderFooter, Para, Script};
 
 use super::*;
 
@@ -72,8 +72,8 @@ fn revision_marks_and_page_labels() {
     let mut s = action_lines(60);
     s.settings.revision.sets[1].date = "10/12/26".into();
     // A Blue change on page 2 (paragraph 30) and a Pink one on page 3 (paragraph 58).
-    scriptcraft_doc::revision::add_mark(&mut s.paras[30], 0, 4, 1);
-    scriptcraft_doc::revision::add_mark(&mut s.paras[58], 5, 7, 2);
+    draftcraft_doc::revision::add_mark(&mut s.paras[30], 0, 4, 1);
+    draftcraft_doc::revision::add_mark(&mut s.paras[58], 5, 7, 2);
     let l = layout(&s);
     assert_eq!(l.page_rev, vec![None, Some(1), Some(2)]);
     let marks = kind(&l.pages[1], LineKind::RevisionMark);

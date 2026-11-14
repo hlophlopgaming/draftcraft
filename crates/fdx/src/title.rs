@@ -2,20 +2,20 @@
 //! one per line, blank ones for spacing, in Final Draft's shape (`LeftIndent="1.00"`,
 //! `RightIndent="7.50"`, no `Type`). Final Draft has no title page fields.
 //!
-//! ScriptCraft writes its fields in the usual arrangement and marks each line with the field it
-//! came from (`ScriptCraftField="copyright"`), so copyright, notes and the contact block come
+//! DraftCraft writes its fields in the usual arrangement and marks each line with the field it
+//! came from (`DraftCraftField="copyright"`), so copyright, notes and the contact block come
 //! back as separate fields. Without those marks (a Final Draft file), the lines are mapped onto
 //! fields when that loses nothing; otherwise they are kept as a free-form title page
 //! ([`TitlePage::lines`]) and written back as they are.
 
-use scriptcraft_doc::{Align, Paper, Style, TitleLine, TitlePage};
+use draftcraft_doc::{Align, Paper, Style, TitleLine, TitlePage};
 
 use crate::{esc, style_attr};
 
 /// The Final Draft paragraph attributes of a title page line.
 fn para_open(align: Align, paper: Paper, field: Option<&str>) -> String {
     let right = if paper == Paper::A4 { "7.27" } else { "7.50" };
-    let field = field.map(|f| format!(" ScriptCraftField=\"{f}\"")).unwrap_or_default();
+    let field = field.map(|f| format!(" DraftCraftField=\"{f}\"")).unwrap_or_default();
     format!(
         "      <Paragraph Alignment=\"{}\" FirstIndent=\"0.00\" Leading=\"Regular\" LeftIndent=\"1.00\" RightIndent=\"{right}\" SpaceBefore=\"0\" Spacing=\"1\" StartsNewPage=\"No\"{field}>\n",
         align.name()
@@ -43,9 +43,9 @@ pub(crate) struct Read {
 }
 
 impl Read {
-    /// A title page paragraph: its alignment, text runs and `ScriptCraftField`.
+    /// A title page paragraph: its alignment, text runs and `DraftCraftField`.
     pub fn add(&mut self, align: &str, runs: &[(String, Style)], field: Option<String>) {
-        if self.lines.len() >= scriptcraft_doc::MAX_TITLE_LINES * 2 {
+        if self.lines.len() >= draftcraft_doc::MAX_TITLE_LINES * 2 {
             return;
         }
         let text: String = runs.iter().map(|(t, _)| t.as_str()).collect();
@@ -60,7 +60,7 @@ impl Read {
 
     pub fn apply(self) -> TitlePage {
         if self.lines.iter().any(|(_, f)| f.is_some()) {
-            // Written by ScriptCraft: each marked line belongs to its field.
+            // Written by DraftCraft: each marked line belongs to its field.
             let mut t = TitlePage::default();
             for (l, f) in &self.lines {
                 if let Some(f) = f
@@ -80,7 +80,7 @@ impl Read {
 
 #[cfg(test)]
 mod tests {
-    use scriptcraft_doc::{Align, Element, Para, Script, Style, TitleLine, TitlePage};
+    use draftcraft_doc::{Align, Element, Para, Script, Style, TitleLine, TitlePage};
 
     fn script(t: TitlePage) -> Script {
         let mut s = Script::from_paras(vec![Para::new(Element::Action, "A.")]).unwrap();
@@ -102,7 +102,7 @@ mod tests {
             lines: Vec::new(),
         };
         let xml = crate::write(&script(t.clone()));
-        assert!(xml.contains("ScriptCraftField=\"copyright\""), "{xml}");
+        assert!(xml.contains("DraftCraftField=\"copyright\""), "{xml}");
         assert!(!xml.contains("Type=\"Title Page\""), "Final Draft's title page paragraphs have no Type");
         assert_eq!(crate::parse(&xml).unwrap().title, t);
     }

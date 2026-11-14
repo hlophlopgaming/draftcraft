@@ -6,7 +6,7 @@ are under File › Collaborate….
 
 ## What has to be synced
 
-A ScriptCraft document is a `Script`: title page fields, per-script `Settings` (element
+A DraftCraft document is a `Script`: title page fields, per-script `Settings` (element
 formats, page setup, revision sets, locks…), and an ordered `Vec<Para>`. Each paragraph has an
 element, its text (no newlines, ever), and data anchored to byte ranges of that text: style spans,
 script notes, production tags, revision marks. Alternates, scene numbers, summaries, card colours and
@@ -29,7 +29,7 @@ attributes) gives convergence without a server, but the paragraph model would ha
 top of it. Every byte-offset feature would have to use CRDT positions. Undo, revision marks, layout
 and file formats all assume plain `String`s and `Vec<Para>`. It also means unbounded tombstone
 growth, or garbage collection that needs coordination anyway. It's the right tool for offline-first,
-peer-to-peer editing. ScriptCraft's goal here is live sessions on one network.
+peer-to-peer editing. DraftCraft's goal here is live sessions on one network.
 
 **Chosen: differential synchronisation with a central sequencer.** This follows Neil Fraser's
 *Differential Synchronization*, 2009, and is how many "host a session" editors work:

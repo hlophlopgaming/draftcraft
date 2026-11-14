@@ -10,7 +10,7 @@ fn call(s: &mut Server, msg: Value) -> Value {
 fn lifecycle_and_tools() {
     let mut s = Server::new(Box::new(Headless::default()));
     let r = call(&mut s, json!({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18"}}));
-    assert_eq!(r["result"]["serverInfo"]["name"], "scriptcraft");
+    assert_eq!(r["result"]["serverInfo"]["name"], "draftcraft");
     assert!(s.handle_line(r#"{"jsonrpc":"2.0","method":"notifications/initialized"}"#).is_none());
     assert!(s.is_initialized());
     let tools = call(&mut s, json!({"jsonrpc": "2.0", "id": 2, "method": "tools/list"}));
@@ -34,7 +34,7 @@ fn lifecycle_and_tools() {
         json!({"jsonrpc": "2.0", "id": 5, "method": "tools/call", "params": {"name": "screenshot", "arguments": {"path": "/tmp/x.png"}}}),
     );
     assert_eq!(r["result"]["isError"], true);
-    let r = call(&mut s, json!({"jsonrpc": "2.0", "id": 6, "method": "resources/read", "params": {"uri": "scriptcraft://script"}}));
+    let r = call(&mut s, json!({"jsonrpc": "2.0", "id": 6, "method": "resources/read", "params": {"uri": "draftcraft://script"}}));
     assert!(r["result"]["contents"][0]["text"].as_str().unwrap().contains("MARGO"));
 }
 

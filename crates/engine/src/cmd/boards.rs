@@ -1,6 +1,6 @@
 //! Bookmarks (named marks on paragraphs) and the beat board (cards for beats, linked to scenes).
 
-use scriptcraft_doc::{CardColor, Element, Pos};
+use draftcraft_doc::{CardColor, Element, Pos};
 use serde_json::{Value, json};
 
 use super::{sel_result, set_caret};
@@ -222,10 +222,10 @@ fn beat_edit(s: &mut Session, v: &Value) -> CmdResult {
     let c = if v.get("color").is_some() { Some(color(v)?) } else { None };
     let b = s.script.board.get_mut(id).ok_or_else(|| CmdError::Params(format!("no beat {id}")))?;
     if let Some(t) = p::str(v, "title") {
-        b.title = scriptcraft_doc::clean_beat_title(t);
+        b.title = draftcraft_doc::clean_beat_title(t);
     }
     if let Some(t) = p::str(v, "text") {
-        b.text = scriptcraft_doc::clean_beat_text(t);
+        b.text = draftcraft_doc::clean_beat_text(t);
     }
     if let Some(c) = c {
         b.color = c;
@@ -284,16 +284,16 @@ fn beat_to_scene(s: &mut Session, v: &Value) -> CmdResult {
             scenes.get(i).map(|sc| sc.end).ok_or_else(|| CmdError::Params(format!("no scene {i}")))?
         }
     };
-    if s.script.paras.len() + 2 > scriptcraft_doc::MAX_PARAS {
+    if s.script.paras.len() + 2 > draftcraft_doc::MAX_PARAS {
         return Err(CmdError::Failed("the script would be too large".into()));
     }
     let (title, text, c) = s.script.board.get(id).map(|b| (b.label().to_string(), b.text.clone(), b.color)).unwrap_or_default();
-    let mut head = scriptcraft_doc::Para::new(Element::SceneHeading, if title.trim().is_empty() { "INT. " } else { title.trim() });
-    head.summary = scriptcraft_doc::sanitize(&text).split_whitespace().collect::<Vec<_>>().join(" ");
+    let mut head = draftcraft_doc::Para::new(Element::SceneHeading, if title.trim().is_empty() { "INT. " } else { title.trim() });
+    head.summary = draftcraft_doc::sanitize(&text).split_whitespace().collect::<Vec<_>>().join(" ");
     head.color = c;
     let at = at.min(s.script.paras.len());
     s.script.paras.insert(at, head);
-    s.script.paras.insert(at + 1, scriptcraft_doc::Para::new(Element::Action, ""));
+    s.script.paras.insert(at + 1, draftcraft_doc::Para::new(Element::Action, ""));
     let scene = s.script.scenes().iter().position(|sc| sc.para == at);
     s.script.link_beat(id, scene).map_err(|e| CmdError::Params(e.to_string()))?;
     set_caret(s, Pos::new(at + 1, 0));
@@ -349,7 +349,7 @@ mod tests {
         s.run("scene.move", &json!({"from": 1, "to": 3})).unwrap();
         assert_eq!(s.script.beat_scene(a as u32), Some(3));
         s.run("beat.goto", &json!({"id": a})).unwrap();
-        assert_eq!(s.script.para(s.sel.focus.para).map(|p| p.element), Some(scriptcraft_doc::Element::SceneHeading));
+        assert_eq!(s.script.para(s.sel.focus.para).map(|p| p.element), Some(draftcraft_doc::Element::SceneHeading));
         assert!(s.run("beat.goto", &json!({"id": b})).is_err());
         s.run("beat.move", &json!({"id": a, "x": -20, "y": 30, "w": 300})).unwrap();
         assert_eq!(s.script.board.beats.last().map(|x| (x.id, x.x, x.w)), Some((a as u32, -20.0, 300.0)));

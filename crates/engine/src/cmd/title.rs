@@ -1,6 +1,6 @@
 //! Title page and script settings.
 
-use scriptcraft_doc::{Align, Element, ElementFormats, MAX_TITLE_LINES, Style, TitleLine, TitlePage};
+use draftcraft_doc::{Align, Element, ElementFormats, MAX_TITLE_LINES, Style, TitleLine, TitlePage};
 use serde_json::{Value, json};
 
 use crate::{CmdError, CmdResult, CommandSpec, Session, p};
@@ -202,7 +202,7 @@ mod tests {
 
     #[test]
     fn free_form_title_pages_through_commands() {
-        let mut s = Session::new(scriptcraft_doc::Script::new());
+        let mut s = Session::new(draftcraft_doc::Script::new());
         let ok = |s: &mut Session, id: &str, v: serde_json::Value| s.run(id, &v).unwrap_or_else(|e| panic!("{id}: {e}"));
         ok(&mut s, "title.set", json!({"fields": {"title": "NIGHT", "copyright": "(c) 2026", "notes": "Draft for Jo"}}));
         // title.get's output can go back into title.set.

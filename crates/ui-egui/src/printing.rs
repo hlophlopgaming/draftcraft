@@ -7,7 +7,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use scriptcraft_engine::CmdError;
+use draftcraft_engine::CmdError;
 use serde_json::{Value, json};
 
 use crate::ScriptApp;
@@ -43,7 +43,7 @@ pub trait PrintHost {
     /// The printers, freshest first; `refresh` asks the system again instead of a cached list.
     fn printers(&mut self, refresh: bool) -> Result<Vec<Printer>, String>;
     /// The printer and copies are chosen in the system's own print window (the browser), not in
-    /// ScriptCraft's.
+    /// DraftCraft's.
     fn chooses_in_dialog(&self) -> bool {
         false
     }
@@ -157,7 +157,7 @@ pub fn command(app: &mut ScriptApp, id: &str, p: &Value) -> Option<Result<Value,
 }
 
 fn no_host() -> CmdError {
-    CmdError::Disabled("printing to a printer needs the ScriptCraft window; print.render gives the PDF".into())
+    CmdError::Disabled("printing to a printer needs the DraftCraft window; print.render gives the PDF".into())
 }
 
 fn printers(app: &mut ScriptApp, p: &Value) -> Result<Value, CmdError> {
@@ -199,7 +199,7 @@ fn send(app: &mut ScriptApp, p: &Value) -> Result<Value, CmdError> {
     }
     let r = app.session.run("print.render", p)?;
     let name = r["name"].as_str().unwrap_or("Untitled.pdf").to_string();
-    let pdf = scriptcraft_engine::b64::decode(r["data"].as_str().unwrap_or("")).map_err(CmdError::Failed)?;
+    let pdf = draftcraft_engine::b64::decode(r["data"].as_str().unwrap_or("")).map_err(CmdError::Failed)?;
     let pages = r["pages"].clone();
     let count = pages.as_array().map_or(0, Vec::len);
     let h = app.printer.as_mut().ok_or_else(no_host)?;

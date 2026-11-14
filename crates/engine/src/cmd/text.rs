@@ -1,6 +1,6 @@
 //! Typing: insert, Enter, Tab, Backspace, Delete, with Final Draft-style element flow.
 
-use scriptcraft_doc::{Element, Para, Pos, next_boundary, prev_boundary};
+use draftcraft_doc::{Element, Para, Pos, next_boundary, prev_boundary};
 use serde_json::Value;
 
 use super::{delete_selection, sel_result, set_caret};

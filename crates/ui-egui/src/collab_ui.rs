@@ -2,7 +2,7 @@
 //! and selections on the page, the status-bar indicator, and the per-frame sync.
 
 use egui::{Color32, FontId, Rect, RichText, Ui, pos2, vec2};
-use scriptcraft_layout::{Layout, LineKind};
+use draftcraft_layout::{Layout, LineKind};
 use serde_json::{Value, json};
 
 use crate::ScriptApp;
@@ -24,7 +24,7 @@ pub struct CollabDialog {
 const POLL: std::time::Duration = std::time::Duration::from_millis(40);
 
 fn color(i: u8) -> Color32 {
-    let [r, g, b] = scriptcraft_collab::COLORS.get(usize::from(i)).copied().unwrap_or([90, 90, 90]);
+    let [r, g, b] = draftcraft_collab::COLORS.get(usize::from(i)).copied().unwrap_or([90, 90, 90]);
     Color32::from_rgb(r, g, b)
 }
 
@@ -223,7 +223,7 @@ pub fn window(app: &mut ScriptApp, ctx: &egui::Context) {
     app.collab.open = open;
     if let Some((id, v)) = action {
         if id != "collab.leave" && !app.collab.name.trim().is_empty() {
-            app.prefs.editing.note_author = scriptcraft_doc::clean_author(&app.collab.name);
+            app.prefs.editing.note_author = draftcraft_doc::clean_author(&app.collab.name);
         }
         app.run(id, v);
     }

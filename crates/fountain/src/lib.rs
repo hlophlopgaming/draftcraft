@@ -8,16 +8,16 @@
 //! index-card summary), sections (`#` act, `##` sequence, `###` and deeper section: the structure points, with a
 //! following `=` synopsis as their summary), notes (`[[…]]`, which become script notes: one
 //! inside a line is anchored where it stood, one on its own line to the start of the next
-//! paragraph; ScriptCraft's `[[color: …]]` and `[[tags: …]]` card notes under a heading set the
+//! paragraph; DraftCraft's `[[color: …]]` and `[[tags: …]]` card notes under a heading set the
 //! index card instead), boneyard (`/* … */`, removed), page breaks (`===`, ignored) and lyrics
 //! (`~`, imported as Action).
 //!
-//! Shot and General, which Fountain lacks, are written as action with a ScriptCraft note at the
+//! Shot and General, which Fountain lacks, are written as action with a DraftCraft note at the
 //! end of the line: `!CLOSE ON THE KEYS. [[shot]]`, `Some general text. [[general]]`. Other
-//! Fountain apps hide the note and show the line as action; ScriptCraft reads the element back.
+//! Fountain apps hide the note and show the line as action; DraftCraft reads the element back.
 //!
-//! ScriptCraft's beat board, bookmarks and beat links travel in one boneyard block at the end
-//! (`/* ScriptCraft board: {…} */`, see `board.rs`), which other Fountain apps ignore.
+//! DraftCraft's beat board, bookmarks and beat links travel in one boneyard block at the end
+//! (`/* DraftCraft board: {…} */`, see `board.rs`), which other Fountain apps ignore.
 //!
 //! Script notes are written back as `[[…]]` lines before their paragraph. Production tags and
 //! alternate lines have no Fountain form: only the active line is written.
@@ -29,7 +29,7 @@
 mod board;
 mod emphasis;
 
-use scriptcraft_doc::{Element, MAX_PARAS, Note, Para, Script, StructureKind, StructurePoint, TitlePage};
+use draftcraft_doc::{Element, MAX_PARAS, Note, Para, Script, StructureKind, StructurePoint, TitlePage};
 
 /// Marks where an inline note stood (private-use characters; removed from input first).
 const NOTE_OPEN: char = '\u{E000}';
@@ -68,7 +68,7 @@ pub fn parse(src: &str) -> Script {
         .replace("\r\n", "\n")
         .replace('\r', "\n")
         .replace([NOTE_OPEN, NOTE_CLOSE, NOTE_LINE, SHOT_MARK, GENERAL_MARK], "");
-    // ScriptCraft's beat board and bookmarks, in a boneyard block at the end.
+    // DraftCraft's beat board and bookmarks, in a boneyard block at the end.
     let (src, board_meta) = board::extract(&src);
     // Index-card colour and tags travel as notes on their own line: `[[color: blue]]`,
     // `[[tags: chase, night]]`. They are kept (marked) before other notes are removed.
@@ -128,17 +128,17 @@ pub fn parse(src: &str) -> Script {
         if let Some(meta) = line.strip_prefix('\u{1}') {
             if section_open && let Some(c) = meta.strip_prefix("color:") {
                 if let Some((_, sp)) = sections.last_mut() {
-                    sp.color = scriptcraft_doc::CardColor::parse(c);
+                    sp.color = draftcraft_doc::CardColor::parse(c);
                 }
                 continue;
             }
             if let Some(h) = paras.iter_mut().rev().find(|p| p.element == Element::SceneHeading) {
                 if let Some(c) = meta.strip_prefix("color:") {
-                    h.color = scriptcraft_doc::CardColor::parse(c);
+                    h.color = draftcraft_doc::CardColor::parse(c);
                 } else if let Some(t) = meta.strip_prefix("tags:") {
                     let mut all = std::mem::take(&mut h.tags);
                     all.extend(t.split(',').map(str::to_string));
-                    h.tags = scriptcraft_doc::clean_tags(all.iter().map(String::as_str));
+                    h.tags = draftcraft_doc::clean_tags(all.iter().map(String::as_str));
                 }
             }
             continue;
@@ -221,7 +221,7 @@ pub fn parse(src: &str) -> Script {
         if line.starts_with('#') {
             let depth = line.chars().take_while(|c| *c == '#').count();
             let title = line.get(depth..).unwrap_or("").trim();
-            if sections.len() < scriptcraft_doc::MAX_STRUCTURE {
+            if sections.len() < draftcraft_doc::MAX_STRUCTURE {
                 sections.push((paras.len(), StructurePoint::new(StructureKind::from_level(depth), title, "", None)));
             }
             section_open = true;
@@ -291,7 +291,7 @@ fn mark_notes(s: &str) -> (String, Vec<String>) {
             rest = "";
             break;
         };
-        let text = scriptcraft_doc::clean_note(&after.get(..b).unwrap_or("").split_whitespace().collect::<Vec<_>>().join(" "));
+        let text = draftcraft_doc::clean_note(&after.get(..b).unwrap_or("").split_whitespace().collect::<Vec<_>>().join(" "));
         if !text.is_empty() {
             out.push(NOTE_OPEN);
             out.push_str(&notes.len().to_string());

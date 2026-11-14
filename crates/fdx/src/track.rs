@@ -1,13 +1,13 @@
-//! Tracked changes in FDX (ScriptCraft-only; Final Draft keeps only the current text).
+//! Tracked changes in FDX (DraftCraft-only; Final Draft keeps only the current text).
 //!
-//! On a paragraph: `<ScriptCraftChange Kind="Insert" Range="start,length" Author="Ana"/>`,
-//! `<ScriptCraftChange Kind="Delete" At="5" Author="Bo" Text="…" Elements="Action,Dialogue"/>`
+//! On a paragraph: `<DraftCraftChange Kind="Insert" Range="start,length" Author="Ana"/>`,
+//! `<DraftCraftChange Kind="Delete" At="5" Author="Bo" Text="…" Elements="Action,Dialogue"/>`
 //! (`&#10;` in `Text` is a removed paragraph break), `Kind="Break"` and
 //! `Kind="Element" From="Action"`. Offsets count characters. Under the root,
-//! `<ScriptCraftTrackChanges On="Yes"/>` when tracking is on.
+//! `<DraftCraftTrackChanges On="Yes"/>` when tracking is on.
 
-use scriptcraft_doc::track::{Change, ChangeKind};
-use scriptcraft_doc::{Element, Para, Script};
+use draftcraft_doc::track::{Change, ChangeKind};
+use draftcraft_doc::{Element, Para, Script};
 
 use crate::esc;
 
@@ -18,22 +18,22 @@ pub(crate) fn write_para(out: &mut String, indent: &str, p: &Para) {
         let who = esc(&c.author);
         match c.kind {
             ChangeKind::Insert => out.push_str(&format!(
-                "{indent}  <ScriptCraftChange Kind=\"Insert\" Range=\"{},{}\" Author=\"{who}\"/>\n",
+                "{indent}  <DraftCraftChange Kind=\"Insert\" Range=\"{},{}\" Author=\"{who}\"/>\n",
                 chars(c.start),
                 chars(c.end).saturating_sub(chars(c.start))
             )),
             ChangeKind::Delete => {
                 let els: Vec<&str> = c.elements.iter().map(|e| e.name()).collect();
                 out.push_str(&format!(
-                    "{indent}  <ScriptCraftChange Kind=\"Delete\" At=\"{}\" Author=\"{who}\" Text=\"{}\" Elements=\"{}\"/>\n",
+                    "{indent}  <DraftCraftChange Kind=\"Delete\" At=\"{}\" Author=\"{who}\" Text=\"{}\" Elements=\"{}\"/>\n",
                     chars(c.start),
                     esc(&c.text).replace('\n', "&#10;"),
                     els.join(",")
                 ));
             }
-            ChangeKind::Break => out.push_str(&format!("{indent}  <ScriptCraftChange Kind=\"Break\" Author=\"{who}\"/>\n")),
+            ChangeKind::Break => out.push_str(&format!("{indent}  <DraftCraftChange Kind=\"Break\" Author=\"{who}\"/>\n")),
             ChangeKind::Element => out.push_str(&format!(
-                "{indent}  <ScriptCraftChange Kind=\"Element\" From=\"{}\" Author=\"{who}\"/>\n",
+                "{indent}  <DraftCraftChange Kind=\"Element\" From=\"{}\" Author=\"{who}\"/>\n",
                 c.elements.first().map_or("Action", |e| e.name())
             )),
         }
@@ -43,7 +43,7 @@ pub(crate) fn write_para(out: &mut String, indent: &str, p: &Para) {
 /// The root marker.
 pub(crate) fn write_root(out: &mut String, s: &Script) {
     if s.settings.track.on {
-        out.push_str("  <ScriptCraftTrackChanges On=\"Yes\"/>\n");
+        out.push_str("  <DraftCraftTrackChanges On=\"Yes\"/>\n");
     }
 }
 

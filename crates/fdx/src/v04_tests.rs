@@ -1,6 +1,6 @@
 //! Structure points, beats and bookmarks in one file.
 use super::*;
-use scriptcraft_doc::{StructureKind, StructurePoint};
+use draftcraft_doc::{StructureKind, StructurePoint};
 
 fn v04() -> Script {
     let mut s = Script::from_paras(vec![
@@ -20,10 +20,10 @@ fn v04() -> Script {
     s.settings.scene_letters = true;
     // A tracked insertion in a heading that has a bookmark… and a tracked deletion.
     let old = s.clone();
-    s.insert_text(scriptcraft_doc::Pos::new(2, 0), "X").ok();
+    s.insert_text(draftcraft_doc::Pos::new(2, 0), "X").ok();
     let end = s.paras[3].text.len();
-    s.delete_range(scriptcraft_doc::Pos::new(3, 0), scriptcraft_doc::Pos::new(3, end.min(3)));
-    scriptcraft_doc::track::follow(&old, &mut s, Some("Ana"));
+    s.delete_range(draftcraft_doc::Pos::new(3, 0), draftcraft_doc::Pos::new(3, end.min(3)));
+    draftcraft_doc::track::follow(&old, &mut s, Some("Ana"));
     s.normalize().ok();
     s
 }

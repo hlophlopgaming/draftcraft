@@ -1,7 +1,7 @@
 //! Reports: characters, scenes, locations.
 
-use scriptcraft_doc::{Element, Script, character_name, heading_parts};
-use scriptcraft_layout::{Layout, LineKind};
+use draftcraft_doc::{Element, Script, character_name, heading_parts};
+use draftcraft_layout::{Layout, LineKind};
 use serde::Serialize;
 
 #[derive(Clone, Debug, PartialEq, Serialize)]

@@ -1,5 +1,5 @@
-{"badge": "ScriptCraft v0.2 · PR #33"}
-{"title": "ScriptCraft v0.2: feature tour of PR #33", "sub": "Every frame is the real app, driven through its own input (keys, clicks, drags)"}
+{"badge": "DraftCraft v0.2 · PR #33"}
+{"title": "DraftCraft v0.2: feature tour of PR #33", "sub": "Every frame is the real app, driven through its own input (keys, clicks, drags)"}
 {"hold": 2.5}
 // #1 Bold, italic, underline
 {"title": "#1  Bold, italic and underline", "sub": "Double-click a word, Cmd+B. Select a phrase, Cmd+I and Cmd+U. Kept in FDX, Fountain and PDF"}
@@ -129,9 +129,9 @@
 {"hold": 3.0}
 {"terminal_off": true}
 // #12 The browser build (Chrome, recorded by record.sh)
-{"title": "#12  ScriptCraft in the browser", "sub": "The same app compiled to WebAssembly: typing, SmartType, spelling and shortcuts in Chrome"}
+{"title": "#12  DraftCraft in the browser", "sub": "The same app compiled to WebAssembly: typing, SmartType, spelling and shortcuts in Chrome"}
 {"pictures": "@WEB_FRAMES@", "frames_each": 2, "hold_last": 2.5}
 {"pictures_off": true}
-{"title": "All 12 issues in PR #33  ·  81 tests  ·  CI green", "sub": "github.com/NoJuanNobody/scriptcraft/pull/33"}
+{"title": "All 12 issues in PR #33  ·  81 tests  ·  CI green", "sub": "github.com/hlophlopgaming/draftcraft/pull/33"}
 {"cmd": "ui.view.cards"}
 {"hold": 3.5}

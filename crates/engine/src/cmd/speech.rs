@@ -5,7 +5,7 @@
 //! audio needs a speech engine, which only the app has: `speech.play`, `pause`, `stop`, `status`
 //! and `voices` are answered by the window (and over the control channel); headless, they say so.
 
-use scriptcraft_doc::{Element, voices::character_key, voices::clean_voice_name};
+use draftcraft_doc::{Element, voices::character_key, voices::clean_voice_name};
 use serde_json::{Value, json};
 
 use super::sel_result;
@@ -41,11 +41,11 @@ pub fn specs() -> Vec<CommandSpec> {
 }
 
 fn needs_app(_: &mut Session, _: &Value) -> CmdResult {
-    Err(CmdError::Disabled("reading aloud needs the ScriptCraft window and a speech engine; use speech.plan for the text and voices".into()))
+    Err(CmdError::Disabled("reading aloud needs the DraftCraft window and a speech engine; use speech.plan for the text and voices".into()))
 }
 
 fn status(_: &mut Session, _: &Value) -> CmdResult {
-    Ok(json!({"available": false, "state": "idle", "reason": "no speech engine here (the ScriptCraft window has one)"}))
+    Ok(json!({"available": false, "state": "idle", "reason": "no speech engine here (the DraftCraft window has one)"}))
 }
 
 /// Voice names from `v.voices` (at most 2000, cleaned).
@@ -117,7 +117,7 @@ fn set_voice(s: &mut Session, v: &Value) -> CmdResult {
     let cast = &mut s.script.settings.voices.cast;
     match &voice {
         Some(x) => {
-            if !cast.contains_key(&name) && cast.len() >= scriptcraft_doc::voices::MAX_CAST_VOICES {
+            if !cast.contains_key(&name) && cast.len() >= draftcraft_doc::voices::MAX_CAST_VOICES {
                 return Err(CmdError::Failed("too many cast voices".into()));
             }
             cast.insert(name.clone(), x.clone());
@@ -261,7 +261,7 @@ fn words(s: &Session, t: &str, glue: bool) -> String {
 
 #[cfg(test)]
 mod tests {
-    use scriptcraft_doc::{Para, Pos, Script};
+    use draftcraft_doc::{Para, Pos, Script};
     use serde_json::json;
 
     use crate::Session;
@@ -271,7 +271,7 @@ mod tests {
     }
 
     fn empty() -> Session {
-        Session::new(Script::from_paras(vec![Para::new(scriptcraft_doc::Element::Action, "")]).unwrap_or_default())
+        Session::new(Script::from_paras(vec![Para::new(draftcraft_doc::Element::Action, "")]).unwrap_or_default())
     }
 
     #[test]

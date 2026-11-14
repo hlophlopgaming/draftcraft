@@ -11,17 +11,17 @@
 //! ```
 //!
 //! Final Draft maps each character (`Member`) and the narrator to an actor, and each actor to a
-//! system voice (`MacVoice` / `WinVoice`; empty is the actor's default voice). ScriptCraft
+//! system voice (`MacVoice` / `WinVoice`; empty is the actor's default voice). DraftCraft
 //! writes one actor per voice, named after it, with the voice in `MacVoice`, and the
 //! narrator's skipped elements as Final Draft's default (Character, Dialogue). Reading, an
 //! actor with no `MacVoice` (Final Draft's generic "Man 1"…) is no assigned voice. Whether
 //! Final Draft expects `MacVoice` to be the plain voice name is not confirmed (every public
-//! file leaves it empty). Older ScriptCraft files'
-//! `<ScriptCraftVoices Narrator><Voice Character Name/></ScriptCraftVoices>` still read.
+//! file leaves it empty). Older DraftCraft files'
+//! `<DraftCraftVoices Narrator><Voice Character Name/></DraftCraftVoices>` still read.
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use scriptcraft_doc::{Script, Voices};
+use draftcraft_doc::{Script, Voices};
 
 use crate::esc;
 
@@ -51,7 +51,7 @@ pub(crate) fn write(out: &mut String, s: &Script) {
 /// Voices read so far.
 #[derive(Default)]
 pub(crate) struct Read {
-    /// `<ScriptCraftVoices>` (older ScriptCraft files).
+    /// `<DraftCraftVoices>` (older DraftCraft files).
     voices: Voices,
     /// `<Narrator Actor>`.
     narrator_actor: Option<String>,
@@ -67,7 +67,7 @@ impl Read {
     }
     pub(crate) fn add(&mut self, character: Option<String>, name: Option<String>) {
         if let (Some(c), Some(n)) = (character, name)
-            && self.voices.cast.len() < scriptcraft_doc::voices::MAX_CAST_VOICES
+            && self.voices.cast.len() < draftcraft_doc::voices::MAX_CAST_VOICES
         {
             self.voices.cast.insert(c, n);
         }
@@ -79,7 +79,7 @@ impl Read {
     /// `<Cast><Member Actor Character>`.
     pub(crate) fn member(&mut self, actor: Option<String>, character: Option<String>) {
         if let (Some(a), Some(c)) = (actor, character)
-            && self.members.len() < scriptcraft_doc::voices::MAX_CAST_VOICES
+            && self.members.len() < draftcraft_doc::voices::MAX_CAST_VOICES
         {
             self.members.push((c, a));
         }
@@ -88,7 +88,7 @@ impl Read {
     pub(crate) fn actor(&mut self, name: Option<String>, mac_voice: Option<String>) {
         if let (Some(n), Some(v)) = (name, mac_voice)
             && !v.trim().is_empty()
-            && self.actors.len() < scriptcraft_doc::voices::MAX_CAST_VOICES
+            && self.actors.len() < draftcraft_doc::voices::MAX_CAST_VOICES
         {
             self.actors.insert(n, v);
         }
@@ -100,7 +100,7 @@ impl Read {
         }
         for (character, actor) in &self.members {
             if let Some(v) = voice_of(actor)
-                && self.voices.cast.len() < scriptcraft_doc::voices::MAX_CAST_VOICES
+                && self.voices.cast.len() < draftcraft_doc::voices::MAX_CAST_VOICES
             {
                 self.voices.cast.entry(character.clone()).or_insert(v);
             }
@@ -113,7 +113,7 @@ impl Read {
 
 #[cfg(test)]
 mod tests {
-    use scriptcraft_doc::{Element, Para, Script};
+    use draftcraft_doc::{Element, Para, Script};
 
     #[test]
     fn voices_round_trip() {
@@ -126,12 +126,12 @@ mod tests {
         assert!(xml.contains("<Narrator Actor=\"Samantha\">"), "{xml}");
         assert!(xml.contains("<Member Actor=\"Fred\" Character=\"TEO\"/>"));
         assert_eq!(xml.matches("<Actor MacVoice=\"Fred\" Name=\"Fred\"").count(), 1, "one actor per voice");
-        assert!(!xml.contains("ScriptCraftVoices"));
+        assert!(!xml.contains("DraftCraftVoices"));
         let back = crate::parse(&xml).unwrap_or_default();
         assert_eq!(back.settings.voices, s.settings.voices);
         // No voices: nothing written.
         let plain = crate::write(&Script::default());
-        assert!(!plain.contains("<Cast>") && !plain.contains("ScriptCraftVoices"));
+        assert!(!plain.contains("<Cast>") && !plain.contains("DraftCraftVoices"));
     }
 
     #[test]
@@ -145,8 +145,8 @@ mod tests {
         assert_eq!(v.narrator, None);
         assert_eq!(v.cast.len(), 1);
         assert_eq!(v.cast.get("ADA").map(String::as_str), Some("Karen"));
-        // v0.4 ScriptCraft files.
-        let junk = "<FinalDraft><Content><Paragraph Type=\"Action\"><Text>a</Text></Paragraph></Content><ScriptCraftVoices Narrator=\"  \"><Voice Character=\"nell (v.o.)\" Name=\" X \"/><Voice Name=\"Y\"/><Voice Character=\"Z\"/></ScriptCraftVoices></FinalDraft>";
+        // v0.4 DraftCraft files.
+        let junk = "<FinalDraft><Content><Paragraph Type=\"Action\"><Text>a</Text></Paragraph></Content><DraftCraftVoices Narrator=\"  \"><Voice Character=\"nell (v.o.)\" Name=\" X \"/><Voice Name=\"Y\"/><Voice Character=\"Z\"/></DraftCraftVoices></FinalDraft>";
         let back = crate::parse(junk).unwrap_or_default();
         assert_eq!(back.settings.voices.narrator, None);
         assert_eq!(back.settings.voices.cast.len(), 1);
