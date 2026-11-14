@@ -130,6 +130,12 @@ cargo run --release -p draftcraft -- --new              # blank script
 cargo run --release -p draftcraft -- my-script.fdx      # open a Final Draft or Fountain file
 ```
 
+### User guide / Руководство
+
+The user guide (in Russian) is at [hlophlopgaming.github.io/draftcraft/guide/](https://hlophlopgaming.github.io/draftcraft/guide/); its source is `docs/guide/index.html`.
+
+Руководство пользователя: [hlophlopgaming.github.io/draftcraft/guide/](https://hlophlopgaming.github.io/draftcraft/guide/).
+
 ### Russian / Русский
 
 Choose **View → Language → Русский** to switch the interface; **English** switches it back.

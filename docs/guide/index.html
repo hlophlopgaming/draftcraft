@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Руководство DraftCraft</title>
+<meta name="description" content="Руководство пользователя DraftCraft: как писать сценарий, работать со структурой, отчётами, файлами, правками и совместной работой.">
+<style>
+:root {
+  --bg: #f6f5f0; --surface: #ffffff; --ink: #18191c; --muted: #5c606a;
+  --border: #dcdad2; --accent: #1f4e79; --accent-soft: #e3ecf5; --code-bg: #eceae2;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14161a; --surface: #1d2026; --ink: #e8e9ed; --muted: #9aa0ac;
+    --border: #2e333d; --accent: #7fb2e5; --accent-soft: #1f2a38; --code-bg: #262a33;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14161a; --surface: #1d2026; --ink: #e8e9ed; --muted: #9aa0ac;
+  --border: #2e333d; --accent: #7fb2e5; --accent-soft: #1f2a38; --code-bg: #262a33;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 16px; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); max-width: 1160px; margin: 0 auto; }
+nav.toc { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 28px 20px; border-right: 1px solid var(--border); }
+nav.toc .brand { font-weight: 700; font-size: 18px; text-decoration: none; color: var(--ink); display: block; margin-bottom: 4px; }
+nav.toc .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+nav.toc li a { display: block; padding: 5px 10px; border-radius: 6px; text-decoration: none; color: var(--ink); font-size: 14.5px; }
+nav.toc li a:hover { background: var(--accent-soft); }
+nav.toc .links { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 14px; }
+nav.toc .links a { display: block; padding: 3px 0; }
+main { padding: 40px 48px 96px; min-width: 0; }
+h1 { font-size: 34px; line-height: 1.2; margin: 0 0 12px; }
+h2 { font-size: 25px; margin: 56px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+h3 { font-size: 18px; margin: 28px 0 8px; }
+.lead { font-size: 18px; color: var(--muted); margin: 0 0 24px; }
+kbd { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--surface);
+  border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
+code { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+pre { background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow-x: auto; }
+pre code { padding: 0; background: none; }
+.menu { font-weight: 600; }
+.menu .en { font-weight: 400; color: var(--muted); }
+.table-wrap { overflow-x: auto; margin: 12px 0; }
+table { border-collapse: collapse; width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 15px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: var(--accent-soft); font-weight: 600; }
+tr:last-child td { border-bottom: none; }
+.note { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 6px; margin: 16px 0; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 20px 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; text-decoration: none; color: var(--ink); }
+.card b { display: block; margin-bottom: 4px; color: var(--accent); }
+.card span { color: var(--muted); font-size: 14px; }
+figure { margin: 20px 0; }
+figure img { width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+figcaption { color: var(--muted); font-size: 14px; margin-top: 6px; }
+.theme-toggle { margin-top: 16px; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+.menu-btn { display: none; }
+@media (max-width: 860px) {
+  .layout { display: block; }
+  nav.toc { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 16px; }
+  nav.toc ol, nav.toc .links { display: none; }
+  nav.toc.open ol, nav.toc.open .links { display: block; }
+  .menu-btn { display: inline-block; margin-top: 4px; background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font: inherit; font-size: 14px; }
+  main { padding: 24px 16px 72px; }
+  h1 { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" id="toc">
+  <a class="brand" href="#top">DraftCraft</a>
+  <div class="sub">Руководство пользователя</div>
+  <button class="menu-btn" type="button" onclick="document.getElementById('toc').classList.toggle('open')">Содержание</button>
+  <ol>
+    <li><a href="#start">Начало работы</a></li>
+    <li><a href="#window">Окно программы</a></li>
+    <li><a href="#writing">Пишем сценарий</a></li>
+    <li><a href="#smarttype">SmartType и автоформат</a></li>
+    <li><a href="#formatting">Оформление текста</a></li>
+    <li><a href="#structure">Структура истории</a></li>
+    <li><a href="#reports">Отчёты</a></li>
+    <li><a href="#files">Файлы, экспорт и печать</a></li>
+    <li><a href="#document">Титульная страница и параметры</a></li>
+    <li><a href="#revisions">Правки и версии</a></li>
+    <li><a href="#production">Подготовка к съёмкам</a></li>
+    <li><a href="#notes">Заметки и варианты реплик</a></li>
+    <li><a href="#together">Совместная работа</a></li>
+    <li><a href="#aloud">Чтение вслух и диктовка</a></li>
+    <li><a href="#settings">Настройки и данные</a></li>
+    <li><a href="#keys">Горячие клавиши</a></li>
+    <li><a href="#faq">Вопросы и ответы</a></li>
+  </ol>
+  <div class="links">
+    <a href="../app/">Открыть в браузере</a>
+    <a href="https://github.com/hlophlopgaming/draftcraft/releases/latest">Скачать</a>
+    <a href="https://github.com/hlophlopgaming/draftcraft/issues">Сообщить о проблеме</a>
+    <a href="https://github.com/hlophlopgaming/draftcraft">Исходный код</a>
+    <button class="theme-toggle" type="button" id="theme">Сменить тему</button>
+  </div>
+</nav>
+
+<main id="top">
+<h1>Руководство DraftCraft</h1>
+<p class="lead">DraftCraft — бесплатное приложение с открытым кодом для сценаристов. Вы печатаете текст, а клавиши Enter и Tab сами выбирают нужный элемент сценария. На выходе — страницы в отраслевом формате, файлы Final Draft и Fountain и PDF.</p>
+
+<div class="cards">
+  <a class="card" href="../app/"><b>Открыть в браузере →</b><span>Без установки, сразу с примером сценария</span></a>
+  <a class="card" href="#writing"><b>Первая сцена за минуту</b><span>Как работают Enter и Tab</span></a>
+  <a class="card" href="#keys"><b>Горячие клавиши</b><span>Все сочетания на одной странице</span></a>
+</div>
+
+<h2 id="start">1. Начало работы</h2>
+<h3>Где запустить</h3>
+<ul>
+  <li><b>В браузере.</b> Откройте <a href="../app/">веб-версию</a>. Устанавливать ничего не нужно, но некоторые функции там недоступны: совместная работа, а настройки не сохраняются между сеансами.</li>
+  <li><b>Windows.</b> Скачайте <code>draftcraft-windows-x64.zip</code> со <a href="https://github.com/hlophlopgaming/draftcraft/releases/latest">страницы релизов</a>, распакуйте и запустите <code>draftcraft.exe</code>.</li>
+  <li><b>macOS.</b> Скачайте <code>draftcraft-macos-universal.zip</code>, распакуйте и откройте <code>DraftCraft.app</code>. Подходит и для Apple Silicon, и для Intel.</li>
+  <li><b>Linux.</b> Архив <code>draftcraft-linux-x86_64.tar.gz</code> или пакет <code>.deb</code> для Debian и Ubuntu.</li>
+</ul>
+
+<h3>Русский интерфейс</h3>
+<p>Выберите <span class="menu">Вид → Язык → Русский</span> <span class="menu"><span class="en">(View → Language)</span></span>. Чтобы вернуть английский, выберите там же <b>English</b>. Настольная версия запоминает выбор.</p>
+<p>Кириллица, включая <b>Ё/ё</b>, работает и в редакторе, и в PDF: шрифт Courier Badi встроен в программу, ставить его в систему не нужно. Язык интерфейса не меняет текст сценария.</p>
+
+<h3>С чего начать</h3>
+<ul>
+  <li><span class="menu">Файл → Новый сценарий</span> (<kbd>Ctrl</kbd>+<kbd>N</kbd>) — пустой сценарий.</li>
+  <li><span class="menu">Файл → New from Template</span> — шаблон: полнометражный фильм, сериал (одна камера или несколько камер), пьеса.</li>
+  <li><span class="menu">Файл → Открыть…</span> (<kbd>Ctrl</kbd>+<kbd>O</kbd>) — файл <code>.fdx</code> или <code>.fountain</code>. Файл можно просто перетащить в окно.</li>
+  <li><span class="menu">Справка → Открыть пример сценария</span> — готовый короткий сценарий, чтобы посмотреть, как всё устроено.</li>
+</ul>
+<div class="note">На macOS вместо <kbd>Ctrl</kbd> везде используется <kbd>⌘</kbd>.</div>
+
+<h2 id="window">2. Окно программы</h2>
+<ul>
+  <li><b>Меню</b> вверху: Файл, Правка, Вид, Формат, Документ, Производство, Инструменты, Справка.</li>
+  <li><b>Панель инструментов</b> под меню: выбор элемента текущего абзаца и кнопки полужирного, курсива и подчёркивания.</li>
+  <li><b>Навигатор</b> слева (<span class="menu">Вид → Навигатор</span>): список сцен с описаниями, цветами и страницами, акты и эпизоды, персонажи и закладки. Щелчок по сцене переносит к ней.</li>
+  <li><b>Страница</b> в центре: сценарий выглядит так же, как при печати.</li>
+  <li><b>Строка состояния</b> внизу: текущий элемент, страница из общего числа, сцена и количество слов.</li>
+</ul>
+<h3>Режимы просмотра (меню «Вид»)</h3>
+<div class="table-wrap"><table>
+<tr><th>Режим</th><th>Для чего</th></tr>
+<tr><td>Страницы</td><td>Основной режим: пишете текст на страницах с разрывами.</td></tr>
+<tr><td>Непрерывный вид</td><td>Тот же текст без разрывов страниц, удобно для быстрого набора.</td></tr>
+<tr><td>Карточки сцен</td><td>По карточке на сцену; перетаскивайте карточки, чтобы менять порядок сцен.</td></tr>
+<tr><td>Outline</td><td>План: сцены, сгруппированные по актам и эпизодам.</td></tr>
+<tr><td>Beat Board</td><td>Доска битов: свободные заметки о сюжете, которые можно связать со сценами.</td></tr>
+<tr><td>Story Map</td><td>Карта истории: сцены в масштабе страниц, видно темп и длину частей.</td></tr>
+<tr><td>Отчёты</td><td>Персонажи, сцены и локации в таблицах.</td></tr>
+</table></div>
+<p><span class="menu">Вид → Split Screen</span> делит окно на две части (рядом или одна над другой), и во второй можно открыть любой другой режим. Например, слева страница, справа карточки.</p>
+<p>Масштаб: <kbd>Ctrl</kbd>+<kbd>=</kbd> и <kbd>Ctrl</kbd>+<kbd>-</kbd>, <kbd>Ctrl</kbd>+<kbd>0</kbd> — исходный размер, <kbd>Ctrl</kbd>+<kbd>9</kbd> — по ширине страницы. Ещё можно крутить колесо мыши с зажатым <kbd>Ctrl</kbd>. Тёмная тема — <span class="menu">Вид → Тёмная тема</span>.</p>
+
+<h2 id="writing">3. Пишем сценарий</h2>
+<p>Сценарий состоит из абзацев, и у каждого абзаца есть <b>элемент</b>: от него зависят отступы, прописные буквы и то, что будет дальше. Элементов восемь:</p>
+<div class="table-wrap"><table>
+<tr><th>Элемент</th><th>Клавиши</th><th>Пример</th></tr>
+<tr><td>Заголовок сцены</td><td><kbd>Ctrl</kbd>+<kbd>1</kbd></td><td><code>ИНТ. КУХНЯ - НОЧЬ</code></td></tr>
+<tr><td>Действие</td><td><kbd>Ctrl</kbd>+<kbd>2</kbd></td><td>Дождь стучит по стеклу.</td></tr>
+<tr><td>Персонаж</td><td><kbd>Ctrl</kbd>+<kbd>3</kbd></td><td><code>МАРГО</code></td></tr>
+<tr><td>Ремарка</td><td><kbd>Ctrl</kbd>+<kbd>4</kbd></td><td>(шёпотом)</td></tr>
+<tr><td>Диалог</td><td><kbd>Ctrl</kbd>+<kbd>5</kbd></td><td>Кофе будешь?</td></tr>
+<tr><td>Переход</td><td><kbd>Ctrl</kbd>+<kbd>6</kbd></td><td><code>CUT TO:</code></td></tr>
+<tr><td>План</td><td><kbd>Ctrl</kbd>+<kbd>7</kbd></td><td><code>КРУПНО: ЧАШКА</code></td></tr>
+<tr><td>Обычный текст</td><td><kbd>Ctrl</kbd>+<kbd>8</kbd></td><td>Любой текст без особых правил</td></tr>
+</table></div>
+
+<h3>Первая сцена</h3>
+<ol>
+  <li>Наберите <code>инт. кухня - ночь</code>. Начало <code>инт. </code> само превращает абзац в заголовок сцены, а буквы станут прописными.</li>
+  <li><kbd>Enter</kbd> — новый абзац «Действие». Опишите, что происходит.</li>
+  <li><kbd>Tab</kbd> — новый абзац «Персонаж». Наберите имя: <code>марго</code> станет <code>МАРГО</code>.</li>
+  <li><kbd>Enter</kbd> — «Диалог». Наберите реплику.</li>
+  <li><kbd>Tab</kbd>, если нужна ремарка (скобки появятся сами), или <kbd>Enter</kbd>, чтобы вернуться к действию.</li>
+</ol>
+
+<h3>Что делает Enter в конце абзаца</h3>
+<div class="table-wrap"><table>
+<tr><th>Сейчас</th><th>Следующий абзац</th></tr>
+<tr><td>Заголовок сцены</td><td>Действие</td></tr>
+<tr><td>Действие</td><td>Действие</td></tr>
+<tr><td>Персонаж</td><td>Диалог</td></tr>
+<tr><td>Ремарка</td><td>Диалог</td></tr>
+<tr><td>Диалог</td><td>Действие</td></tr>
+<tr><td>Переход</td><td>Заголовок сцены</td></tr>
+<tr><td>План</td><td>Действие</td></tr>
+</table></div>
+<ul>
+  <li><kbd>Enter</kbd> в середине абзаца разрезает его на два абзаца одного элемента.</li>
+  <li><kbd>Enter</kbd> в <b>пустом</b> абзаце открывает список элементов: выберите стрелками или цифрами 1–8, подтвердите <kbd>Enter</kbd>, отмените <kbd>Esc</kbd>. Список можно выключить: <span class="menu">Формат → Список элементов по Enter в пустом абзаце</span>.</li>
+</ul>
+
+<h3>Что делает Tab</h3>
+<div class="table-wrap"><table>
+<tr><th>Сейчас</th><th>Tab в конце абзаца</th><th>Tab в пустом абзаце</th></tr>
+<tr><td>Действие</td><td>новый Персонаж</td><td>становится Персонажем</td></tr>
+<tr><td>Персонаж</td><td>новая Ремарка</td><td>становится Переходом</td></tr>
+<tr><td>Диалог</td><td>новая Ремарка</td><td>становится Ремаркой</td></tr>
+<tr><td>Ремарка</td><td>новый Диалог</td><td>становится Диалогом</td></tr>
+<tr><td>Переход</td><td>новый Заголовок сцены</td><td>становится Заголовком сцены</td></tr>
+<tr><td>Заголовок сцены</td><td>новое Действие</td><td>становится Действием</td></tr>
+</table></div>
+<p>Поэтому переход из пустого абзаца действия набирается двумя нажатиями: <kbd>Tab</kbd>, <kbd>Tab</kbd> (Действие → Персонаж → Переход). <kbd>Shift</kbd>+<kbd>Tab</kbd> меняет элемент в обратную сторону.</p>
+<p>Всё это настраивается для каждого сценария в <span class="menu">Формат → Настройки элементов…</span>: отступы, интервалы, выравнивание, прописные и то, куда ведут Enter и Tab.</p>
+
+<h2 id="smarttype">4. SmartType и автоформат</h2>
+<p><b>SmartType</b> подсказывает текст, пока вы печатаете в конце абзаца:</p>
+<ul>
+  <li><b>Персонаж</b>: имена, которые уже есть в сценарии; после <code> (</code> — пометки <code>(V.O.)</code>, <code>(O.S.)</code>, <code>(CONT'D)</code>.</li>
+  <li><b>Заголовок сцены</b>: <code>INT.</code>, <code>EXT.</code> и другие начала, затем уже использованные локации, а после <code> - </code> — время суток.</li>
+  <li><b>Переход</b>: <code>CUT TO:</code>, <code>DISSOLVE TO:</code> и другие.</li>
+</ul>
+<p>Стрелки выбирают подсказку, <kbd>Enter</kbd> принимает её (для персонажа — сразу с переходом к диалогу), <kbd>Esc</kbd> скрывает.</p>
+<h3>Что программа делает сама</h3>
+<ul>
+  <li>Пишет прописными заголовки сцен, имена персонажей, переходы и планы.</li>
+  <li>Ставит скобки в ремарке, курсор оказывается внутри.</li>
+  <li>Превращает абзац действия в заголовок сцены, если он начинается с <code>инт. </code>, <code>нат. </code>, <code>инт./нат. </code>, <code>int. </code>, <code>ext. </code> и т. п.</li>
+  <li>Добавляет <code>(CONT'D)</code>, когда персонаж снова говорит после действия в той же сцене (<span class="menu">Документ → Автоматическая пометка персонажа (CONT'D)</span>).</li>
+  <li>Переносит реплику на следующую страницу с пометками <code>(MORE)</code> и <code>(CONT'D)</code> и не оставляет заголовок сцены в конце страницы.</li>
+</ul>
+
+<h2 id="formatting">5. Оформление текста</h2>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>B</kbd> полужирный, <kbd>Ctrl</kbd>+<kbd>I</kbd> курсив, <kbd>Ctrl</kbd>+<kbd>U</kbd> подчёркнутый, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> убрать оформление.</li>
+  <li><b>Параллельный диалог</b> (<kbd>Ctrl</kbd>+<kbd>D</kbd>): две реплики разных персонажей стоят рядом, в две колонки. Поставьте курсор во вторую реплику и нажмите сочетание.</li>
+  <li><b>Поиск и замена</b>: <kbd>Ctrl</kbd>+<kbd>F</kbd>; следующее совпадение — <kbd>Ctrl</kbd>+<kbd>G</kbd>.</li>
+  <li><b>Отмена и повтор</b>: <kbd>Ctrl</kbd>+<kbd>Z</kbd> и <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>. Подряд набранный текст отменяется одним шагом.</li>
+  <li>При копировании и вставке элементы абзацев сохраняются.</li>
+</ul>
+
+<h2 id="structure">6. Структура истории</h2>
+<h3>Навигатор и переходы</h3>
+<p>В навигаторе видны все сцены. Щёлкните сцену, чтобы перейти к ней. Там же списки персонажей и закладок.</p>
+<p><b>Закладки</b>: <span class="menu">Правка → Bookmarks</span> — добавить закладку на текущий абзац, перейти к следующей или предыдущей, показать все.</p>
+<h3>Карточки сцен</h3>
+<p><span class="menu">Вид → Карточки сцен</span>. На каждой карточке номер и заголовок сцены, страница, длина в восьмых долях страницы, краткое описание и персонажи. Описание редактируется прямо на карточке. Перетащите карточку, чтобы переставить сцену. Правая кнопка мыши — цвет и теги.</p>
+<h3>Акты, эпизоды и план</h3>
+<p><span class="menu">Вид → Add Structure Point</span> вставляет перед текущей сценой границу акта, эпизода или раздела. В режиме <b>Outline</b> сцены сгруппированы по этим частям, и их можно переставлять.</p>
+<h3>Доска битов и карта истории</h3>
+<p><b>Beat Board</b> — место для идей и сюжетных битов до того, как они станут сценами; бит можно связать со сценой. <b>Story Map</b> показывает сцены в масштабе страниц, чтобы видеть длину и темп частей.</p>
+
+<h2 id="reports">7. Отчёты</h2>
+<p><span class="menu">Вид → Отчёты</span>. Отчёты считаются по той же разметке страниц, что и PDF:</p>
+<ul>
+  <li><b>Персонажи</b>: число реплик, слов, сцен и страница первого появления.</li>
+  <li><b>Сцены</b>: страница, длина в восьмых и состав.</li>
+  <li><b>Локации</b>: сколько сцен в каждой, интерьер или натура.</li>
+</ul>
+
+<h2 id="files">8. Файлы, экспорт и печать</h2>
+<div class="table-wrap"><table>
+<tr><th>Формат</th><th>Открыть</th><th>Сохранить</th><th>Примечание</th></tr>
+<tr><td>Final Draft <code>.fdx</code></td><td>да</td><td>да</td><td>Сохраняются оформление, настройки элементов, параллельный диалог, номера сцен, карточки, титульная страница.</td></tr>
+<tr><td>Fountain <code>.fountain</code></td><td>да</td><td>да</td><td>Простой текстовый формат сценариев (fountain.io).</td></tr>
+<tr><td>PDF</td><td>импорт</td><td>экспорт</td><td>Шрифт встраивается, текст можно выделять и копировать.</td></tr>
+<tr><td>Word <code>.docx</code>, Celtx</td><td>импорт</td><td>—</td><td><span class="menu">Файл → Import from Word, Celtx or PDF…</span></td></tr>
+</table></div>
+<ul>
+  <li><b>Сохранить</b> — <kbd>Ctrl</kbd>+<kbd>S</kbd>, <b>сохранить как</b> — <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>. Формат выбирается по расширению.</li>
+  <li><b>Экспорт</b>: <span class="menu">Файл → Экспорт PDF… / Экспорт Final Draft (FDX)… / Экспорт Fountain…</span></li>
+  <li><b>Печать</b>: <kbd>Ctrl</kbd>+<kbd>P</kbd>. Можно напечатать все страницы или только изменённые.</li>
+  <li><b>Недавние файлы</b>: <span class="menu">Файл → Недавние файлы</span>.</li>
+</ul>
+<h3>Ваша работа не потеряется</h3>
+<p>DraftCraft периодически сохраняет копию сценария. Если программа закрылась некорректно, при следующем запуске она предложит восстановить несохранённые изменения. При каждом сохранении делается резервная копия предыдущей версии. При закрытии с несохранёнными изменениями программа спросит, сохранить ли их.</p>
+
+<h2 id="document">9. Титульная страница и параметры</h2>
+<ul>
+  <li><span class="menu">Документ → Титульная страница…</span>: название, авторская подпись, автор, источник, дата версии, контакты, авторские права. Печать титульной страницы включается в <span class="menu">Документ → Печатать титульную страницу</span>.</li>
+  <li><span class="menu">Документ → Параметры страницы…</span>: бумага (Letter или A4), верхний и нижний колонтитулы. В колонтитулах можно использовать поля <code>{page}</code>, <code>{pages}</code>, <code>{title}</code>, <code>{author}</code>, <code>{date}</code> и другие.</li>
+  <li>Стандартная страница: 12-й Courier, 54 строки, номера страниц справа вверху начиная со второй.</li>
+</ul>
+
+<h2 id="revisions">10. Правки и версии</h2>
+<h3>Режим правок</h3>
+<p><span class="menu">Документ → Режим правок</span>. Новый и изменённый текст отмечается на полях, а страницы с изменениями получают цвет и метку текущего набора правок. Наборы правок настраиваются в <span class="menu">Документ → Правки…</span>.</p>
+<h3>Отслеживание изменений</h3>
+<p><span class="menu">Инструменты → Track Changes</span> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>) записывает изменения каждого автора. Их можно просматривать по одному, принимать и отклонять — по одному или все сразу.</p>
+<h3>Сравнение версий</h3>
+<p><span class="menu">Инструменты → Compare with Draft…</span> сравнивает текущий сценарий с другим файлом и показывает различия.</p>
+
+<h2 id="production">11. Подготовка к съёмкам</h2>
+<ul>
+  <li><b>Номера сцен</b>: <span class="menu">Документ → Пронумеровать сцены</span>; номера печатаются на обоих полях. Показать или скрыть их — <span class="menu">Вид → Номера сцен</span>.</li>
+  <li><b>Фиксация</b>: <span class="menu">Производство → Зафиксировать страницы</span> и <span class="menu">Зафиксировать номера сцен</span>. После этого новые страницы получают номера вида 12A, а новые сцены — 5A, и существующая нумерация не сдвигается.</li>
+  <li><b>Исключённые сцены</b>: <span class="menu">Производство → Исключить сцену</span> оставляет на месте сцены пометку OMITTED, номер сохраняется.</li>
+  <li><b>Производственные теги</b>: выделите слова и выберите <span class="menu">Инструменты → Производственные теги → Добавить тег к выделению</span> (или через правую кнопку мыши): реквизит, костюмы, транспорт, трюки, спецэффекты и т. д. <span class="menu">Постановочный отчёт</span> собирает всё по сценам; его можно выгрузить в CSV.</li>
+</ul>
+
+<h2 id="notes">12. Заметки и варианты реплик</h2>
+<ul>
+  <li><b>Заметки к сценарию</b>: выделите слова и выберите <span class="menu">Инструменты → Заметки к сценарию → Добавить заметку к сценарию…</span>. Заметки не печатаются; между ними можно переходить и показать их списком.</li>
+  <li><b>Варианты реплик</b>: поставьте курсор в реплику и выберите <span class="menu">Инструменты → Варианты реплик → Добавить вариант</span>. Можно хранить несколько версий одной реплики, печатается выбранная. Переключение — «Следующий вариант» и «Предыдущий вариант».</li>
+</ul>
+
+<h2 id="together">13. Совместная работа</h2>
+<p>Несколько человек могут писать один сценарий одновременно в одной локальной сети (только настольная версия).</p>
+<ol>
+  <li>Один участник (ведущий) открывает сценарий, выбирает <span class="menu">Файл → Collaborate…</span>, вписывает своё имя, отмечает <b>Allow people on my network</b> и нажимает <b>Host Session</b>. Программа покажет адрес и ключ сеанса (<b>Session key</b>).</li>
+  <li>Остальные открывают то же окно, в разделе <b>Join a session</b> вводят имя, адрес и ключ и нажимают <b>Join Session</b>.</li>
+  <li>Все видят имена и курсоры друг друга, а изменения появляются у всех сразу.</li>
+</ol>
+<div class="note">Если ведущий выходит, сеанс заканчивается, но у каждого остаётся своя копия сценария. Передавайте ключ сеанса только тем, с кем работаете.</div>
+
+<h2 id="aloud">14. Чтение вслух и диктовка</h2>
+<ul>
+  <li><span class="menu">Инструменты → Read Aloud</span>: программа читает сценарий голосом системы, каждому персонажу можно назначить свой голос. Чтение начинается с позиции курсора, его можно приостановить и остановить.</li>
+  <li><span class="menu">Инструменты → Dictation…</span>: надиктованные фразы превращаются в оформленный текст сценария.</li>
+</ul>
+
+<h2 id="settings">15. Настройки и данные</h2>
+<p>Настройки хранятся в одном файле <code>config.toml</code> и сохраняются сами через полсекунды после изменения.</p>
+<div class="table-wrap"><table>
+<tr><th>Система</th><th>Папка настроек</th></tr>
+<tr><td>Windows</td><td><code>%APPDATA%\draftcraft</code></td></tr>
+<tr><td>macOS</td><td><code>~/Library/Application Support/draftcraft</code></td></tr>
+<tr><td>Linux</td><td><code>~/.config/draftcraft</code></td></tr>
+</table></div>
+<p>Автосохранения, резервные копии и пользовательский словарь лежат отдельно, в папке данных, поэтому сброс настроек не затрагивает вашу работу. Точные пути показаны в <span class="menu">Справка → О DraftCraft</span>.</p>
+<p><b>Переносная версия:</b> положите рядом с программой файл с именем <code>portable</code>, и настройки будут храниться в папке <code>config/</code> рядом с ней (удобно для флешки).</p>
+
+<h2 id="keys">16. Горячие клавиши</h2>
+<p>На macOS вместо <kbd>Ctrl</kbd> нажимайте <kbd>⌘</kbd>.</p>
+<div class="table-wrap"><table>
+<tr><th>Действие</th><th>Клавиши</th></tr>
+<tr><td>Новый сценарий / Открыть / Сохранить</td><td><kbd>Ctrl</kbd>+<kbd>N</kbd> / <kbd>Ctrl</kbd>+<kbd>O</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
+<tr><td>Сохранить как</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td></tr>
+<tr><td>Печать</td><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td></tr>
+<tr><td>Выход</td><td><kbd>Ctrl</kbd>+<kbd>Q</kbd></td></tr>
+<tr><td>Следующий / предыдущий элемент</td><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td></tr>
+<tr><td>Выбрать элемент</td><td><kbd>Ctrl</kbd>+<kbd>1</kbd> … <kbd>Ctrl</kbd>+<kbd>8</kbd></td></tr>
+<tr><td>Отменить / Повторить</td><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> или <kbd>Ctrl</kbd>+<kbd>Y</kbd></td></tr>
+<tr><td>Вырезать / Копировать / Вставить</td><td><kbd>Ctrl</kbd>+<kbd>X</kbd> / <kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>V</kbd></td></tr>
+<tr><td>Выделить всё</td><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td></tr>
+<tr><td>Найти и заменить / Найти далее</td><td><kbd>Ctrl</kbd>+<kbd>F</kbd> / <kbd>Ctrl</kbd>+<kbd>G</kbd></td></tr>
+<tr><td>Полужирный / Курсив / Подчёркнутый</td><td><kbd>Ctrl</kbd>+<kbd>B</kbd> / <kbd>Ctrl</kbd>+<kbd>I</kbd> / <kbd>Ctrl</kbd>+<kbd>U</kbd></td></tr>
+<tr><td>Без форматирования</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd></td></tr>
+<tr><td>Параллельный диалог</td><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td></tr>
+<tr><td>Следующая ошибка правописания</td><td><kbd>Ctrl</kbd>+<kbd>;</kbd></td></tr>
+<tr><td>Отслеживание изменений</td><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd></td></tr>
+<tr><td>Начало / конец сценария</td><td><kbd>Ctrl</kbd>+<kbd>↑</kbd> / <kbd>Ctrl</kbd>+<kbd>↓</kbd></td></tr>
+<tr><td>На слово влево / вправо</td><td><kbd>Alt</kbd>+<kbd>←</kbd> / <kbd>Alt</kbd>+<kbd>→</kbd></td></tr>
+<tr><td>Масштаб: больше / меньше / 100% / по ширине</td><td><kbd>Ctrl</kbd>+<kbd>=</kbd> / <kbd>Ctrl</kbd>+<kbd>-</kbd> / <kbd>Ctrl</kbd>+<kbd>0</kbd> / <kbd>Ctrl</kbd>+<kbd>9</kbd></td></tr>
+</table></div>
+
+<h2 id="faq">17. Вопросы и ответы</h2>
+<h3>Почему не подчёркиваются ошибки в русских словах?</h3>
+<p>Проверка орфографии пока работает только для английского языка; русские слова она пропускает.</p>
+<h3>Другой редактор показывает мой FDX-файл другим шрифтом</h3>
+<p>В файле указан шрифт Courier Badi. Установите его или выберите в том редакторе любой моноширинный шрифт с кириллицей.</p>
+<h3>Веб-версия не запомнила мои настройки</h3>
+<p>Это ожидаемо: в браузере настройки действуют только в текущем сеансе. Сценарий сохраните в файл через меню «Файл».</p>
+<h3>Можно ли открыть сценарий из Final Draft?</h3>
+<p>Да, откройте файл <code>.fdx</code>. DraftCraft не связан с Final Draft и не использует его код или материалы, но читает и пишет этот формат.</p>
+<h3>Нашёл ошибку или хочу предложить идею</h3>
+<p>Напишите в <a href="https://github.com/hlophlopgaming/draftcraft/issues">Issues на GitHub</a>.</p>
+
+<p style="margin-top:64px;color:var(--muted);font-size:14px">DraftCraft — форк <a href="https://github.com/NoJuanNobody/scriptcraft">ScriptCraft</a>. Лицензия MIT или Apache-2.0. Шрифт Courier Badi — SIL Open Font License 1.1.</p>
+</main>
+</div>
+<script>
+(function () {
+  var root = document.documentElement, key = 'draftcraft-guide-theme';
+  try { var saved = localStorage.getItem(key); if (saved) root.setAttribute('data-theme', saved); } catch (e) {}
+  document.getElementById('theme').addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark'
+      : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next = dark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem(key, next); } catch (e) {}
+  });
+  document.querySelectorAll('nav.toc ol a').forEach(function (a) {
+    a.addEventListener('click', function () { document.getElementById('toc').classList.remove('open'); });
+  });
+})();
+</script>
+</body>
+</html>
