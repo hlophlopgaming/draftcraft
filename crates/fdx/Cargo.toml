@@ -3,6 +3,8 @@ name = "draftcraft-fdx"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 description = "Final Draft XML (.fdx) import and export for DraftCraft, from the format's observed public structure (L2)"
 
 [lints]

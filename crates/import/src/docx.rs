@@ -67,15 +67,12 @@ struct WPara {
     page_break_after: bool,
 }
 
-fn attr(e: &BytesStart, key: &[u8]) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key || a.key.local_name().as_ref() == key)
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
+fn attr(e: &BytesStart, key: &str) -> Option<String> {
+    e.attributes().flatten().find(|a| a.key.as_ref() == key || a.key.local_name().as_ref() == key).map(|a| a.value.into_owned())
 }
 
 fn on_off(e: &BytesStart) -> bool {
-    !matches!(attr(e, b"w:val").as_deref(), Some("0" | "false" | "off" | "none"))
+    !matches!(attr(e, "w:val").as_deref(), Some("0" | "false" | "off" | "none"))
 }
 
 fn twips(v: Option<String>) -> Option<f32> {
@@ -85,22 +82,22 @@ fn twips(v: Option<String>) -> Option<f32> {
 /// Paragraph and run properties from `w:pPr` / `w:rPr` children.
 fn props(e: &BytesStart, left: &mut Option<f32>, first: &mut Option<f32>, align: &mut Option<String>, run: &mut RunProps, in_rpr: bool) {
     match e.local_name().as_ref() {
-        b"ind" => {
-            if let Some(l) = twips(attr(e, b"w:left").or_else(|| attr(e, b"w:start"))) {
+        "ind" => {
+            if let Some(l) = twips(attr(e, "w:left").or_else(|| attr(e, "w:start"))) {
                 *left = Some(l);
             }
-            if let Some(h) = twips(attr(e, b"w:hanging")) {
+            if let Some(h) = twips(attr(e, "w:hanging")) {
                 *first = Some(-h);
-            } else if let Some(f) = twips(attr(e, b"w:firstLine")) {
+            } else if let Some(f) = twips(attr(e, "w:firstLine")) {
                 *first = Some(f);
             }
         }
-        b"jc" => *align = attr(e, b"w:val"),
-        b"b" if in_rpr => run.bold = Some(on_off(e)),
-        b"i" if in_rpr => run.italic = Some(on_off(e)),
-        b"u" if in_rpr => run.underline = Some(on_off(e)),
-        b"caps" if in_rpr => run.caps = Some(on_off(e)),
-        b"vanish" if in_rpr => run.hidden = Some(on_off(e)),
+        "jc" => *align = attr(e, "w:val"),
+        "b" if in_rpr => run.bold = Some(on_off(e)),
+        "i" if in_rpr => run.italic = Some(on_off(e)),
+        "u" if in_rpr => run.underline = Some(on_off(e)),
+        "caps" if in_rpr => run.caps = Some(on_off(e)),
+        "vanish" if in_rpr => run.hidden = Some(on_off(e)),
         _ => {}
     }
 }
@@ -123,20 +120,20 @@ fn read_styles(xml: &str) -> (Vec<(String, PStyle)>, RunProps) {
         };
         match ev {
             Event::Start(e) | Event::Empty(e) => match e.local_name().as_ref() {
-                b"style" => {
-                    let is_para = attr(&e, b"w:type").is_none_or(|t| t == "paragraph");
-                    cur = is_para.then(|| (attr(&e, b"w:styleId").unwrap_or_default(), PStyle::default()));
+                "style" => {
+                    let is_para = attr(&e, "w:type").is_none_or(|t| t == "paragraph");
+                    cur = is_para.then(|| (attr(&e, "w:styleId").unwrap_or_default(), PStyle::default()));
                 }
-                b"rPrDefault" => in_defaults = true,
-                b"rPr" => in_rpr = true,
-                b"name" => {
+                "rPrDefault" => in_defaults = true,
+                "rPr" => in_rpr = true,
+                "name" => {
                     if let Some((_, s)) = cur.as_mut() {
-                        s.name = attr(&e, b"w:val").unwrap_or_default();
+                        s.name = attr(&e, "w:val").unwrap_or_default();
                     }
                 }
-                b"basedOn" => {
+                "basedOn" => {
                     if let Some((_, s)) = cur.as_mut() {
-                        s.based_on = attr(&e, b"w:val");
+                        s.based_on = attr(&e, "w:val");
                     }
                 }
                 _ => {
@@ -151,15 +148,15 @@ fn read_styles(xml: &str) -> (Vec<(String, PStyle)>, RunProps) {
                 }
             },
             Event::End(e) => match e.local_name().as_ref() {
-                b"style" => {
+                "style" => {
                     if let Some(s) = cur.take()
                         && out.len() < 10_000
                     {
                         out.push(s);
                     }
                 }
-                b"rPr" => in_rpr = false,
-                b"rPrDefault" => in_defaults = false,
+                "rPr" => in_rpr = false,
+                "rPrDefault" => in_defaults = false,
                 _ => {}
             },
             _ => {}
@@ -238,42 +235,42 @@ fn read_document(xml: &str, styles: &Styles) -> (Vec<WPara>, f32, f32) {
         };
         match ev {
             Event::Start(e) | Event::Empty(e) => match e.local_name().as_ref() {
-                b"p" => cur = Some(WPara::default()),
-                b"pPr" => in_ppr = true,
-                b"rPr" => in_rpr = true,
-                b"r" => run = RunProps::default(),
-                b"t" => in_t = true,
-                b"pStyle" if in_ppr => {
+                "p" => cur = Some(WPara::default()),
+                "pPr" => in_ppr = true,
+                "rPr" => in_rpr = true,
+                "r" => run = RunProps::default(),
+                "t" => in_t = true,
+                "pStyle" if in_ppr => {
                     if let Some(p) = cur.as_mut() {
-                        p.style = attr(&e, b"w:val");
+                        p.style = attr(&e, "w:val");
                     }
                 }
-                b"pageBreakBefore" if in_ppr => {
+                "pageBreakBefore" if in_ppr => {
                     if let Some(p) = cur.as_mut() {
                         p.page_break_before = on_off(&e);
                     }
                 }
-                b"tab" if !in_ppr => {
+                "tab" if !in_ppr => {
                     if let Some(p) = cur.as_mut() {
                         p.text.push('\t', Style::PLAIN);
                     }
                 }
-                b"br" | b"cr" => {
+                "br" | "cr" => {
                     if let Some(p) = cur.as_mut() {
-                        if attr(&e, b"w:type").as_deref() == Some("page") {
+                        if attr(&e, "w:type").as_deref() == Some("page") {
                             p.page_break_after = true;
                         } else {
                             p.text.push(' ', Style::PLAIN);
                         }
                     }
                 }
-                b"pgMar" => {
-                    if let Some(l) = twips(attr(&e, b"w:left")) {
+                "pgMar" => {
+                    if let Some(l) = twips(attr(&e, "w:left")) {
                         margin = l.clamp(0.0, 4.0);
                     }
                 }
-                b"pgSz" => {
-                    if let Some(w) = twips(attr(&e, b"w:w")) {
+                "pgSz" => {
+                    if let Some(w) = twips(attr(&e, "w:w")) {
                         page_w = w.clamp(3.0, 20.0);
                     }
                 }
@@ -293,7 +290,7 @@ fn read_document(xml: &str, styles: &Styles) -> (Vec<WPara>, f32, f32) {
             },
             Event::Text(t) => {
                 if in_t && let Some(p) = cur.as_mut() {
-                    let s = t.decode().map(|c| c.into_owned()).unwrap_or_default();
+                    let s = t.to_string();
                     let rp = run.over(styles.run(p.style.as_deref()));
                     if rp.hidden != Some(true) {
                         let st = Style { bold: rp.bold == Some(true), italic: rp.italic == Some(true), underline: rp.underline == Some(true) };
@@ -304,20 +301,20 @@ fn read_document(xml: &str, styles: &Styles) -> (Vec<WPara>, f32, f32) {
             }
             Event::GeneralRef(g) => {
                 if in_t && let Some(p) = cur.as_mut() {
-                    let name = String::from_utf8_lossy(g.as_ref()).into_owned();
+                    let name = g.to_string();
                     let s = crate::html::decode(&format!("&{name};"));
                     p.text.push_str(&s, Style::PLAIN);
                 }
             }
             Event::End(e) => match e.local_name().as_ref() {
-                b"p" => {
+                "p" => {
                     if let Some(p) = cur.take() {
                         paras.push(p);
                     }
                 }
-                b"pPr" => in_ppr = false,
-                b"rPr" => in_rpr = false,
-                b"t" => in_t = false,
+                "pPr" => in_ppr = false,
+                "rPr" => in_rpr = false,
+                "t" => in_t = false,
                 _ => {}
             },
             _ => {}

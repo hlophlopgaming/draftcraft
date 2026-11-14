@@ -48,7 +48,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                 for sc in row {
                     let (r, _) = ui.allocate_exact_size(vec2(CARD_W, CARD_H), Sense::hover());
                     rects.push(r);
-                    let resp = ui.interact(r, ui.id().with(("card", sc.index)), Sense::click_and_drag());
+                    let resp = ui.interact(r, ui.scope_id().with(("card", sc.index)), Sense::click_and_drag());
                     if resp.drag_started() {
                         app.card_drag = Some(sc.index);
                     }

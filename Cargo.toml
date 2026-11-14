@@ -6,7 +6,7 @@ members = ["crates/*", "apps/*", "xtask"]
 version = "0.5.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
-rust-version = "1.95"
+rust-version = "1.100"
 repository = "https://github.com/hlophlopgaming/draftcraft"
 
 [workspace.dependencies]
@@ -28,23 +28,25 @@ draftcraft-ui-egui = { path = "crates/ui-egui" }
 
 # Shared Craft-suite libraries (storytold/craft-libs), pinned to a reviewed revision.
 # craft-settings: config.toml storage with the suite's folder rules (craft-libs#22).
-craft-settings = { git = "https://github.com/storytold/craft-libs", rev = "6006abb757df7030ffdd78c4fc952904a9d36491" }
+craft-settings = { git = "https://github.com/storytold/craft-libs", rev = "94777dcf7f8962476e96b049d08d22e25b9330c2" }
 
 # foundation
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 log = "0.4"
-quick-xml = "0.41"
+quick-xml = "0.42"
 krilla = "0.8"
-getrandom = "0.3"
+getrandom = "0.4"
 flate2 = "1"
 
 # ui
-egui = "0.36"
-eframe = { version = "0.36", default-features = false }
-egui_kittest = "0.36"
-rfd = "0.17"
+# monochrome_emoji_fonts: the symbol fonts egui bundled by default up to 0.36 (arrows, ✕, ▶ …),
+# which the interface uses; without them those glyphs would draw as empty boxes.
+egui = { version = "0.37", features = ["monochrome_emoji_fonts"] }
+eframe = { version = "0.37", default-features = false }
+egui_kittest = "0.37"
+rfd = "0.18"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

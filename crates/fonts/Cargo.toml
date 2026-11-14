@@ -3,6 +3,8 @@ name = "draftcraft-fonts"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 description = "Courier Badi (SIL OFL 1.1), the screenplay typeface DraftCraft embeds (L1)"
 include = ["src/**", "fonts/**", "Cargo.toml"]
 

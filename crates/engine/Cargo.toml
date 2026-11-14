@@ -3,6 +3,8 @@ name = "draftcraft-engine"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 description = "DraftCraft engine: session, undo, command registry, Final Draft-style typing, SmartType, reports (L4)"
 
 [lints]

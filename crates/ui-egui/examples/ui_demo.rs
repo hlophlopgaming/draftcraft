@@ -141,7 +141,7 @@ fn step(h: &mut egui_kittest::Harness<'_, ScriptApp>) {
 
 /// Draw the caption bar, a badge and the pointer over the app.
 fn overlay(ctx: &egui::Context) {
-    let p = ctx.layer_painter(egui::LayerId::new(egui::Order::Tooltip, egui::Id::new("demo-overlay")));
+    let p = ctx.layer_painter(egui::LayerId::new(egui::Order::Tooltip, egui::Id::unique("demo-overlay")));
     let screen = ctx.content_rect();
     if let Some(tex) = PICTURE.lock().ok().and_then(|g| g.clone()) {
         p.rect_filled(screen, 0.0, Color32::from_rgb(0x14, 0x16, 0x1a));

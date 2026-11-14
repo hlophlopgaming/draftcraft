@@ -216,12 +216,14 @@ mod tests {
 
     #[test]
     fn usual_title_pages_become_fields() {
-        let mut t = TitlePage::default();
-        t.title = "NIGHT SIGNAL".into();
-        t.credit = "Written by".into();
-        t.author = "Ada Lane".into();
-        t.contact = "ada@example.com".into();
-        t.draft_date = "May 2026".into();
+        let t = TitlePage {
+            title: "NIGHT SIGNAL".into(),
+            credit: "Written by".into(),
+            author: "Ada Lane".into(),
+            contact: "ada@example.com".into(),
+            draft_date: "May 2026".into(),
+            ..TitlePage::default()
+        };
         let lines: Vec<TitleLine> = t.field_lines().into_iter().map(|(l, _)| l).collect();
         let back = TitlePage::from_lines(lines);
         assert!(!back.is_free_form());

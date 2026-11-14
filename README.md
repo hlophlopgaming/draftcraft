@@ -132,7 +132,7 @@ The full Final Draft 13 comparison, including what's not done yet, is in
 
 ## Quick start
 
-Requires Rust 1.95+ (edition 2024).
+Requires Rust 1.100+ (edition 2024); `rust-toolchain.toml` pins 1.100.0.
 
 ```sh
 git clone https://github.com/hlophlopgaming/draftcraft && cd draftcraft

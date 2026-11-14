@@ -3,6 +3,8 @@ name = "draftcraft-doc"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 description = "DraftCraft screenplay model: element-typed paragraphs, title page, edit primitives (L1)"
 
 [lints]

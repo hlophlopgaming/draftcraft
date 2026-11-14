@@ -3,6 +3,8 @@ name = "draftcraft-control-key"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 description = "Where DraftCraft keeps its settings, data and control-channel key: the Craft suite's folder rules (craft-settings), shared by the app and the MCP bridge"
 
 [lints]

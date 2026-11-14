@@ -3,6 +3,8 @@ name = "draftcraft-mcp"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 description = "DraftCraft MCP server (JSON-RPC over stdio), headless or bridged to the running app (L5)"
 
 [lints]

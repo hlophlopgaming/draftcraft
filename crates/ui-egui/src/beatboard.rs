@@ -68,7 +68,7 @@ impl Default for BoardState {
 }
 
 pub fn board_id() -> Id {
-    Id::new("draftcraft-beat-board")
+    Id::unique("draftcraft-beat-board")
 }
 
 /// Open the Beat window for a beat (or a new one at `at`).
@@ -132,7 +132,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
     });
     ui.add_space(6.0);
     let (rect, _) = ui.allocate_exact_size(ui.available_size().max(vec2(100.0, 100.0)), Sense::hover());
-    let id = board_id().with(ui.id());
+    let id = board_id().with(ui.scope_id());
     let bg = ui.interact(rect, id, Sense::click_and_drag());
     if !app.board.framed {
         app.board.framed = true;
@@ -415,7 +415,7 @@ pub fn dialog(app: &mut ScriptApp, ctx: &egui::Context) {
     let (mut save, mut cancel, mut delete, mut goto, mut to_scene) = (false, false, false, false, false);
     let mut open = true;
     egui::Window::new(if ed.id.is_some() { "Beat" } else { "New Beat" })
-        .id(Id::new("beat-editor"))
+        .id(Id::unique("beat-editor"))
         .open(&mut open)
         .collapsible(false)
         .resizable(false)

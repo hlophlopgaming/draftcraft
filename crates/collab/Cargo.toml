@@ -3,6 +3,8 @@ name = "draftcraft-collab"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 description = "DraftCraft real-time collaboration: three-way merge of scripts, differential sync with a central sequencer, presence, LAN transport (L3)"
 
 [lints]

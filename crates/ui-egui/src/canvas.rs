@@ -66,7 +66,7 @@ impl CanvasState {
 }
 
 pub fn canvas_id() -> Id {
-    Id::new("draftcraft-page-view")
+    Id::unique("draftcraft-page-view")
 }
 
 /// The page view's widget id in split-screen pane `pane` (pane 0 is [`canvas_id`]).
@@ -551,7 +551,7 @@ fn element_picker(app: &mut ScriptApp, ui: &mut Ui) {
     }
     let t = app.tokens();
     let mut chosen = None;
-    egui::Area::new(Id::new("element-picker")).order(egui::Order::Foreground).fixed_pos(pos2(cr.left(), cr.bottom() + 3.0)).show(ui.ctx(), |ui| {
+    egui::Area::new(Id::unique("element-picker")).order(egui::Order::Foreground).fixed_pos(pos2(cr.left(), cr.bottom() + 3.0)).show(ui.ctx(), |ui| {
         egui::Frame::popup(ui.style()).inner_margin(4.0).show(ui, |ui| {
             ui.set_min_width(200.0);
             ui.label(egui::RichText::new(lang.text("Change element")).size(10.0).color(t.text_soft));
@@ -629,7 +629,7 @@ fn smarttype_popup(app: &mut ScriptApp, ui: &mut Ui) {
     let at = pos2(cr.left() - back as f32 * CHAR_W * z, cr.bottom() + 3.0);
     app.canvas.suggest_shown = true;
     let mut clicked = None;
-    egui::Area::new(Id::new("smarttype")).order(egui::Order::Foreground).fixed_pos(at).show(ui.ctx(), |ui| {
+    egui::Area::new(Id::unique("smarttype")).order(egui::Order::Foreground).fixed_pos(at).show(ui.ctx(), |ui| {
         egui::Frame::popup(ui.style()).inner_margin(4.0).show(ui, |ui| {
             ui.set_min_width(180.0);
             ui.label(egui::RichText::new("SmartType").size(10.0).color(t.text_soft));

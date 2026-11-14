@@ -3,6 +3,8 @@ name = "draftcraft-fountain"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 description = "Fountain (fountain.io) screenplay import and export for DraftCraft (L2)"
 
 [lints]

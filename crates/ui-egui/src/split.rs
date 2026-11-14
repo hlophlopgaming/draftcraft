@@ -204,7 +204,7 @@ pub fn central(app: &mut ScriptApp, ui: &mut Ui) {
     }
     // The divider.
     let t = app.tokens();
-    let resp = ui.interact(d, ui.id().with("split-divider"), Sense::drag());
+    let resp = ui.interact(d, ui.scope_id().with("split-divider"), Sense::drag());
     if resp.hovered() || resp.dragged() {
         ui.ctx().set_cursor_icon(if side { egui::CursorIcon::ResizeHorizontal } else { egui::CursorIcon::ResizeVertical });
     }

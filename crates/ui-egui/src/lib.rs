@@ -227,7 +227,6 @@ pub struct ScriptApp {
     control: Option<Receiver<ControlRequest>>,
     /// Synthetic input from the control channel, fed in by `raw_input_hook`.
     pub synthetic: Vec<egui::Event>,
-    pending_shots: Vec<(Option<String>, std::sync::mpsc::Sender<Value>)>,
     fonts_installed: bool,
     /// Frames since the fonts were installed (they take effect on the next frame).
     fonts_frames: u8,
@@ -295,7 +294,6 @@ impl ScriptApp {
             status: None,
             control: None,
             synthetic: Vec::new(),
-            pending_shots: Vec::new(),
             fonts_installed: false,
             fonts_frames: 0,
             sent_title: String::new(),
@@ -889,21 +887,15 @@ impl ScriptApp {
         if self.status.as_ref().is_some_and(|(_, t)| now - *t > 6.0) {
             self.status = None;
         }
-        // Finished screenshots.
-        let shots: Vec<std::sync::Arc<egui::ColorImage>> = ctx.input(|i| {
-            i.events.iter().filter_map(|e| if let egui::Event::Screenshot { image, .. } = e { Some(image.clone()) } else { None }).collect()
-        });
-        for img in shots {
-            for (path, reply) in self.pending_shots.drain(..) {
-                let _ = reply.send(control::encode_shot(&img, path.as_deref()));
-            }
-        }
         let reqs: Vec<ControlRequest> = self.control.as_ref().map(|rx| rx.try_iter().collect()).unwrap_or_default();
         for req in reqs {
             if req.method == "ui.screenshot" {
                 let path = req.params.get("path").and_then(Value::as_str).map(str::to_string);
-                self.pending_shots.push((path, req.reply.clone()));
-                ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot(egui::UserData::default()));
+                // The reply goes out from egui's callback once the frame's pixels are read.
+                let reply = req.reply.clone();
+                ctx.request_screenshot(move |img| {
+                    let _ = reply.send(control::encode_shot(&img, path.as_deref()));
+                });
                 continue;
             }
             let v = control::handle(self, ctx, &req);

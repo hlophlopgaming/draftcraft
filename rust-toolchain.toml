@@ -1,0 +1,5 @@
+# The Rust release DraftCraft is built and tested with, here and in GitHub Actions
+# (.github/workflows/*.yml use the same version). Raise both together.
+[toolchain]
+channel = "1.100.0"
+components = ["rustfmt", "clippy"]

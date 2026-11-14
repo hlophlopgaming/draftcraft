@@ -31,12 +31,12 @@ pub fn point_color(sp: &StructurePoint, accent: Color32) -> Color32 {
 
 /// Egui temp-data id of the outline rows' rectangles (`Vec<Rect>`) drawn last frame.
 pub fn rows_id() -> Id {
-    Id::new("outline-rows")
+    Id::unique("outline-rows")
 }
 
 /// The drag in progress: the outline position being dragged.
 fn drag_id() -> Id {
-    Id::new("outline-drag")
+    Id::unique("outline-drag")
 }
 
 pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
@@ -97,7 +97,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                 rows.push(full);
                 let r = Rect::from_min_max(pos2(full.left() + depth * INDENT, full.top()), full.max);
                 let grip = Rect::from_min_size(r.min + vec2(2.0, 0.0), vec2(18.0, r.height()));
-                let gresp = ui.interact(grip, Id::new(("outline-grip", pos)), Sense::drag());
+                let gresp = ui.interact(grip, Id::unique(("outline-grip", pos)), Sense::drag());
                 if gresp.drag_started() {
                     ui.ctx().data_mut(|d| d.insert_temp(drag_id(), pos));
                 }
@@ -173,7 +173,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                 } else {
                     let index = it["index"].as_u64().unwrap_or(0) as usize;
                     let on = cur_scene == Some(index);
-                    let resp = ui.interact(body, Id::new(("outline-scene", pos)), Sense::click());
+                    let resp = ui.interact(body, Id::unique(("outline-scene", pos)), Sense::click());
                     let fill = if faded {
                         t.card.gamma_multiply(0.5)
                     } else if on {

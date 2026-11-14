@@ -5,8 +5,8 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
-  # Weekly, Monday 06:00 UTC: catches breakage from a new stable Rust or from
-  # newer versions of our dependencies even in weeks with no commits.
+  # Weekly, Monday 06:00 UTC: catches breakage from newer versions of our dependencies
+  # even in weeks with no commits. Rust itself is pinned in rust-toolchain.toml.
   schedule:
     - cron: "0 6 * * 1"
 
@@ -35,7 +35,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             pkg-config libxkbcommon-dev libwayland-dev libudev-dev \
             libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.100.0
         with:
           components: rustfmt, clippy
           targets: wasm32-unknown-unknown
@@ -55,7 +55,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.100.0
       - uses: Swatinem/rust-cache@v2
       - name: Use the newest compatible dependency versions (weekly run only)
         if: github.event_name == 'schedule'

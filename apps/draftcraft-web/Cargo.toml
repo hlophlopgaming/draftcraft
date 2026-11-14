@@ -3,6 +3,8 @@ name = "draftcraft-web"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 publish = false
 description = "DraftCraft in the browser (WebAssembly): the same window, with browser file open and download"
 

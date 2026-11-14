@@ -3,6 +3,8 @@ name = "draftcraft-ui-egui"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 description = "DraftCraft egui front end (Final Draft-style page view, navigator, index cards, reports); swappable: nothing below depends on it (L6)"
 
 [lints]

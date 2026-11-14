@@ -58,7 +58,7 @@ pub fn strip(app: &mut ScriptApp, ui: &mut Ui) {
         let y = r.top() + lvl * (BAND_H + 2.0);
         let band = Rect::from_min_max(pos2(x_of(sp.at), y), pos2(x_of(sp.end).max(x_of(sp.at) + 3.0), y + BAND_H));
         let col = app.session.script.structure_point(sp.index).map_or(t.accent, |x| crate::outline::point_color(x, t.accent));
-        let resp = ui.interact(band, Id::new(("storymap-point", sp.index)), Sense::click());
+        let resp = ui.interact(band, Id::unique(("storymap-point", sp.index)), Sense::click());
         p.rect_filled(band.shrink2(vec2(0.5, 0.0)), 3.0, col.gamma_multiply(if resp.hovered() { 0.55 } else { 0.32 }));
         p.rect_filled(Rect::from_min_size(band.min, vec2(2.5, BAND_H)), 1.0, col);
         let size = if sp.kind == StructureKind::Act { 11.5 } else { 10.5 };
@@ -75,7 +75,7 @@ pub fn strip(app: &mut ScriptApp, ui: &mut Ui) {
     let scene_h = 30.0;
     for sc in &map.scenes {
         let block = Rect::from_min_max(pos2(x_of(sc.start), top), pos2(x_of(sc.end).max(x_of(sc.start) + 2.0), top + scene_h));
-        let resp = ui.interact(block, Id::new(("storymap-scene", sc.index)), Sense::click());
+        let resp = ui.interact(block, Id::unique(("storymap-scene", sc.index)), Sense::click());
         let base = sc.color.map(crate::cards::card_rgb).unwrap_or(if sc.index % 2 == 0 {
             t.text_soft.gamma_multiply(0.35)
         } else {

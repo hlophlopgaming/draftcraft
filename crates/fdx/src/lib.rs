@@ -174,7 +174,7 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
         let empty = matches!(ev, Event::Empty(_));
         match ev {
             Event::Start(e) | Event::Empty(e) if stack.len() < MAX_DEPTH => {
-                let name = String::from_utf8_lossy(e.local_name().as_ref()).into_owned();
+                let name = e.local_name().as_ref().to_string();
                 if !root_seen {
                     root_seen = true;
                     if name != "FinalDraft" {
@@ -184,7 +184,7 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
                 let attr = |k: &str| {
                     e.attributes()
                         .flatten()
-                        .find(|a| a.key.local_name().as_ref() == k.as_bytes())
+                        .find(|a| a.key.local_name().as_ref() == k)
                         .and_then(|a| a.normalized_value(quick_xml::XmlVersion::Implicit1_0).ok().map(|v| v.into_owned()))
                 };
                 let in_title = stack.iter().any(|n| n == "TitlePage");
@@ -445,7 +445,7 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
                 stack.push(String::new());
             }
             Event::End(e) => {
-                let name = String::from_utf8_lossy(e.local_name().as_ref()).into_owned();
+                let name = e.local_name().as_ref().to_string();
                 stack.pop();
                 match name.as_str() {
                     "Text" => {
@@ -491,19 +491,19 @@ pub fn parse(src: &str) -> Result<Script, FdxError> {
             }
             Event::Text(t) => {
                 if let Some(o) = open.last_mut().filter(|o| o.in_text) {
-                    push_text(o, &t.decode().map_err(|e| FdxError::Xml(e.to_string()))?);
+                    push_text(o, &t);
                 }
             }
             Event::CData(t) => {
                 if let Some(o) = open.last_mut().filter(|o| o.in_text) {
-                    push_text(o, &t.decode().map_err(|e| FdxError::Xml(e.to_string()))?);
+                    push_text(o, &t);
                 }
             }
             Event::GeneralRef(g) => {
                 if let Some(o) = open.last_mut().filter(|o| o.in_text) {
                     let c = match g.resolve_char_ref() {
                         Ok(Some(c)) => Some(c.to_string()),
-                        _ => match g.decode().map_err(|e| FdxError::Xml(e.to_string()))?.as_ref() {
+                        _ => match &*g {
                             "amp" => Some("&".into()),
                             "lt" => Some("<".into()),
                             "gt" => Some(">".into()),

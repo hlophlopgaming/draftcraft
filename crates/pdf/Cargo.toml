@@ -3,6 +3,8 @@ name = "draftcraft-pdf"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 description = "DraftCraft PDF export with krilla: embedded Courier Badi, selectable text (L3)"
 
 [lints]
