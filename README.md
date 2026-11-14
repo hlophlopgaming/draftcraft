@@ -1,5 +1,7 @@
 <h1 align="center">DraftCraft</h1>
 
+<p align="center"><i>DraftCraft is a fork of <a href="https://github.com/NoJuanNobody/scriptcraft">ScriptCraft</a> by Alejandro Londono (<a href="https://github.com/NoJuanNobody">@NoJuanNobody</a>).</i></p>
+
 <p align="center"><b>DraftCraft is a free, open-source app for writing screenplays: you type, Enter and Tab pick the screenplay format for you, and it gives you industry-standard pages, Final Draft and Fountain files, and PDFs.</b></p>
 
 <p align="center">

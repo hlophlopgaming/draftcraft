@@ -3,6 +3,12 @@
 DraftCraft is a small project. This document says how it is run, so contributors know what to
 expect and how to take on more responsibility.
 
+## Origin
+
+DraftCraft is a fork of [ScriptCraft](https://github.com/NoJuanNobody/scriptcraft) by Alejandro
+Londono ([@NoJuanNobody](https://github.com/NoJuanNobody)) and the ScriptCraft contributors. It keeps
+the full ScriptCraft history and is based on its code, licensed MIT OR Apache-2.0.
+
 ## Mission
 
 An open, clean-room, Rust-native screenwriting app that works the way writers already work, that
@@ -11,7 +17,8 @@ script pipelines, and stays free of proprietary code and assets.
 
 ## Roles
 
-- **Maintainer (currently Alejandro Londono, [@NoJuanNobody](https://github.com/NoJuanNobody)).**
+- **Maintainer (currently Alejandro Londono, [@NoJuanNobody](https://github.com/NoJuanNobody),
+  author of ScriptCraft).**
   Reviews and merges pull requests, sets the roadmap, cuts releases, triages security reports and
   enforces the project rules.
 - **Contributors.** Anyone who opens an issue, improves docs or sends a pull request.
