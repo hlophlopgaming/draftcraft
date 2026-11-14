@@ -85,8 +85,9 @@ The same page rules for everyone, in each writer's language.
 
 - [ ] Focus / typewriter mode
 - [ ] Format assistant: a cue with no dialogue, an empty scene, two parentheticals in a row…
-- [ ] Rename a character everywhere; highlight one character's lines; read one character's
-      lines on their own
+- [ ] Rename a character everywhere (engine command `character.rename` done; a dialog in the
+      window still to come); highlight one character's lines; read one character's lines on
+      their own
 - [ ] Writing goals (pages or words a day) and statistics; goals and deadlines exported to any
       calendar as `.ics`, later synced over CalDAV
 - [ ] Screen-time estimate per scene and for the script
