@@ -38,8 +38,6 @@ DraftCraft contains **no** Final Draft icons, images, templates, sample scripts,
 | `docs/images/reports.png` | The DraftCraft contributors | Screenshot of DraftCraft rendered by `ui_shot` | MIT OR Apache-2.0 |
 | `docs/demo/pr33-tour.mp4` | The DraftCraft contributors | Recording of DraftCraft by `ui_demo` (docs/demo/record.sh) | MIT OR Apache-2.0 |
 | `docs/images/dark-smarttype.png` | The DraftCraft contributors | Screenshot of DraftCraft rendered by `ui_shot` | MIT OR Apache-2.0 |
-| `docs/explainer/poster.png` | The DraftCraft contributors | Frame of the explainer video (`ui_shot` screenshots; Anton and JetBrains Mono, both SIL OFL 1.1) | MIT OR Apache-2.0 |
-| `docs/explainer/explainer.mp4` | The DraftCraft contributors | Narrated explainer: `ui_shot` screenshots, `draftcraft-cli` output, Kokoro TTS voice; Anton and JetBrains Mono (SIL OFL 1.1) | MIT OR Apache-2.0 |
 | `docs/images/russian.png` | The DraftCraft contributors | Screenshot of DraftCraft rendered by `ui_shot` from `docs/demo/russian-tour.jsonl` | MIT OR Apache-2.0 |
 | `docs/images/icon.svg` | Openclipart contributor (engraving); the DraftCraft contributors (tile) | Engraving "Beetle (Lucanus cinnamomeus)" from Openclipart (https://openclipart.org/detail/264956/beetle-lucanus-cinnamomeus), unchanged, on a sand tile with a paper backing traced from it by the DraftCraft contributors | CC0 1.0 (public domain dedication) |
 | `docs/images/icon-512.png` | same | Rendered from `docs/images/icon.svg` | CC0 1.0 |

@@ -7,9 +7,10 @@
 <p align="center"><b>DraftCraft is a free, open-source app for writing screenplays: you type, Enter and Tab pick the screenplay format for you, and it gives you industry-standard pages, Final Draft and Fountain files, and PDFs.</b></p>
 
 <p align="center">
-  <a href="https://hlophlopgaming.github.io/draftcraft/explainer/explainer.mp4"><img src="docs/explainer/poster.png" alt="DraftCraft explainer video: the app with a diner scene typed in, and a panel showing which screenplay element each key produced" width="720"></a>
+  <img src="docs/images/hero.png" alt="DraftCraft page view with a screenplay" width="720">
   <br>
-  <a href="https://hlophlopgaming.github.io/draftcraft/explainer/explainer.mp4">▶ Watch the 60-second explainer</a> ·
+  <a href="https://hlophlopgaming.github.io/draftcraft/app/">Open in the browser</a> ·
+  <a href="https://hlophlopgaming.github.io/draftcraft/guide/">User guide</a> ·
   <a href="https://hlophlopgaming.github.io/draftcraft/explainer/">Read the one-page explainer</a>
 </p>
 
@@ -65,9 +66,17 @@
 
 Pre-built binaries for **v0.5.0** are available on [GitHub Releases](https://github.com/hlophlopgaming/draftcraft/releases/latest):
 
-- **macOS (Universal — Apple Silicon & Intel):** Download [`draftcraft-macos-universal.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-macos-universal.zip), extract, and open `DraftCraft.app` (`draftcraft-cli` is included alongside it).
-- **Windows (x64):** Download [`draftcraft-windows-x64.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-windows-x64.zip), extract the ZIP, and run `draftcraft.exe` (`draftcraft-cli.exe` included). See [docs/windows-setup.md](docs/windows-setup.md) for detailed instructions and troubleshooting.
-- **Linux (x86_64):** Download [`draftcraft-linux-x86_64.tar.gz`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-x86_64.tar.gz) or the Debian/Ubuntu package [`draftcraft-linux-x86_64.deb`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-x86_64.deb).
+- **macOS:** [`draftcraft-macos-universal.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-macos-universal.zip) runs on Apple Silicon and Intel; smaller single-architecture builds are [`draftcraft-macos-arm64.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-macos-arm64.zip) and [`draftcraft-macos-x86_64.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-macos-x86_64.zip). Extract and open `DraftCraft.app` (`draftcraft-cli` is included alongside it).
+- **Windows:** [`draftcraft-windows-x64.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-windows-x64.zip) (Intel/AMD) or [`draftcraft-windows-arm64.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-windows-arm64.zip) (ARM, e.g. Snapdragon laptops). Extract and run `draftcraft.exe` (`draftcraft-cli.exe` included). See [docs/windows-setup.md](docs/windows-setup.md) for details and troubleshooting.
+- **Linux** (x86_64 and ARM64 / aarch64):
+
+  | Format | x86_64 | ARM64 |
+  |---|---|---|
+  | AppImage (any distribution) | [`draftcraft-linux-x86_64.AppImage`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-x86_64.AppImage) | [`draftcraft-linux-aarch64.AppImage`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-aarch64.AppImage) |
+  | Debian / Ubuntu `.deb` | [`draftcraft-linux-x86_64.deb`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-x86_64.deb) | [`draftcraft-linux-aarch64.deb`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-aarch64.deb) |
+  | Fedora / openSUSE `.rpm` | [`draftcraft-linux-x86_64.rpm`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-x86_64.rpm) | [`draftcraft-linux-aarch64.rpm`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-aarch64.rpm) |
+  | Tarball `.tar.gz` | [`draftcraft-linux-x86_64.tar.gz`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-x86_64.tar.gz) | [`draftcraft-linux-aarch64.tar.gz`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-linux-aarch64.tar.gz) |
+
 - **Web (Browser / WASM):** Launch directly in your browser at [hlophlopgaming.github.io/draftcraft/app/](https://hlophlopgaming.github.io/draftcraft/app/), explore the landing page & interactive explainer at [hlophlopgaming.github.io/draftcraft/](https://hlophlopgaming.github.io/draftcraft/), or download [`draftcraft-web.zip`](https://github.com/hlophlopgaming/draftcraft/releases/latest/download/draftcraft-web.zip).
 
 ## A tour
