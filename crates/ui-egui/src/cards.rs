@@ -1,8 +1,8 @@
 //! Index cards: one card per scene with its heading, an editable summary, colour and tags.
 //! Drag a card onto another to move the scene there; right-click for colour and tags.
 
-use egui::{Align2, Color32, FontId, Rect, RichText, Sense, Stroke, StrokeKind, Ui, vec2};
 use draftcraft_doc::CardColor;
+use egui::{Align2, Color32, FontId, Rect, RichText, Sense, Stroke, StrokeKind, Ui, vec2};
 use serde_json::json;
 
 use crate::ScriptApp;

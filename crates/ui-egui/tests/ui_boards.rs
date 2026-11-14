@@ -1,8 +1,8 @@
 //! Split screen, the beat board and bookmarks, driven through the headless window.
 
-use egui::{Event, PointerButton, Pos2, vec2};
 use draftcraft_engine::Session;
 use draftcraft_ui_egui::{ScriptApp, View};
+use egui::{Event, PointerButton, Pos2, vec2};
 use serde_json::json;
 
 fn harness(app: ScriptApp) -> egui_kittest::Harness<'static, ScriptApp> {

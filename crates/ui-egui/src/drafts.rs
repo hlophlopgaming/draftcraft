@@ -1,15 +1,15 @@
 //! Drafts: File › New from Template, Format › Apply Template, track changes and comparing
 //! drafts.
 
-use egui::Ui;
 use draftcraft_doc::Template;
+use egui::Ui;
 use serde_json::json;
 
 use crate::ScriptApp;
-use egui::text::LayoutJob;
-use egui::{Color32, FontId, Painter, Rect, RichText, Stroke, TextFormat, pos2, vec2};
 use draftcraft_doc::track::{self, ChangeKind};
 use draftcraft_layout::{Line, LineKind};
+use egui::text::LayoutJob;
+use egui::{Color32, FontId, Painter, Rect, RichText, Stroke, TextFormat, pos2, vec2};
 use serde_json::Value;
 
 /// File › New from Template.

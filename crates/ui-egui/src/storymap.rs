@@ -5,8 +5,8 @@
 //! [`strip`] draws into any `Ui` (a split-screen pane, for instance); [`panel`] docks it at the
 //! bottom of the window when View › Story Map is on.
 
-use egui::{Align2, Color32, FontId, Id, Rect, RichText, Sense, Stroke, Ui, pos2, vec2};
 use draftcraft_doc::StructureKind;
+use egui::{Align2, Color32, FontId, Id, Rect, RichText, Sense, Stroke, Ui, pos2, vec2};
 use serde_json::json;
 
 use crate::ScriptApp;

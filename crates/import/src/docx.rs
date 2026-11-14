@@ -13,9 +13,9 @@
 //! Bold, italic and underline runs are kept; hidden text (`w:vanish`) is skipped. Paragraphs
 //! before the first page break, when that page has no scene heading, become the title page.
 
+use draftcraft_doc::{Element, Script, Style};
 use quick_xml::Reader;
 use quick_xml::events::{BytesStart, Event};
-use draftcraft_doc::{Element, Script, Style};
 
 use crate::shape::{self, Builder, Geometry, Styled, TitleBlocks};
 use crate::{Imported, zip};

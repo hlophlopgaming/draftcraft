@@ -1,7 +1,7 @@
 //! Reports view: characters, scenes and locations.
 
-use egui::{RichText, Ui};
 use draftcraft_engine::reports;
+use egui::{RichText, Ui};
 use serde_json::json;
 
 use crate::ScriptApp;

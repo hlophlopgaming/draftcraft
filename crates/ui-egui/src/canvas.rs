@@ -1,10 +1,10 @@
 //! The page view: paginated script on paper, caret, selection, typing and SmartType.
 
-use egui::{Align2, Color32, CornerRadius, FontFamily, FontId, Id, Key, Modifiers, Pos2, Rect, Sense, Stroke, StrokeKind, Ui, pos2, vec2};
 use draftcraft_doc::{Element, Pos, word_left, word_right};
 use draftcraft_engine::smarttype::{Suggest, suggest};
 use draftcraft_geom::{CHAR_W, FONT_SIZE, LINE_H};
 use draftcraft_layout::{Layout, Line, LineKind};
+use egui::{Align2, Color32, CornerRadius, FontFamily, FontId, Id, Key, Modifiers, Pos2, Rect, Sense, Stroke, StrokeKind, Ui, pos2, vec2};
 use serde_json::json;
 
 use crate::ScriptApp;

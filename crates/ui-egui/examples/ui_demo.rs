@@ -33,10 +33,10 @@
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
-use egui::{Align2, Color32, FontId, Pos2, Rect, Stroke, pos2, vec2};
-use egui_kittest::kittest::Queryable;
 use draftcraft_engine::Session;
 use draftcraft_ui_egui::ScriptApp;
+use egui::{Align2, Color32, FontId, Pos2, Rect, Stroke, pos2, vec2};
+use egui_kittest::kittest::Queryable;
 use serde_json::{Value, json};
 
 const FPS: f32 = 15.0;

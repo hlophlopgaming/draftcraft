@@ -1,8 +1,8 @@
 //! Real-time collaboration in the window (#25): the Collaborate window, other people's carets
 //! and selections on the page, the status-bar indicator, and the per-frame sync.
 
-use egui::{Color32, FontId, Rect, RichText, Ui, pos2, vec2};
 use draftcraft_layout::{Layout, LineKind};
+use egui::{Color32, FontId, Rect, RichText, Ui, pos2, vec2};
 use serde_json::{Value, json};
 
 use crate::ScriptApp;

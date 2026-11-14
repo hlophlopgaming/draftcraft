@@ -3,16 +3,16 @@
 //! italic and bold italic use the matching faces; underlines are drawn as thin rules.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
+use draftcraft_doc::Script;
+use draftcraft_doc::Style;
+use draftcraft_geom::{CHAR_W, FONT_SIZE};
+use draftcraft_layout::{Layout, layout};
 use krilla::Document;
 use krilla::geom::{PathBuilder, Point, Rect};
 use krilla::metadata::Metadata;
 use krilla::page::PageSettings;
 use krilla::paint::Fill;
 use krilla::text::{Font, TextDirection};
-use draftcraft_doc::Script;
-use draftcraft_doc::Style;
-use draftcraft_geom::{CHAR_W, FONT_SIZE};
-use draftcraft_layout::{Layout, layout};
 
 #[derive(Debug, thiserror::Error, Clone, PartialEq)]
 pub enum PdfError {

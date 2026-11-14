@@ -18,6 +18,8 @@ draftcraft-control-key = { workspace = true }
 eframe = { workspace = true, features = ["default_fonts", "wgpu", "accesskit", "wayland", "x11"] }
 egui = { workspace = true }
 serde_json = { workspace = true }
+# Decodes the embedded window icon (already in the build through draftcraft-ui-egui).
+image = { version = "0.25", default-features = false, features = ["png"] }
 getrandom = { workspace = true }
 # SIGTERM / SIGINT / SIGHUP: save a recovery copy and remove the control key before exiting.
 ctrlc = { version = "3.5", features = ["termination"] }

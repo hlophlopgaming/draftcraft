@@ -61,31 +61,12 @@ impl eframe::App for App {
     }
 }
 
-/// The window icon, drawn in code: a page with a clapperboard stripe.
-fn icon() -> egui::IconData {
-    let n = 64usize;
-    let mut rgba = vec![0u8; n * n * 4];
-    for y in 0..n {
-        for x in 0..n {
-            let i = (y * n + x) * 4;
-            let inside = (10..54).contains(&x) && (6..58).contains(&y);
-            let stripe = inside && (6..18).contains(&y);
-            let line = inside && y > 24 && y % 7 == 0 && (16..48).contains(&x);
-            let c: [u8; 4] = if stripe {
-                if ((x + 64 - y) / 6) % 2 == 0 { [0x1e, 0x20, 0x26, 255] } else { [0xf2, 0xf2, 0xf2, 255] }
-            } else if line {
-                [0x3b, 0x5b, 0xdb, 255]
-            } else if inside {
-                [0xfb, 0xfb, 0xfb, 255]
-            } else {
-                [0, 0, 0, 0]
-            };
-            if let Some(px) = rgba.get_mut(i..i + 4) {
-                px.copy_from_slice(&c);
-            }
-        }
-    }
-    egui::IconData { rgba, width: n as u32, height: n as u32 }
+/// The window icon: the stag-beetle app icon (`docs/images/icon.svg`), embedded as a 256 px PNG.
+/// If it cannot be decoded the window keeps the platform's default icon.
+fn icon() -> Option<egui::IconData> {
+    let img = image::load_from_memory_with_format(include_bytes!("../assets/icon-256.png"), image::ImageFormat::Png).ok()?.into_rgba8();
+    let (width, height) = img.dimensions();
+    Some(egui::IconData { rgba: img.into_raw(), width, height })
 }
 
 /// On SIGTERM/SIGINT/SIGHUP, wake the UI so it saves and exits; if it does not within 3 s
@@ -140,15 +121,13 @@ fn main() -> eframe::Result<()> {
     {
         eprintln!("draftcraft: {e}");
     }
-    #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
     let mut options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size([1440.0, 900.0])
-            .with_min_inner_size([720.0, 480.0])
-            .with_title("DraftCraft")
-            .with_icon(icon()),
+        viewport: egui::ViewportBuilder::default().with_inner_size([1440.0, 900.0]).with_min_inner_size([720.0, 480.0]).with_title("DraftCraft"),
         ..Default::default()
     };
+    if let Some(icon) = icon() {
+        options.viewport = options.viewport.with_icon(icon);
+    }
     // macOS: winit's default app menu has a Quit item (Cmd+Q) that calls `terminate:` directly,
     // which would skip the unsaved-changes prompt. Without it, Cmd+Q reaches the app as a
     // shortcut (ui.quit) and goes through the same prompt as the close button.

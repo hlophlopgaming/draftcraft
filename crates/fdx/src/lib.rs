@@ -58,9 +58,9 @@ mod title;
 mod track;
 mod voices;
 
+use draftcraft_doc::{Align, Alternate, CardColor, Element, ElementFormats, MAX_PARA_BYTES, MAX_PARAS, Note, Para, Script, Style, Tagged};
 use quick_xml::Reader;
 use quick_xml::events::Event;
-use draftcraft_doc::{Align, Alternate, CardColor, Element, ElementFormats, MAX_PARA_BYTES, MAX_PARAS, Note, Para, Script, Style, Tagged};
 
 /// Largest input we parse, bytes.
 pub const MAX_INPUT: usize = 128 << 20;

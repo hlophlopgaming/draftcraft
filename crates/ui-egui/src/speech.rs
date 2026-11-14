@@ -11,10 +11,10 @@
 
 use std::sync::{Arc, Mutex};
 
-use egui::{Align2, Color32, Painter, Rect, RichText, vec2};
 use draftcraft_doc::{Pos, Script};
 use draftcraft_engine::CmdError;
 use draftcraft_layout::{Line, LineKind};
+use egui::{Align2, Color32, Painter, Rect, RichText, vec2};
 use serde_json::{Value, json};
 
 use crate::ScriptApp;

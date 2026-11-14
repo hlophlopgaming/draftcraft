@@ -1,7 +1,7 @@
 //! Window chrome: menu bar, toolbar, find bar, status bar, navigator, dialogs, shortcuts.
 
-use egui::{Key, Modifiers, RichText, Ui, vec2};
 use draftcraft_doc::{Element, TitlePage};
+use egui::{Key, Modifiers, RichText, Ui, vec2};
 use serde_json::json;
 
 use crate::icons::{self, Icon};

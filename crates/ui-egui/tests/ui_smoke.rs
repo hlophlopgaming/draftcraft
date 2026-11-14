@@ -1,9 +1,9 @@
 //! The window runs headless (no GPU): typing through egui reaches the engine, every UI command
 //! runs, and all views lay out without panicking.
 
-use egui_kittest::kittest::Queryable;
 use draftcraft_engine::Session;
 use draftcraft_ui_egui::{ControlRequest, ScriptApp, UI_COMMANDS};
+use egui_kittest::kittest::Queryable;
 use serde_json::json;
 
 fn harness(app: ScriptApp) -> egui_kittest::Harness<'static, ScriptApp> {

@@ -4,8 +4,8 @@
 //! to scenes, colour and delete. Moves are one command each (on release), so undo takes back a
 //! whole drag.
 
-use egui::{Align2, Color32, FontId, Id, Pos2, Rect, RichText, Sense, Stroke, StrokeKind, Ui, Vec2, pos2, vec2};
 use draftcraft_doc::{Beat, CardColor};
+use egui::{Align2, Color32, FontId, Id, Pos2, Rect, RichText, Sense, Stroke, StrokeKind, Ui, Vec2, pos2, vec2};
 use serde_json::json;
 
 use crate::ScriptApp;

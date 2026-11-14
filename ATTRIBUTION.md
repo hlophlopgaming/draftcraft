@@ -4,8 +4,8 @@ Every non-code asset in this repository, with its author, source and licence. `c
 (part of `cargo xtask ci`) fails if a font, image or sample script is missing from this list.
 
 DraftCraft contains **no** Final Draft icons, images, templates, sample scripts, fonts or wording
-(beyond feature names used for comparison). All icons are drawn in code (`crates/ui-egui/src/icons.rs`,
-the window icon in `apps/draftcraft/src/main.rs`).
+(beyond feature names used for comparison). Interface icons are drawn in code (`crates/ui-egui/src/icons.rs`). The app icon is a public-domain
+(CC0) stag-beetle engraving from Openclipart, listed under Images below.
 
 ## Fonts
 
@@ -41,3 +41,6 @@ the window icon in `apps/draftcraft/src/main.rs`).
 | `docs/explainer/poster.png` | The DraftCraft contributors | Frame of the explainer video (`ui_shot` screenshots; Anton and JetBrains Mono, both SIL OFL 1.1) | MIT OR Apache-2.0 |
 | `docs/explainer/explainer.mp4` | The DraftCraft contributors | Narrated explainer: `ui_shot` screenshots, `draftcraft-cli` output, Kokoro TTS voice; Anton and JetBrains Mono (SIL OFL 1.1) | MIT OR Apache-2.0 |
 | `docs/images/russian.png` | The DraftCraft contributors | Screenshot of DraftCraft rendered by `ui_shot` from `docs/demo/russian-tour.jsonl` | MIT OR Apache-2.0 |
+| `docs/images/icon.svg` | Openclipart contributor (engraving); the DraftCraft contributors (tile) | Engraving "Beetle (Lucanus cinnamomeus)" from Openclipart (https://openclipart.org/detail/264956/beetle-lucanus-cinnamomeus), unchanged, on a sand tile with a paper backing traced from it by the DraftCraft contributors | CC0 1.0 (public domain dedication) |
+| `docs/images/icon-512.png` | same | Rendered from `docs/images/icon.svg` | CC0 1.0 |
+| `apps/draftcraft/assets/icon-256.png` | same | Rendered from `docs/images/icon.svg`; the window icon | CC0 1.0 |

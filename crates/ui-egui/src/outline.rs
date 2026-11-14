@@ -6,8 +6,8 @@
 //! main area. The navigator's structure rows come from [`nav_points`]. The rows' screen
 //! rectangles of the last frame are in egui temp data under [`rows_id`].
 
-use egui::{Align2, Color32, FontId, Id, Rect, RichText, Sense, Stroke, Ui, pos2, vec2};
 use draftcraft_doc::{CardColor, StructureKind, StructurePoint};
+use egui::{Align2, Color32, FontId, Id, Rect, RichText, Sense, Stroke, Ui, pos2, vec2};
 use serde_json::{Value, json};
 
 use crate::ScriptApp;

@@ -2,10 +2,10 @@
 //! markers on the page, the Notes tab of the navigator, the note editor, the alternates picker,
 //! the Tools menu entries, the page's context menu entries and the breakdown in Reports.
 
-use egui::{Align2, Color32, FontId, Painter, Rect, RichText, Stroke, Ui, pos2, vec2};
 use draftcraft_doc::{CardColor, Element, Pos, TAG_CATEGORIES, category_rgb};
 use draftcraft_geom::{CHAR_W, LINE_H};
 use draftcraft_layout::{Line, LineKind};
+use egui::{Align2, Color32, FontId, Painter, Rect, RichText, Stroke, Ui, pos2, vec2};
 use serde_json::{Value, json};
 
 use crate::ScriptApp;

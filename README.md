@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/icon.svg" alt="DraftCraft icon: an engraved stag beetle on a sand-coloured tile" width="128" height="128"></p>
+
 <h1 align="center">DraftCraft</h1>
 
 <p align="center"><i>DraftCraft is a fork of <a href="https://github.com/NoJuanNobody/scriptcraft">ScriptCraft</a> by Alejandro Londono (<a href="https://github.com/NoJuanNobody">@NoJuanNobody</a>).</i></p>
