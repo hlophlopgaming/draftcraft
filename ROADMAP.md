@@ -1,12 +1,134 @@
 # DraftCraft roadmap
 
-**Stage:** v0.5.0 (released); #42's last items, #44 and #32 need Final Draft 13.
+**Stage:** v0.5.1 (released 2026-11-14), the first release as DraftCraft.
 **Headline numbers:** 63 of 68 Final Draft 13 catalog features implemented
 ([docs/parity-checklist.md](docs/parity-checklist.md)); 191 engine commands + 53 window commands;
-~38.7k lines of Rust; 291 tests; English & Russian UI with Cyrillic screenplay support (Courier Badi);
-native (macOS, Windows, Linux) and browser builds; CI and automated releases on GitHub Actions.
+291 tests; English & Russian UI with Cyrillic screenplay support (Courier Badi); native builds for
+Windows, macOS and Linux on x86_64 and ARM64, plus the browser; Rust 1.100.
 
-## v0.1 (this release)
+DraftCraft is a fork of [ScriptCraft](https://github.com/NoJuanNobody/scriptcraft). Issue numbers
+in the history below (#1–#54) are ScriptCraft's issues; new work gets issues in this repository.
+
+## Direction
+
+A screenwriting app for writers in **any language**, with **one set of page rules** (layout,
+pagination, (MORE)/(CONT'D)) and each language's own words for them; **two kinds of script**
+(the screenplay and the two-column audio/visual script); a **clean, modern interface**; and
+open files that other tools read.
+
+## Plan
+
+Order and why: the redesign comes first, so every later feature is built once, in the new
+look. Fonts come before languages, because Arabic, Hebrew and CJK need fonts that have them.
+Right-to-left is easier once the redesign has settled where panels and menus live.
+
+### v0.6: redesign
+
+The interface looks dated and crowded. A design pass before new features land:
+
+- [ ] Design system: colours, type scale, spacing, icons, light and dark themes, all as tokens
+      in `crates/ui-egui/src/theme.rs` (which already holds the colours), checked for contrast
+- [ ] New window layout: a slimmer toolbar, a left sidebar (navigator, cards, outline, beats,
+      notes) that collapses, a right panel for context (scene info, notes, revisions)
+- [ ] Calmer page view: paper on a neutral desk, quieter page breaks and margins, the element
+      of the current line shown in the margin
+- [ ] Redesigned dialogs: element settings, title page, page setup, find and replace,
+      collaboration, print
+- [ ] A command palette (every command by name; they already all have ids)
+- [ ] Welcome screen: new script, templates, recent files, the guide
+- [ ] Interface text size and theme choice in settings; keep it usable at 100–200 % scale
+- [ ] Translate the remaining English-only menu items (Split Screen, Read Aloud, Track Changes,
+      Bookmarks, New from Template, Add Structure Point, Collaborate…)
+- [ ] New screenshots for README, the website and the guide
+
+### v0.7: two-column (audio/visual) script
+
+For documentaries, commercials, video essays, news and training films: picture on the left,
+sound on the right, lined up row by row.
+
+- [ ] A second document kind, alongside the screenplay: rows of **Video** | **Audio** cells,
+      with optional scene number and duration per row
+- [ ] Typing in the DraftCraft way: Tab moves between the columns, Enter adds a row; audio
+      cells hold narration (VO), dialogue, music and sound effects
+- [ ] Timing: estimated read time of the narration per row and in total
+- [ ] Two-column PDF and printing; its own file format, and Final Draft's two-column format if
+      public samples allow
+- [ ] Convert a screenplay to two columns and back (action → Video, dialogue → Audio)
+- [ ] Template: "Two-column script"; MCP/CLI commands like every other feature
+
+### v0.8: fonts
+
+- [ ] Bundled screenplay fonts with open licences, each checked for licence and coverage:
+      Courier Prime, Courier Badi (already), Cousine and Liberation Mono (Courier New metrics,
+      with Hebrew), a monospaced Arabic font (candidate: Kawkab Mono)
+- [ ] CJK (Noto Sans Mono CJK): downloaded on request, not bundled (≈16 MB each)
+- [ ] Choose any installed font or a `.ttf`/`.otf` file; the choice is saved with the script
+      and the font is embedded in the PDF
+- [ ] Per-language fallback fonts, so a missing letter comes from another font instead of a box
+- [ ] Watermarks on printed pages and PDFs (e.g. the recipient's name)
+
+### v0.9: languages and right-to-left
+
+The same page rules for everyone, in each writer's language.
+
+- [ ] **Script language** (per script, separate from the interface language), which sets:
+      scene heading prefixes (INT./EXT., ИНТ./НАТ., INNEN/AUSSEN, פנים/חוץ, داخلي/خارجي…),
+      times of day, transitions, (MORE)/(CONT'D) and their translations, SmartType lists
+- [ ] Arabic and Hebrew written right to left: bidirectional text (`unicode-bidi`) in the page
+      view, caret and selection, PDF and print; mixed RTL/LTR lines (numbers, Latin names)
+- [ ] Mirrored interface for right-to-left interface languages
+- [ ] Spelling check per language (open dictionaries), thesaurus
+- [ ] More interface languages, ideally shared with the Craft apps' translations
+      (storytold/craft-i18n)
+
+### v0.10: writing comfort
+
+- [ ] Focus / typewriter mode
+- [ ] Format assistant: a cue with no dialogue, an empty scene, two parentheticals in a row…
+- [ ] Rename a character everywhere; highlight one character's lines; read one character's
+      lines on their own
+- [ ] Writing goals (pages or words a day) and statistics
+- [ ] Screen-time estimate per scene and for the script
+
+### v0.11: story tools
+
+- [ ] Character and location bible: cards with description, picture and arc, linked to scenes
+- [ ] Story days: which day of the story each scene is in, with a report
+- [ ] Snapshots inside the file ("draft 1", "after the table read") to look at or go back to
+- [ ] Beat board as a free canvas (place anywhere, links, colours), if Outline and the beat
+      board turn out not to be enough for notes
+
+### v0.12: formats
+
+- [ ] Export to Word (.docx), RTF, plain text and HTML (import from Word already works)
+- [ ] Open and save Fade In, Highland, Trelby and WriterDuet files where their formats are public
+- [ ] Your own templates (save a script as a template); Final Draft templates (.fdxt)
+- [ ] Subtitles (SRT) from the two-column script and from bilingual scripts
+- [ ] Final Draft compatibility left over from v0.5 (#42, #44, #32): needs real Final Draft 13 files
+
+### 1.0: ready for everyone
+
+- [ ] Windows installer (MSI) with the exe icon and file associations (.fdx, .fountain)
+- [ ] Signed and notarized macOS app; file associations
+- [ ] Check for updates from inside the app
+- [ ] Settings kept in the web app between visits
+- [ ] Custom keyboard shortcuts
+- [ ] Accessibility: screen readers (egui's AccessKit), keyboard-only use
+- [ ] Every release build launched and checked on real Windows, macOS and Linux machines
+- [ ] A new trailer and explainer for 1.0 (the old ones were removed until then)
+
+### After 1.0
+
+- [ ] Bilingual scripts: a translation kept next to each line, printable either way
+- [ ] Collaboration over the internet (today it works on one local network), comment threads,
+      table-read mode with roles assigned to people
+- [ ] Production: sides for a shooting day, a simple stripboard and cast lists per day
+- [ ] Tablets (iPad, Android) with a touch interface
+- [ ] A GitHub organization for DraftCraft, like storytold for ArtCraft (optional)
+
+## Done
+
+### v0.1: the editor (done)
 
 - [x] Screenplay model, undo/redo, element flow, SmartType, dual dialogue
 - [x] Industry pagination with (MORE)/(CONT'D), title page, scene numbers
@@ -15,64 +137,62 @@ native (macOS, Windows, Linux) and browser builds; CI and automated releases on 
 - [x] egui window: menu bar, element picker, page view, status bar, dark mode, zoom
 - [x] CLI, MCP server, keyed control channel, headless `ui_shot`
 
-All open work is tracked as [GitHub issues](https://github.com/hlophlopgaming/draftcraft/issues) under milestones.
+### v0.2: writing comfort (done)
 
-## Next (v0.2): writing comfort
+- [x] [#1](https://github.com/NoJuanNobody/scriptcraft/issues/1) Inline bold, italic and underline
+- [x] [#2](https://github.com/NoJuanNobody/scriptcraft/issues/2) Spelling check (offline)
+- [x] [#3](https://github.com/NoJuanNobody/scriptcraft/issues/3) Element settings editor (indents, spacing, capitals, Enter/Tab targets)
+- [x] [#4](https://github.com/NoJuanNobody/scriptcraft/issues/4) Decide: Tab in an empty Action → Character or Transition?
+- [x] [#5](https://github.com/NoJuanNobody/scriptcraft/issues/5) Element picker on Enter in an empty paragraph
+- [x] [#6](https://github.com/NoJuanNobody/scriptcraft/issues/6) Copy and paste that keeps element types
+- [x] [#7](https://github.com/NoJuanNobody/scriptcraft/issues/7) Drag to reorder index cards; card colours and tags
+- [x] [#8](https://github.com/NoJuanNobody/scriptcraft/issues/8) Autosave, backups and recent files
+- [x] [#9](https://github.com/NoJuanNobody/scriptcraft/issues/9) Caret blink, wheel/pinch zoom, page-width zoom and a non-paginated speed view
+- [x] [#10](https://github.com/NoJuanNobody/scriptcraft/issues/10) Verify the unsaved-changes prompt on close in the native window
+- [x] [#11](https://github.com/NoJuanNobody/scriptcraft/issues/11) Remove the control key file when the app is terminated
+- [x] [#12](https://github.com/NoJuanNobody/scriptcraft/issues/12) Web build (wasm)
 
-- [x] [#1](https://github.com/hlophlopgaming/draftcraft/issues/1) Inline bold, italic and underline
-- [x] [#2](https://github.com/hlophlopgaming/draftcraft/issues/2) Spelling check (offline)
-- [x] [#3](https://github.com/hlophlopgaming/draftcraft/issues/3) Element settings editor (indents, spacing, capitals, Enter/Tab targets)
-- [x] [#4](https://github.com/hlophlopgaming/draftcraft/issues/4) Decide: Tab in an empty Action → Character or Transition?
-- [x] [#5](https://github.com/hlophlopgaming/draftcraft/issues/5) Element picker on Enter in an empty paragraph
-- [x] [#6](https://github.com/hlophlopgaming/draftcraft/issues/6) Copy and paste that keeps element types
-- [x] [#7](https://github.com/hlophlopgaming/draftcraft/issues/7) Drag to reorder index cards; card colours and tags
-- [x] [#8](https://github.com/hlophlopgaming/draftcraft/issues/8) Autosave, backups and recent files
-- [x] [#9](https://github.com/hlophlopgaming/draftcraft/issues/9) Caret blink, wheel/pinch zoom, page-width zoom and a non-paginated speed view
-- [x] [#10](https://github.com/hlophlopgaming/draftcraft/issues/10) Verify the unsaved-changes prompt on close in the native window
-- [x] [#11](https://github.com/hlophlopgaming/draftcraft/issues/11) Remove the control key file when the app is terminated
-- [x] [#12](https://github.com/hlophlopgaming/draftcraft/issues/12) Web build (wasm)
+### v0.3: production (done)
 
-## v0.3: production (done)
-
-- [x] [#13](https://github.com/hlophlopgaming/draftcraft/issues/13) Revision mode with coloured revision pages
-- [x] [#14](https://github.com/hlophlopgaming/draftcraft/issues/14) Locked pages, A/B pages, omitted scenes and locked scene numbers
-- [x] [#15](https://github.com/hlophlopgaming/draftcraft/issues/15) Headers and footers editor; A4 paper
-- [x] [#16](https://github.com/hlophlopgaming/draftcraft/issues/16) Script notes
-- [x] [#17](https://github.com/hlophlopgaming/draftcraft/issues/17) Alternate dialogue lines
-- [x] [#18](https://github.com/hlophlopgaming/draftcraft/issues/18) Production tagging and breakdown reports
-- [x] [#19](https://github.com/hlophlopgaming/draftcraft/issues/19) Print dialog
-- [x] [#20](https://github.com/hlophlopgaming/draftcraft/issues/20) Split dual dialogue across a page break
+- [x] [#13](https://github.com/NoJuanNobody/scriptcraft/issues/13) Revision mode with coloured revision pages
+- [x] [#14](https://github.com/NoJuanNobody/scriptcraft/issues/14) Locked pages, A/B pages, omitted scenes and locked scene numbers
+- [x] [#15](https://github.com/NoJuanNobody/scriptcraft/issues/15) Headers and footers editor; A4 paper
+- [x] [#16](https://github.com/NoJuanNobody/scriptcraft/issues/16) Script notes
+- [x] [#17](https://github.com/NoJuanNobody/scriptcraft/issues/17) Alternate dialogue lines
+- [x] [#18](https://github.com/NoJuanNobody/scriptcraft/issues/18) Production tagging and breakdown reports
+- [x] [#19](https://github.com/NoJuanNobody/scriptcraft/issues/19) Print dialog
+- [x] [#20](https://github.com/NoJuanNobody/scriptcraft/issues/20) Split dual dialogue across a page break
 
 Follow-ups found while testing v0.3 (done in v0.5):
 
-- [x] [#41](https://github.com/hlophlopgaming/draftcraft/issues/41) Reports show counted page numbers instead of printed labels (12A) when pages are locked
-- [x] [#43](https://github.com/hlophlopgaming/draftcraft/issues/43) Print directly to a printer (printer list, copies), browser print, temp file cleanup
-- [x] [#45](https://github.com/hlophlopgaming/draftcraft/issues/45) Dual dialogue: a long cue plus (CONT'D) runs past the right column and margin after a page split
+- [x] [#41](https://github.com/NoJuanNobody/scriptcraft/issues/41) Reports show counted page numbers instead of printed labels (12A) when pages are locked
+- [x] [#43](https://github.com/NoJuanNobody/scriptcraft/issues/43) Print directly to a printer (printer list, copies), browser print, temp file cleanup
+- [x] [#45](https://github.com/NoJuanNobody/scriptcraft/issues/45) Dual dialogue: a long cue plus (CONT'D) runs past the right column and margin after a page split
 
-## v0.4: structure and collaboration (done)
+### v0.4: structure and collaboration (done)
 
-- [x] [#21](https://github.com/hlophlopgaming/draftcraft/issues/21) Outline view with structure points
-- [x] [#22](https://github.com/hlophlopgaming/draftcraft/issues/22) Beat board
-- [x] [#23](https://github.com/hlophlopgaming/draftcraft/issues/23) Story map
-- [x] [#24](https://github.com/hlophlopgaming/draftcraft/issues/24) Track changes and comparing two drafts
-- [x] [#25](https://github.com/hlophlopgaming/draftcraft/issues/25) Real-time collaboration
-- [x] [#26](https://github.com/hlophlopgaming/draftcraft/issues/26) Templates: TV single-camera, multi-camera, stage play
-- [x] [#27](https://github.com/hlophlopgaming/draftcraft/issues/27) Read aloud with cast voices, and dictation (speech to script)
-- [x] [#28](https://github.com/hlophlopgaming/draftcraft/issues/28) Bookmarks and split screen
+- [x] [#21](https://github.com/NoJuanNobody/scriptcraft/issues/21) Outline view with structure points
+- [x] [#22](https://github.com/NoJuanNobody/scriptcraft/issues/22) Beat board
+- [x] [#23](https://github.com/NoJuanNobody/scriptcraft/issues/23) Story map
+- [x] [#24](https://github.com/NoJuanNobody/scriptcraft/issues/24) Track changes and comparing two drafts
+- [x] [#25](https://github.com/NoJuanNobody/scriptcraft/issues/25) Real-time collaboration
+- [x] [#26](https://github.com/NoJuanNobody/scriptcraft/issues/26) Templates: TV single-camera, multi-camera, stage play
+- [x] [#27](https://github.com/NoJuanNobody/scriptcraft/issues/27) Read aloud with cast voices, and dictation (speech to script)
+- [x] [#28](https://github.com/NoJuanNobody/scriptcraft/issues/28) Bookmarks and split screen
 
-## v0.5: fidelity and polish
+### v0.5: fidelity and polish
 
 File-format fidelity:
 
-- [x] [#29](https://github.com/hlophlopgaming/draftcraft/issues/29) Keep Shot and General elements in Fountain
-- [x] [#30](https://github.com/hlophlopgaming/draftcraft/issues/30) Keep all title page fields in FDX; support free-form title pages
-- [x] [#31](https://github.com/hlophlopgaming/draftcraft/issues/31) Import from Word, Celtx and PDF
-- [ ] [#42](https://github.com/hlophlopgaming/draftcraft/issues/42) Final Draft compatibility: map revisions, locks, omitted scenes, tags, alternates and page setup to Final Draft's own FDX — Final Draft's form written wherever public files confirm it ([docs/fdx-format.md](docs/fdx-format.md)); tags, omitted scenes, alternates, locks and tracked changes wait on #44
-- [ ] [#44](https://github.com/hlophlopgaming/draftcraft/issues/44) Get sample .fdx files from Final Draft 13 (tags, omitted scene, alternate line, locked pages)
+- [x] [#29](https://github.com/NoJuanNobody/scriptcraft/issues/29) Keep Shot and General elements in Fountain
+- [x] [#30](https://github.com/NoJuanNobody/scriptcraft/issues/30) Keep all title page fields in FDX; support free-form title pages
+- [x] [#31](https://github.com/NoJuanNobody/scriptcraft/issues/31) Import from Word, Celtx and PDF
+- [ ] [#42](https://github.com/NoJuanNobody/scriptcraft/issues/42) Final Draft compatibility: map revisions, locks, omitted scenes, tags, alternates and page setup to Final Draft's own FDX — Final Draft's form written wherever public files confirm it ([docs/fdx-format.md](docs/fdx-format.md)); tags, omitted scenes, alternates, locks and tracked changes wait on #44
+- [ ] [#44](https://github.com/NoJuanNobody/scriptcraft/issues/44) Get sample .fdx files from Final Draft 13 (tags, omitted scene, alternate line, locked pages)
 
 Verification:
 
-- [ ] [#32](https://github.com/hlophlopgaming/draftcraft/issues/32) Check the typing flow against real Final Draft 13
+- [ ] [#32](https://github.com/NoJuanNobody/scriptcraft/issues/32) Check the typing flow against real Final Draft 13
 
 ## Progress log
 

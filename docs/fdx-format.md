@@ -22,12 +22,12 @@ Draft's own form.
 - **Structure only.** Only element names, attribute names and short attribute values were looked
   at, never the script text. The files were not kept.
 - **Earlier research.** The research on 29 public files in
-  [#42](https://github.com/hlophlopgaming/draftcraft/issues/42#issuecomment-6143636042) is
+  [#42](https://github.com/NoJuanNobody/scriptcraft/issues/42#issuecomment-6143636042) is
   consistent with this page.
 - **Not observed.** Some features don't appear in any public file Final Draft saved: tags with
   tagged text, omitted scenes, alternate lines, freshly locked pages, writer markup. These wait on
   the sample files requested in
-  [#44](https://github.com/hlophlopgaming/draftcraft/issues/44).
+  [#44](https://github.com/NoJuanNobody/scriptcraft/issues/44).
 
 "n/51" below means the feature appears in n of the 51 Final Draft files.
 
