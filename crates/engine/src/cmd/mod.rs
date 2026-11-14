@@ -3,6 +3,7 @@
 pub mod alternates;
 pub mod boards;
 pub mod caret;
+pub mod character;
 pub mod collab;
 pub mod compare;
 pub mod edit;
@@ -42,6 +43,7 @@ pub fn registry() -> Registry {
     v.extend(smart::specs());
     v.extend(spell::specs());
     v.extend(scene::specs());
+    v.extend(character::specs());
     v.extend(production::specs());
     v.extend(title::specs());
     v.extend(report::specs());
