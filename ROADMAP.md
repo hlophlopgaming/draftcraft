@@ -2,7 +2,7 @@
 
 **Stage:** v0.5.1 (released 2026-11-14), the first release as DraftCraft.
 **Headline numbers:** 63 of 68 Final Draft 13 catalog features implemented
-([docs/parity-checklist.md](docs/parity-checklist.md)); 191 engine commands + 53 window commands;
+([docs/parity-checklist.md](docs/parity-checklist.md)); 194 engine commands + 53 window commands;
 291 tests; English & Russian UI with Cyrillic screenplay support (Courier Badi); native builds for
 Windows, macOS and Linux on x86_64 and ARM64, plus the browser; Rust 1.100.
 
@@ -85,6 +85,8 @@ The same page rules for everyone, in each writer's language.
 
 - [ ] Focus / typewriter mode
 - [ ] Format assistant: a cue with no dialogue, an empty scene, two parentheticals in a row…
+      (engine commands `assist.check`, `assist.next`, `assist.previous` done; a panel in the
+      window still to come)
 - [ ] Rename a character everywhere (engine command `character.rename` done; a dialog in the
       window still to come); highlight one character's lines; read one character's lines on
       their own
