@@ -16,6 +16,10 @@ pagination, (MORE)/(CONT'D)) and each language's own words for them; **two kinds
 (the screenplay and the two-column audio/visual script); a **clean, modern interface**; and
 open files that other tools read.
 
+**A writing app, not a project manager.** You sit down and write the script; DraftCraft keeps
+what the script itself needs (structure, cards, notes, reports). Research, world-building, mind
+maps and relationship graphs belong in tools made for them (Obsidian and the like), not here.
+
 ## Plan
 
 Order and why: the redesign comes first, so every later feature is built once, in the new
@@ -69,9 +73,14 @@ sound on the right, lined up row by row.
 
 ### v0.8: fonts
 
-- [ ] Bundled screenplay fonts with open licences, each checked for licence and coverage:
-      Courier Prime, Courier Badi (already), Cousine and Liberation Mono (Courier New metrics,
-      with Hebrew), a monospaced Arabic font (candidate: Kawkab Mono)
+- [ ] Bundled screenplay fonts with open licences, each taken from its upstream source and
+      checked for licence and coverage: Courier Prime (OFL), Courier Badi (already), Cousine and
+      Liberation Mono (Courier New metrics, with Hebrew), a monospaced Arabic font (candidate:
+      Kawkab Mono), Noto Sans Mono
+- [ ] Fonts for scripts beyond Latin and Cyrillic, from upstream (OFL): Noto families, Mukta Malar
+      (Tamil), Mallanna (Telugu). Interface fonts for the redesign: Noto Sans, Roboto or
+      Montserrat (OFL). Arial, Times New Roman and Courier New are commercial and are never
+      bundled; writers who have them pick them as installed fonts
 - [ ] CJK (Noto Sans Mono CJK): downloaded on request, not bundled (≈16 MB each)
 - [ ] Choose any installed font or a `.ttf`/`.otf` file; the choice is saved with the script
       and the font is embedded in the PDF
@@ -88,9 +97,15 @@ The same page rules for everyone, in each writer's language.
 - [ ] Arabic and Hebrew written right to left: bidirectional text (`unicode-bidi`) in the page
       view, caret and selection, PDF and print; mixed RTL/LTR lines (numbers, Latin names)
 - [ ] Mirrored interface for right-to-left interface languages
+- [ ] **Regional formatting standards**: a script follows a named standard, chosen when it is
+      created and changeable later, e.g. US/Hollywood, UK/BBC, Russian, French, German. A
+      standard is a bundle of what DraftCraft already has per script (element settings: indents,
+      spacing, capitals, alignment; page setup: paper, margins, lines per page; header/footer)
+      plus the language words above. Shipped as data files, so a new standard is a new file;
+      a writer can save their own
 - [ ] Spelling check per language (open dictionaries), thesaurus
-- [ ] More interface languages, ideally shared with the Craft apps' translations
-      (storytold/craft-i18n)
+- [ ] More interface languages: contributors add a catalogue file
+      (`crates/ui-egui/locales/<code>.json`, see README); no translation platform needed
 
 ### v0.10: writing comfort
 
@@ -105,15 +120,19 @@ The same page rules for everyone, in each writer's language.
 
 ### v0.11: story tools
 
+Kept small, in line with "a writing app, not a project manager".
+
 - [ ] Character and location bible: cards with description, picture and arc, linked to scenes
-- [ ] Story days: which day of the story each scene is in, with a report
+- [ ] Story days and a timeline: which day of the story each scene is in, scenes laid out along
+      the story's time, with a report
 - [ ] Snapshots inside the file ("draft 1", "after the table read") to look at or go back to
-- [ ] Beat board as a free canvas (place anywhere, links, colours), if Outline and the beat
-      board turn out not to be enough for notes
 
 ### v0.12: formats and storage
 
+- [ ] **OpenDocument (.odt)**: open and save, for LibreOffice and other open office suites
 - [ ] Export to Word (.docx), RTF, plain text and HTML (import from Word already works)
+- [ ] Import from KIT Scenarist, from its publicly documented or observed file structure only
+      (KIT Scenarist and Story Architect are GPL: their code is never read)
 - [ ] Open and save Fade In, Highland, Trelby and WriterDuet files where their formats are public
 - [ ] Your own templates (save a script as a template); Final Draft templates (.fdxt)
 - [ ] Subtitles (SRT) from the two-column script and from bilingual scripts
@@ -152,6 +171,10 @@ local-network sessions (docs/collaboration.md); a small relay only forwards byte
 
 ### After 1.0
 
+- [ ] More kinds of writing, each a document kind of its own like the two-column script:
+      audio play / podcast / radio drama, comic book script (pages, panels, balloons), prose
+- [ ] Episode outline for series (поэпизодник): seasons and episodes, the logline and beats of
+      each episode, linked to the episode scripts
 - [ ] Bilingual scripts: a translation kept next to each line, printable either way
 - [ ] Table-read mode with roles assigned to people
 - [ ] Production: sides for a shooting day, a simple stripboard and cast lists per day; the
@@ -160,6 +183,16 @@ local-network sessions (docs/collaboration.md); a small relay only forwards byte
       grows enough to pay for running it, building on share-by-link
 - [ ] Tablets (iPad, Android) with a touch interface
 - [ ] A GitHub organization for DraftCraft, like storytold for ArtCraft (optional)
+
+### Not planned
+
+Considered and left out, to keep DraftCraft a focused writing app:
+
+- A project holding many documents, research, images and story worlds (as Story Architect does)
+- Mind maps and character relationship graphs
+- A translation platform (a catalogue file per language is enough)
+- Fonts copied from other apps' repositories: fonts come only from their upstream sources with
+  their licence
 
 ## Done
 
