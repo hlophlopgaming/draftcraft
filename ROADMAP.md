@@ -130,7 +130,19 @@ The same page rules for everyone, in each writer's language.
 
 Kept small, in line with "a writing app, not a project manager".
 
-- [ ] Character and location bible: cards with description, picture and arc, linked to scenes
+- [ ] **Character and location cards** (a light bible that fills itself): every character and
+      location the script uses appears on its own, in the Navigator's Characters and Locations
+      tabs; nothing has to be filled in
+      - the writer may add: a one- or two-line description, a picture, a colour, other names
+        for the same character or place (МАМА = НЕЛЛ, КУХНЯ = КУХНЯ НЕЛЛ) and free notes; the
+        read-aloud voice moves here
+      - counted by DraftCraft: first appearance, scenes, lines and share of the dialogue (or
+        scenes, pages and day/night for a location), each scene a link to it
+      - used while writing: hover a cue to see the description; one character's lines in their
+        colour; a cast list ("Действующие лица") page from the descriptions; statistics that
+        count a character once under all their names
+      - kept in the script file itself; no family trees, relationship graphs, world-building or
+        long biographies
 - [ ] Story days and a timeline: which day of the story each scene is in, scenes laid out along
       the story's time, with a report
 - [ ] Snapshots inside the file ("draft 1", "after the table read") to look at or go back to
