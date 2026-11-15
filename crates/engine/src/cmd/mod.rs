@@ -1,6 +1,7 @@
 //! Command implementations, one module per area. Each module exposes `specs()`.
 
 pub mod alternates;
+pub mod assist;
 pub mod boards;
 pub mod caret;
 pub mod character;
@@ -44,6 +45,7 @@ pub fn registry() -> Registry {
     v.extend(spell::specs());
     v.extend(scene::specs());
     v.extend(character::specs());
+    v.extend(assist::specs());
     v.extend(production::specs());
     v.extend(title::specs());
     v.extend(report::specs());
