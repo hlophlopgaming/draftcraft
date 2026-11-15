@@ -1,0 +1,447 @@
+<!doctype html>
+<!--
+  DraftCraft v0.6 redesign, direction C "Focus", developed into the main screens of the app.
+  Static HTML mockups, no app code. Open with ?s=<screen>&theme=light|dark, or render every
+  PNG with `node docs/design/render-focus.mjs`.
+  Screens: write, typewriter, navigator, cards, stats, panels, av, rtl, welcome.
+  Icons are our own strokes; the page uses Courier Badi from crates/fonts; the Hebrew screen
+  uses Liberation Mono (the v0.8 candidate with Hebrew). Inter stands in for the UI font.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DraftCraft · Focus</title>
+<style>
+@font-face { font-family: "Courier Badi"; src: url("../../crates/fonts/fonts/CourierBadi-Regular.ttf"); }
+@font-face { font-family: "Courier Badi"; font-weight: bold; src: url("../../crates/fonts/fonts/CourierBadi-Bold.ttf"); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1440px; height: 900px; overflow: hidden; }
+body { font: 13px/1.4 Inter, "Noto Sans", system-ui, sans-serif; color: var(--text); background: var(--desk); -webkit-font-smoothing: antialiased; }
+
+/* ---------- tokens: the Focus palette ---------- */
+.light { --chrome:#f4f1ec; --panel:#fbfaf7; --desk:#f4f1ec; --paper:#fffefb; --ink:#1d1b18; --ink-soft:#9a948a; --ink-dim:#c9c2b6;
+  --text:#2a2621; --text-soft:#857e73; --line:#e4dfd6; --field:#ebe6dd; --accent:#b4532a; --accent-weak:#f6e4da;
+  --selection:rgba(180,83,42,.18); --caret:#b4532a; --note:#f8efd5; --pop:#fffefb; --scrim:rgba(40,30,20,.10);
+  --paper-shadow:0 1px 3px rgba(60,40,20,.06),0 20px 50px rgba(60,40,20,.08); --pop-shadow:0 10px 30px rgba(60,40,20,.12);
+  --c1:#d07a3a; --c2:#3f8f7a; --c3:#7a62c7; --c4:#c0508f; --c5:#5b8bd0; --heat0:#ebe6dd; --heat1:#efc9b3; --heat2:#e09a74; --heat3:#c86a3e; --heat4:#9c4420; }
+.dark { --chrome:#181614; --panel:#1f1c19; --desk:#181614; --paper:#211e1b; --ink:#e6e0d6; --ink-soft:#8a8278; --ink-dim:#4a443d;
+  --text:#ece6dc; --text-soft:#988f83; --line:#35302a; --field:#2b2722; --accent:#e58a5c; --accent-weak:#3d2a20;
+  --selection:rgba(229,138,92,.26); --caret:#f0a07a; --note:#3a3223; --pop:#26221e; --scrim:rgba(0,0,0,.35);
+  --paper-shadow:0 1px 3px rgba(0,0,0,.3),0 20px 60px rgba(0,0,0,.35); --pop-shadow:0 12px 34px rgba(0,0,0,.45);
+  --c1:#e39257; --c2:#5fb39c; --c3:#a08ce6; --c4:#df74ae; --c5:#7ea9ea; --heat0:#2b2722; --heat1:#4a3226; --heat2:#7a4a31; --heat3:#b0643d; --heat4:#e58a5c; }
+:root { --r-s: 8px; --r-m: 10px; --r-l: 14px; }
+
+svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.row { display: flex; align-items: center; gap: 8px; }
+.col { display: flex; flex-direction: column; gap: 8px; }
+.soft { color: var(--text-soft); }
+.tiny { font-size: 11px; }
+.caps { text-transform: uppercase; letter-spacing: .06em; font-size: 10.5px; font-weight: 600; color: var(--text-soft); }
+.btn { white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; min-width: 30px; padding: 0 8px; border-radius: var(--r-s); color: var(--text-soft); }
+.btn.on { background: var(--accent-weak); color: var(--accent); }
+.btn.solid { background: var(--accent); color: #fff; padding: 0 14px; font-weight: 600; }
+.kbd { font-size: 10.5px; padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); color: var(--text-soft); }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; background: var(--field); font-size: 12px; }
+.note { padding: 10px 12px; border-radius: var(--r-m); background: var(--note); font-size: 12.5px; }
+.bar { height: 6px; border-radius: 3px; background: var(--field); overflow: hidden; }
+.bar > i { display: block; height: 100%; border-radius: 3px; }
+.tabs { display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--field); }
+.tabs span { padding: 5px 10px; border-radius: 8px; color: var(--text-soft); font-weight: 500; font-size: 12px; }
+.tabs span.on { background: var(--pop); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+/* ---------- frame ---------- */
+.app { position: relative; width: 1440px; height: 900px; display: grid; grid-template-rows: 40px 1fr; }
+.top { display: flex; align-items: center; gap: 4px; padding: 0 12px; background: var(--chrome); position: relative; z-index: 3; }
+.top .logo { width: 20px; height: 20px; border-radius: 5px; margin: 0 4px 0 2px; }
+.desk { position: relative; overflow: hidden; background: var(--desk); }
+.float { position: absolute; display: flex; flex-direction: column; gap: 4px; padding: 6px; border-radius: var(--r-l); background: var(--pop); border: 1px solid var(--line); box-shadow: 0 6px 20px rgba(0,0,0,.06); z-index: 2; }
+.float .btn { width: 34px; height: 34px; }
+.float .sep { height: 1px; background: var(--line); margin: 2px 4px; }
+.hud { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 6px 14px; border-radius: 999px; background: var(--pop); border: 1px solid var(--line); color: var(--text-soft); font-size: 12px; white-space: nowrap; z-index: 2; }
+.mini { position: absolute; right: 16px; top: 54px; width: 214px; display: flex; flex-direction: column; gap: 2px; }
+.mini .m { display: flex; align-items: center; gap: 8px; color: var(--text-soft); font-size: 11.5px; padding: 3px 6px; border-radius: 6px; white-space: nowrap; overflow: hidden; }
+.mini .m > span:last-child { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.mini .m .w { width: 48px; flex: none; display: flex; justify-content: flex-end; }
+.mini .m i { display: block; height: 3px; border-radius: 2px; background: var(--line); }
+.mini .m.on { color: var(--accent); } .mini .m.on i { background: var(--accent); }
+.pop { position: absolute; background: var(--pop); border: 1px solid var(--line); border-radius: var(--r-l); box-shadow: var(--pop-shadow); z-index: 4; }
+
+/* ---------- page ---------- */
+.paper { position: absolute; width: 680px; background: var(--paper); color: var(--ink); box-shadow: var(--paper-shadow);
+  font: 13.3px/13.3px "Courier Badi", "Courier 10 Pitch", monospace; padding: 0 80px 0 120px; border-radius: 2px; }
+.paper .ln { white-space: pre; position: relative; min-height: 13.3px; }
+.paper .gap { height: 13.3px; }
+.paper .dlg { margin-left: 80px; width: 280px; white-space: normal; }
+.paper .par { margin-left: 128px; width: 200px; white-space: normal; }
+.paper .chr { margin-left: 176px; }
+.paper .act, .paper .hd { white-space: normal; }
+.paper .num { position: absolute; right: 60px; top: 48px; color: var(--ink-soft); }
+.paper .sel { background: var(--selection); }
+.caret { display: inline-block; width: 1.5px; height: 14px; background: var(--caret); vertical-align: -2px; margin: 0 -0.75px; }
+.paper .elem { position: absolute; left: -108px; width: 92px; font: 600 10px/13.3px Inter, sans-serif; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); }
+.paper .elem::after { content: ""; position: absolute; right: -8px; top: 2px; width: 2px; height: 10px; background: var(--accent); border-radius: 1px; }
+.paper .dim { color: var(--ink-dim); }
+.paper .bodywrap { position: relative; }
+.paper .hl { background: color-mix(in srgb, var(--c1) 16%, transparent); border-radius: 2px; }
+.smart { position: absolute; width: 230px; padding: 5px; font: 12.5px Inter, sans-serif; }
+.smart .o { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 7px; }
+.smart .o.on { background: var(--accent-weak); color: var(--accent); }
+.smart .o .soft { margin-left: auto; font-size: 11px; }
+
+/* ---------- panels ---------- */
+.side { position: absolute; top: 12px; bottom: 12px; width: 330px; display: flex; flex-direction: column; overflow: hidden; }
+.side .hd { display: flex; align-items: center; gap: 8px; padding: 12px 12px 10px 16px; }
+.side .bd { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+.scene { display: grid; grid-template-columns: 22px 1fr auto; gap: 2px 8px; padding: 8px 10px; border-radius: var(--r-m); }
+.scene .t { font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scene .s { grid-column: 2 / 4; color: var(--text-soft); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scene .n { color: var(--text-soft); font-variant-numeric: tabular-nums; }
+.scene.on { background: var(--accent-weak); } .scene.on .n, .scene.on .t { color: var(--accent); }
+.person { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: var(--r-m); }
+.person.on { background: var(--accent-weak); }
+.avatar { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 12px; flex: none; }
+.ccard { width: 300px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.ccard .photo { width: 64px; height: 64px; border-radius: 14px; flex: none; background: linear-gradient(140deg, var(--c1), color-mix(in srgb, var(--c1) 40%, var(--desk))); display: grid; place-items: center; color: #fff; font: 700 24px Inter, sans-serif; }
+.stat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat > div { background: var(--field); border-radius: 10px; padding: 8px 10px; }
+.stat b { display: block; font-size: 16px; }
+
+/* index cards */
+.cardgrid { position: absolute; left: 92px; right: 250px; top: 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.icard { background: var(--paper); border-radius: 12px; box-shadow: var(--paper-shadow); min-height: 170px; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; border-top: 4px solid var(--c); position: relative; }
+.icard .h { font: 700 12px/1.35 "Courier Badi", monospace; color: var(--ink); }
+.icard .s { font-size: 12.5px; color: var(--text); flex: 1; }
+.icard .f { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-soft); }
+.icard.on { outline: 2px solid var(--accent); outline-offset: 2px; }
+.icard.drag { transform: rotate(-2.5deg); box-shadow: 0 30px 60px rgba(0,0,0,.18); }
+.actrow { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.actrow::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+
+/* stats */
+.board { position: absolute; left: 92px; right: 32px; top: 24px; bottom: 24px; display: grid; grid-template-columns: 1.35fr 1fr 1fr; grid-template-rows: auto 1fr 1fr; gap: 16px; }
+.tile { background: var(--pop); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.tile h3 { font-size: 13px; font-weight: 600; }
+.kpis { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+.kpi { background: var(--pop); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+.kpi b { display: block; font-size: 24px; font-weight: 650; letter-spacing: -.01em; margin-top: 2px; }
+.kpi .d { font-size: 11.5px; color: var(--c2); }
+.heat { display: grid; grid-template-rows: repeat(7, 12px); grid-auto-flow: column; grid-auto-columns: 12px; gap: 3px; }
+.heat i { border-radius: 3px; background: var(--heat0); }
+
+/* panels / docking */
+.dockL { position: absolute; left: 0; top: 0; bottom: 0; width: 300px; background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; }
+.dockR { position: absolute; right: 0; top: 0; bottom: 0; width: 290px; background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; }
+.ph { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 8px 0 12px; border-bottom: 1px solid var(--line); font-weight: 600; font-size: 12.5px; }
+.ph .g { color: var(--text-soft); cursor: grab; }
+.ph .r { margin-left: auto; display: flex; gap: 2px; }
+.ghost { position: absolute; border-radius: 14px; background: var(--pop); border: 1px solid var(--accent); box-shadow: 0 30px 70px rgba(0,0,0,.22); overflow: hidden; }
+.zone { position: absolute; border: 2px dashed var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); display: grid; place-items: center; color: var(--accent); font-weight: 600; font-size: 12px; }
+.compass { position: absolute; display: grid; grid-template-columns: 34px 34px 34px; grid-template-rows: 34px 34px 34px; gap: 5px; padding: 10px; border-radius: 16px; background: var(--pop); border: 1px solid var(--line); box-shadow: var(--pop-shadow); z-index: 3; }
+.compass i { border-radius: 7px; background: var(--field); border: 1px solid var(--line); position: relative; }
+.compass i::after { content: ""; position: absolute; inset: 7px; border-radius: 3px; border: 1.5px solid var(--text-soft); }
+.compass i.on::after { border-color: #fff; }
+.compass i.on { background: var(--accent); border-color: var(--accent); }
+.compass i.no { visibility: hidden; }
+
+/* two-column A/V */
+.av { position: absolute; left: 290px; width: 860px; top: 18px; height: 1000px; background: var(--paper); box-shadow: var(--paper-shadow); border-radius: 2px; padding: 60px 64px; color: var(--ink); }
+.av table { width: 100%; border-collapse: collapse; font: 12.5px/1.45 "Courier Badi", monospace; }
+.av th { text-align: left; font: 600 10.5px Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); padding: 0 12px 8px; border-bottom: 1.5px solid var(--ink); }
+.av td { vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.av td.n { width: 34px; color: var(--ink-soft); padding-left: 0; }
+.av td.t { width: 64px; color: var(--ink-soft); text-align: right; padding-right: 0; font-size: 11.5px; }
+.av td.v { width: 46%; }
+.av tr.cur td { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.av .tag { font: 600 9.5px Inter, sans-serif; letter-spacing: .06em; color: var(--accent); text-transform: uppercase; }
+
+/* welcome */
+.welcome { position: absolute; left: 50%; top: 70px; width: 980px; margin-left: -490px; display: flex; flex-direction: column; gap: 26px; }
+.tpl { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.tpl .t { background: var(--pop); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.tpl .t .pv { height: 104px; border-radius: 8px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); padding: 12px 14px; display: flex; flex-direction: column; gap: 5px; }
+.tpl .t .pv i { display: block; height: 3px; border-radius: 2px; background: var(--ink-dim); }
+.tpl .t.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
+.recent { background: var(--pop); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.recent .r { display: grid; grid-template-columns: 26px 1fr 160px 120px 90px; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid var(--line); }
+.recent .r:last-child { border-bottom: 0; }
+
+/* RTL */
+[dir="rtl"] .paper { font-family: "Liberation Mono", "FreeMono", monospace; padding: 0 120px 0 80px; }
+[dir="rtl"] .paper .elem { left: auto; right: -108px; text-align: left; }
+[dir="rtl"] .paper .elem::after { right: auto; left: -8px; }
+[dir="rtl"] .paper .dlg { margin-left: 0; margin-right: 80px; }
+[dir="rtl"] .paper .par { margin-left: 0; margin-right: 128px; }
+[dir="rtl"] .paper .chr { margin-left: 0; margin-right: 176px; }
+[dir="rtl"] .paper .num { right: auto; left: 60px; }
+[dir="rtl"] .mini { right: auto; left: 16px; }
+[dir="rtl"] .mini .m .w { justify-content: flex-start; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const q = new URLSearchParams(location.search);
+const S = q.get('s') || 'write', T = q.get('theme') || 'light';
+document.body.className = T;
+
+const P = {
+  doc: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+  nav: '<path d="M4 6h16M4 12h16M4 18h10"/>',
+  cards: '<rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/><rect x="13" y="13" width="8" height="7" rx="1.5"/>',
+  outline: '<path d="M5 6h.01M5 12h.01M5 18h.01M9 6h11M11 12h9M11 18h9"/>',
+  beats: '<circle cx="6" cy="12" r="2"/><circle cx="12" cy="7" r="2"/><circle cx="18" cy="14" r="2"/><path d="M7.5 10.5l3-2M13.6 8.6l3 4"/>',
+  notes: '<path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4"/>',
+  people: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c2.8.4 5 2.7 5 5.8"/>',
+  pin: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  chart: '<path d="M5 20V10M10 20V4M15 20v-7M20 20v-4"/>',
+  search: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
+  moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  dots: '<circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/>',
+  grip: '<circle cx="9" cy="7" r=".8"/><circle cx="15" cy="7" r=".8"/><circle cx="9" cy="12" r=".8"/><circle cx="15" cy="12" r=".8"/><circle cx="9" cy="17" r=".8"/><circle cx="15" cy="17" r=".8"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  focus: '<path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/>',
+  play: '<path d="M8 5l11 7-11 7z"/>',
+  pinned: '<path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/>',
+  film: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/>',
+  wave: '<path d="M3 12h2l2-5 3 10 3-12 3 14 2-7h3"/>',
+  tv: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 3l4 3 4-3"/>',
+  stage: '<path d="M3 20h18M5 20V8M19 20V8M3 8c3 3 15 3 18 0M3 4h18"/>',
+  clock: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  cloud: '<path d="M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 9.5 4.3 4.3 0 0 0 7 18z"/>',
+  layout: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M9 12h12"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+};
+const I = (n, s = 18) => `<svg class="i" viewBox="0 0 24 24" style="width:${s}px;height:${s}px">${P[n]}</svg>`;
+const dark = T === 'dark';
+const LOGO = '<img class="logo" src="../images/icon.svg" alt="">';
+
+// ---- the sample script "Night Signal" (CC0) ----
+const page = [
+  ['chr', 'SKIPPER (V.O.)'], ['dlg', 'Two. Me and my boy.'], ['gap'],
+  ['act', 'Nell scrawls on the back of a chart: MARGUERITE - 2 - NO MAST.'], ['gap'],
+  ['act', 'She flips a switch on a second radio and keys a different handset.'], ['gap'],
+  ['chr', 'NELL'], ['dlg', 'Coast Guard Sector, Gull Point. I have a vessel in distress, the Marguerite, two aboard, dismasted. Position unknown. I am working on it.'], ['gap'],
+  ['chr', 'COAST GUARD (V.O.)'], ['dlg', "Copy, Gull Point. Cutter is forty minutes out in this weather. Get us a position and we'll get them home."], ['gap'],
+  ['act', 'Nell sets the handset down. Forty minutes. She looks at the barometer. Then at the black window.'], ['gap'],
+  ['chr', 'NELL'], ['par', '(into the radio)'],
+  ['dlg', 'Marguerite, listen to me. I need you to look for a light<span class="caret"></span>. Any light. Can you see the lighthouse on Hesper Rock?', 'cur'], ['gap'],
+  ['act', 'A long beat of static.'], ['gap'],
+  ['chr', 'SKIPPER (V.O.)'], ['dlg', "I can't see my own hands."], ['gap'],
+  ['chr', 'NELL'], ['dlg', 'Then we do it the old way. Is your boy there? Put him on.'], ['gap'],
+  ['act', 'SCRATCHING on the line. Then a new voice, young and scared, trying hard not to be.'], ['gap'],
+  ['chr', 'TEO (V.O.)'], ['dlg', 'This is Teo.'], ['gap'],
+  ['chr', 'NELL'], ['dlg', "Teo, I'm Nell. I've been sitting in this little box for twenty-two years, and I've talked a lot of boats home."],
+  ['chr', '(MORE)'],
+];
+function paper(left, top, { lines = page, elem = 'Dialogue', num = '2.', dim = false, hl = '', height = 1000 } = {}) {
+  const body = lines.map(([k, t, cur]) => {
+    if (k === 'gap') return '<div class="gap"></div>';
+    const d = dim && !cur ? ' dim' : '';
+    const label = cur && elem ? `<span class="elem" style="top:0">${elem}</span>` : '';
+    let txt = t;
+    if (hl && k === 'chr' && t.startsWith(hl)) txt = `<span class="hl">${t}</span>`;
+    return `<div class="ln ${k}${d}${cur ? ' cur' : ''}">${label}${txt}</div>`;
+  }).join('');
+  return `<div class="paper" style="left:${left}px;top:${top}px;height:${height}px"><div class="num">${num}</div><div class="bodywrap" style="padding-top:96px">${body}</div></div>`;
+}
+
+const scenes = [
+  ['EXT. GULL POINT WEATHER STATION - NIGHT', 'Establish the station, the storm, and Nell alone.', 1, '#5b8bd0', 0.4],
+  ['INT. WEATHER STATION - RADIO ROOM - CONTINUOUS', 'Nell logs the storm; a garbled mayday breaks through.', 1, '#3f8f7a', 1.6],
+  ['INT. MARGUERITE - WHEELHOUSE - NIGHT', 'Teo reads the compass while his father bails.', 3, '#c0843c', 0.9],
+  ['INT. WEATHER STATION - RADIO ROOM - LATER', 'The plan: count the flashes from Hesper Rock.', 3, '#a85c9a', 1.1],
+  ['EXT. HESPER ROCK LIGHTHOUSE - NIGHT', 'The lamp is dark. Nell has to light it by radio.', 4, '#d07a3a', 0.7],
+];
+const short = t => t.replace(/^(INT|EXT)\. /, '').split(' - ')[0];
+const minimap = (on = 1) => `<div class="mini"><span class="caps" style="padding:0 6px 6px">Scenes</span>${scenes.map(([t], i) =>
+  `<div class="m${i === on ? ' on' : ''}"><span class="w"><i style="width:${[22, 30, 46, 40, 26][i]}px"></i></span><span>${i + 1}. ${short(t)}</span></div>`).join('')}</div>`;
+const cast = [['NELL', 'var(--c1)', 12, 62], ['SKIPPER', 'var(--c2)', 5, 21], ['COAST GUARD', 'var(--c3)', 3, 9], ['TEO', 'var(--c4)', 4, 8]];
+
+function topbar({ title = 'Night Signal', sub = '— draft 2', right = '' } = {}) {
+  return `<div class="top"><span class="btn">${I('nav')}</span>${LOGO}
+    <span style="font-weight:600">${title}</span><span class="soft">${sub}</span>
+    <span style="margin-left:auto" class="row">${right}
+      <span class="btn">${I('search')}</span><span class="btn">${I('focus')}</span><span class="btn">${I(dark ? 'sun' : 'moon')}</span><span class="btn">${I('dots')}</span></span></div>`;
+}
+function rail(on = 'doc', side = 'left:16px') {
+  const items = ['doc', 'nav', 'cards', 'outline', 'beats', 'people', 'notes', 'chart'];
+  return `<div class="float" style="${side};top:18px">${items.map(n => `<span class="btn${n === on ? ' on' : ''}">${I(n)}</span>`).join('')}<span class="sep"></span><span class="btn">${I('layout')}</span></div>`;
+}
+const hud = (extra = '') => `<div class="hud"><span style="color:var(--accent);font-weight:600">Dialogue</span><span>Tab → Character</span><span>·</span><span>699 words</span><span>·</span><span>+212 today</span>${extra}</div>`;
+
+// ================= screens =================
+const screens = {
+  // 1. Writing: the page and nothing else; SmartType on a new cue
+  write() {
+    const lines = page.slice(0, 22).map(([k, t]) => [k, t && t.replace('<span class="caret"></span>', '')]).concat([['chr', 'NE<span class="caret"></span>', 'cur']]);
+    return `<div class="app">${topbar({ right: '<span class="soft tiny">Character · page 2 of 4 · saved</span>' })}
+    <div class="desk">${paper(380, 18, { lines, elem: 'Character' })}${rail()}${minimap()}
+      <div class="pop smart" style="left:670px;top:626px">
+        <div class="o on"><span class="dot" style="background:var(--c1)"></span>NELL<span class="soft">12 lines</span></div>
+        <div class="o"><span class="dot" style="background:var(--c3)"></span>NELL (V.O.)<span class="soft">extension</span></div>
+        <div class="o"><span class="dot" style="background:var(--c5)"></span>NEW CHARACTER…<span class="soft">Enter</span></div>
+      </div>
+      <div class="hud"><span style="color:var(--accent);font-weight:600">Character</span><span>Enter → Dialogue</span><span>·</span><span>Tab → Transition</span><span>·</span><span>699 words</span><span>·</span><span>+212 today</span></div>
+    </div></div>`;
+  },
+  // 2. Typewriter mode: chrome gone, the current line held in the middle, the rest dimmed
+  typewriter() {
+    return `<div class="app" style="grid-template-rows:0 1fr">${''}<div></div>
+    <div class="desk">${paper(380, 132, { dim: true })}
+      <div style="position:absolute;left:0;right:0;top:${132 + 96 + 13.3 * 21 - 6}px;height:${13.3 * 4 + 12}px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);opacity:.0"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(transparent,var(--desk) 70%)"></div><div class="hud"><span>Focus mode</span><span>·</span><span>Esc to leave</span><span>·</span><span style="color:var(--accent);font-weight:600">+212 / 500 words today</span><span style="width:120px" class="bar"><i style="width:42%;background:var(--accent)"></i></span></div>
+      <div style="position:absolute;right:22px;top:16px" class="soft tiny">00:24:10 · scene 2 of 5</div>
+    </div></div>`;
+  },
+  // 3. Navigator + character card (the light bible)
+  navigator() {
+    const scn = scenes.map(([t, s, p, c], i) => `<div class="scene${i === 1 ? ' on' : ''}"><span class="n">${i + 1}</span><span class="t">${short(t)}</span><span class="n tiny">p.${p}</span><span class="s">${s}</span></div>`).join('');
+    const ppl = cast.map(([n, c, k], i) => `<div class="person${i === 0 ? ' on' : ''}"><span class="avatar" style="background:${c}">${n[0]}</span><div class="col" style="gap:0"><b style="font-weight:600">${n}</b><span class="soft tiny">${k} lines · ${[9, 4, 2, 3][i]} scenes</span></div></div>`).join('');
+    return `<div class="app">${topbar()}
+    <div class="desk">${paper(560, 18, { hl: 'NELL' })}${rail('people')}
+      <div class="pop side" style="left:72px">
+        <div class="hd"><b style="font-size:14px">Characters</b><span class="soft tiny">4</span><span style="margin-left:auto" class="btn">${I('pinned', 16)}</span><span class="btn">${I('x', 16)}</span></div>
+        <div style="padding:0 12px 10px"><div class="tabs"><span>Scenes</span><span class="on">Characters</span><span>Locations</span><span>Notes</span></div></div>
+        <div class="bd">${ppl}
+          <div class="caps" style="padding:14px 10px 4px">Scenes</div>${scn}</div>
+      </div>
+      <div class="pop ccard" style="left:418px;top:70px">
+        <div class="row" style="gap:12px;align-items:flex-start"><div class="photo">N</div>
+          <div class="col" style="gap:3px"><b style="font-size:16px">NELL</b><span class="soft" style="font-size:12.5px">Lighthouse-station radio operator, 34. Hasn't slept in three nights.</span></div></div>
+        <div class="row" style="flex-wrap:wrap;gap:6px"><span class="chip"><span class="dot" style="background:var(--c1)"></span>Colour</span><span class="chip">Also: MOM, NELL (V.O.)</span><span class="chip">${I('wave', 13)} Voice: Samantha</span></div>
+        <div class="stat"><div><span class="soft tiny">First seen</span><b>p. 1</b></div><div><span class="soft tiny">Lines</span><b>12</b></div><div><span class="soft tiny">Dialogue</span><b>62%</b></div></div>
+        <div class="col" style="gap:4px"><span class="caps">Scenes</span><div class="row" style="flex-wrap:wrap;gap:6px">${[1, 2, 4, 5, 7, 8, 9].map(n => `<span class="chip">${n}</span>`).join('')}</div></div>
+        <div class="note">Talks to the boats like they're family. Never says "sir".</div>
+      </div>
+    </div></div>`;
+  },
+  // 4. Index cards on the desk
+  cards() {
+    const act = (n, t) => `<div class="actrow"><span class="caps">${n}</span><span class="soft tiny">${t}</span></div>`;
+    const card = ([t, s, p, c, len], i, extra = '') => `<div class="icard${i === 1 ? ' on' : ''}${extra}" style="--c:${c}"><div class="h">${i + 1}. ${t}</div><div class="s">${s}</div><div class="f"><span>p.${p}</span><span>·</span><span>${len} pg</span><span style="margin-left:auto" class="row" style="gap:3px">${cast.slice(0, 2 + (i % 2)).map(([n, col]) => `<span class="dot" style="background:${col}"></span>`).join('')}</span></div></div>`;
+    const more = [['INT. MARGUERITE - DECK - NIGHT', 'A wave takes the bucket. Teo counts out loud.', 4, '#5b8bd0', .5], ['INT. WEATHER STATION - RADIO ROOM - DAWN', 'Static, then the cutter\'s voice. Nell finally sits down.', 5, '#3f8f7a', .8], ['EXT. GULL POINT - DAWN', 'Two figures on the jetty. Nell, coffee, the sea flat.', 5, '#c0843c', .4]];
+    return `<div class="app">${topbar({ right: '<span class="tabs" style="margin-right:6px"><span>Page</span><span class="on">Cards</span><span>Outline</span></span>' })}
+    <div class="desk">${rail('cards')}
+      <div class="cardgrid">${act('Act one', 'The storm')}${scenes.slice(0, 4).map((s, i) => card(s, i)).join('')}
+        ${act('Act two', 'The light')}${[scenes[4], ...more].map((s, i) => card(s, i + 4)).join('')}</div>
+      <div class="icard drag" style="--c:#a85c9a;position:absolute;left:640px;top:520px;width:250px"><div class="h">4. WEATHER STATION - LATER</div><div class="s">The plan: count the flashes from Hesper Rock.</div><div class="f">p.3 · 1.1 pg</div></div>
+      <div style="position:absolute;left:600px;top:500px;width:4px;height:190px;border-radius:2px;background:var(--accent)"></div>
+      <div class="pop" style="right:20px;top:24px;width:210px;padding:14px" class="col"><span class="caps">Filter</span>
+        <div class="col" style="gap:6px;margin-top:8px">${cast.map(([n, c]) => `<div class="row tiny"><span class="dot" style="background:${c}"></span>${n}</div>`).join('')}</div>
+        <div class="caps" style="margin-top:14px">Colour by</div><div class="tabs" style="margin-top:6px"><span class="on">Act</span><span>Day</span><span>Tag</span></div></div>
+      <div class="hud"><span>8 scenes · 2 acts</span><span>·</span><span>Drag to reorder</span><span>·</span><span>Double-click to write</span></div>
+    </div></div>`;
+  },
+  // 5. Writer's statistics
+  stats() {
+    const days = Array.from({ length: 7 * 22 }, (_, i) => { const v = Math.max(0, Math.round((Math.sin(i * 1.7) + Math.sin(i * .37) * 1.4 + 1.3) * 1.3)); return Math.min(4, i % 7 === 6 && i % 3 ? 0 : v); });
+    const heat = `<div class="heat">${days.map(v => `<i style="background:var(--heat${v})"></i>`).join('')}</div>`;
+    const bars = [320, 0, 540, 410, 760, 212, 0, 380, 450, 610, 520, 300, 680, 212];
+    const W = 470, H = 150, bw = W / bars.length;
+    const barSvg = `<svg width="${W}" height="${H + 18}">${bars.map((b, i) => `<rect x="${i * bw + 3}" y="${H - b / 800 * H}" width="${bw - 6}" height="${b / 800 * H}" rx="3" fill="${i === bars.length - 1 ? 'var(--accent)' : 'var(--heat2)'}"/>`).join('')}<line x1="0" x2="${W}" y1="${H - 500 / 800 * H}" y2="${H - 500 / 800 * H}" stroke="var(--c2)" stroke-dasharray="4 4"/><text x="${W - 2}" y="${H - 500 / 800 * H - 5}" text-anchor="end" font-size="10" fill="var(--c2)">goal 500</text></svg>`;
+    let a0 = -Math.PI / 2; const R = 54, r = 34;
+    const donut = cast.map(([n, c, , p]) => { const a1 = a0 + p / 100 * Math.PI * 2; const L = (a, rr) => `${70 + rr * Math.cos(a)} ${70 + rr * Math.sin(a)}`; const big = a1 - a0 > Math.PI ? 1 : 0; const d = `M${L(a0, R)} A${R} ${R} 0 ${big} 1 ${L(a1, R)} L${L(a1, r)} A${r} ${r} 0 ${big} 0 ${L(a0, r)}Z`; a0 = a1; return `<path d="${d}" fill="${c}"/>`; }).join('');
+    const lens = [0.4, 1.6, 0.9, 1.1, 0.7, 0.5, 0.8, 0.4];
+    const lenSvg = `<svg width="300" height="120">${lens.map((l, i) => `<rect x="${i * 36 + 4}" y="${110 - l * 55}" width="26" height="${l * 55}" rx="4" fill="${scenes[i % 5][3]}" opacity=".85"/><text x="${i * 36 + 17}" y="120" font-size="9.5" text-anchor="middle" fill="var(--text-soft)">${i + 1}</text>`).join('')}</svg>`;
+    const kpi = (l, v, d) => `<div class="kpi"><span class="soft tiny">${l}</span><b>${v}</b><span class="d">${d}</span></div>`;
+    return `<div class="app">${topbar({ right: '<span class="tabs" style="margin-right:6px"><span class="on">Script</span><span>Session</span><span>History</span></span>' })}
+    <div class="desk">${rail('chart')}
+      <div class="board">
+        <div class="kpis">${kpi('Pages', '4.1', '+0.6 this week')}${kpi('Screen time', '≈ 4:20', '1 page ≈ 1 min')}${kpi('Words', '699', '+212 today')}${kpi('Scenes', '8', '2 acts')}${kpi('Dialogue', '58%', 'action 42%')}${kpi('Streak', '9 days', 'best 14')}</div>
+        <div class="tile"><div class="row"><h3>Words a day</h3><span class="soft tiny" style="margin-left:auto">last 2 weeks</span></div>${barSvg}
+          <div class="row tiny soft"><span class="dot" style="background:var(--c2)"></span>Daily goal · met 9 of 14 days</div></div>
+        <div class="tile"><h3>Who talks</h3><div class="row" style="gap:16px"><svg width="140" height="140">${donut}<text x="70" y="68" text-anchor="middle" font-size="18" font-weight="650" fill="var(--text)">24</text><text x="70" y="84" text-anchor="middle" font-size="10" fill="var(--text-soft)">lines</text></svg>
+          <div class="col" style="gap:6px">${cast.map(([n, c, k, p]) => `<div class="row tiny"><span class="dot" style="background:${c}"></span><span style="width:84px">${n}</span><b>${p}%</b></div>`).join('')}</div></div></div>
+        <div class="tile"><h3>Inside / outside, day / night</h3>
+          ${[['INT', 62, 'var(--c5)'], ['EXT', 38, 'var(--c2)'], ['NIGHT', 75, 'var(--c3)'], ['DAY', 12, 'var(--c1)'], ['DAWN', 13, 'var(--c4)']].map(([n, p, c]) => `<div class="row tiny"><span style="width:44px">${n}</span><div class="bar" style="flex:1"><i style="width:${p}%;background:${c}"></i></div><span class="soft" style="width:30px;text-align:right">${p}%</span></div>`).join('')}
+          <div class="note" style="margin-top:6px">Mostly night: the storm keeps the script dark until scene 7.</div></div>
+        <div class="tile"><div class="row"><h3>Every day you wrote</h3><span class="soft tiny" style="margin-left:auto">22 weeks</span></div>${heat}
+          <div class="row tiny soft">Less ${[0, 1, 2, 3, 4].map(v => `<i style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--heat${v})"></i>`).join('')} More</div></div>
+        <div class="tile"><h3>Scene lengths</h3>${lenSvg}<span class="soft tiny">Scene 2 is the longest (1.6 pages)</span></div>
+        <div class="tile"><h3>This session</h3>
+          <div class="stat"><div><span class="soft tiny">Time</span><b>48 min</b></div><div><span class="soft tiny">Words</span><b>+212</b></div><div><span class="soft tiny">Pace</span><b>265/h</b></div></div>
+          <span class="soft tiny">Changed: scenes 2 and 4 · 1 new character cue</span>
+          <div class="row" style="margin-top:auto"><span class="btn" style="border:1px solid var(--line)">Export CSV</span><span class="btn" style="border:1px solid var(--line)">Save as picture</span><span class="soft tiny" style="margin-left:auto">${I('pinned', 13)} stays on this computer</span></div></div>
+      </div>
+    </div></div>`;
+  },
+  // 6. Movable panels: docked left and right, one being dragged with drop targets
+  panels() {
+    const scn = scenes.map(([t, s, p], i) => `<div class="scene${i === 1 ? ' on' : ''}"><span class="n">${i + 1}</span><span class="t">${short(t)}</span><span class="n tiny">p.${p}</span><span class="s">${s}</span></div>`).join('');
+    return `<div class="app">${topbar({ right: '<span class="tabs" style="margin-right:6px"><span class="on">Writing</span><span>Structure</span><span>Production</span></span>' })}
+    <div class="desk">
+      <div class="dockL"><div class="ph"><span class="g">${I('grip', 14)}</span>Scenes<span class="r"><span class="btn" style="height:24px">${I('x', 14)}</span></span></div><div style="padding:8px">${scn}</div></div>
+      ${paper(380, 18)}
+      <div class="dockR"><div class="ph"><span class="g">${I('grip', 14)}</span>Scene 2<span class="r"><span class="btn" style="height:24px">${I('dots', 14)}</span></span></div>
+        <div class="col" style="padding:14px 14px 0;gap:10px"><b>RADIO ROOM - CONTINUOUS</b><span class="soft">Nell logs the storm; a garbled mayday breaks through the static.</span>
+          <div class="row tiny soft"><span>Pages 1–3</span><span>·</span><span>≈ 2:10</span><span>·</span><span>Night</span></div>
+          <div class="row" style="flex-wrap:wrap;gap:6px">${cast.map(([n, c, k]) => `<span class="chip"><span class="dot" style="background:${c}"></span>${n} · ${k}</span>`).join('')}</div>
+          <div class="note">Keep the barometer in every shot of the room: it is the clock of the scene.</div></div></div>
+      <div class="zone" style="left:310px;top:12px;width:180px;bottom:12px">Dock left of the page</div>
+      <div class="compass" style="left:665px;top:200px"><i class="no"></i><i></i><i class="no"></i><i class="on"></i><i></i><i></i><i class="no"></i><i></i><i class="no"></i></div>
+      <div class="ghost" style="left:760px;top:420px;width:280px;height:250px"><div class="ph" style="background:var(--accent-weak)"><span class="g">${I('grip', 14)}</span>Index cards<span class="r"><span class="btn" style="height:24px">${I('x', 14)}</span></span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px">${scenes.slice(0, 4).map(([t, s, , c]) => `<div style="border-top:3px solid ${c};background:var(--paper);border-radius:6px;padding:6px;font-size:10.5px;height:82px;box-shadow:0 1px 2px rgba(0,0,0,.08)"><b>${short(t)}</b><div class="soft" style="margin-top:3px">${s}</div></div>`).join('')}</div></div>
+      <div class="hud"><span>Drag a panel by its grip · drop on a side, a tab or the centre</span><span>·</span><span>Layout: Writing</span><span>·</span><span>Reset layout</span></div>
+    </div></div>`;
+  },
+  // 7. Two-column A/V script (v0.7)
+  av() {
+    const rows = [
+      ['1', '0:00', 'EXT. GULL POINT - NIGHT. Wide. The weather station on the cliff, one lit window. Rain sideways.', '<span class="tag">Music</span> Low drone, wind.<br><span class="tag">VO</span> NARRATOR: For twenty-two years one woman kept this coast talking.', '0:12'],
+      ['2', '0:12', 'INT. RADIO ROOM. Close: Nell\'s hand on the dial. Static lines on the scope.', '<span class="tag">SFX</span> Radio static, a broken mayday.<br><span class="tag">VO</span> NARRATOR: That night the radio found a boat with no mast.', '0:09'],
+      ['3', '0:21', 'Archive: photos of the Marguerite, 1998. Slow push in.', '<span class="tag">Interview</span> TEO (now 40): I was twelve. I counted the flashes.<span class="caret"></span>', '0:14'],
+      ['4', '0:35', 'Map graphic: Gull Point, Hesper Rock, the boat\'s drift. Animated line.', '<span class="tag">VO</span> NARRATOR: The lighthouse had been dark for a month.', '0:07'],
+      ['5', '0:42', 'EXT. HESPER ROCK - DAY (today). Drone, rising over the tower.', '<span class="tag">Music</span> Strings enter.<br><span class="tag">VO</span> NARRATOR: She lit it by radio.', '0:10'],
+    ];
+    return `<div class="app">${topbar({ title: 'Night Signal — documentary', sub: '— two-column', right: '<span class="soft tiny">Audio · row 3 of 5 · total 0:52</span>' })}
+    <div class="desk">${rail('doc')}
+      <div class="av"><div class="row" style="margin-bottom:22px;font:600 12px Inter"><span>NIGHT SIGNAL</span><span class="soft">Documentary · two-column · draft 1</span><span style="margin-left:auto" class="soft">Est. 0:52</span></div>
+        <table><tr><th></th><th>Video</th><th>Audio</th><th style="text-align:right">Time</th></tr>
+        ${rows.map(([n, t, v, a, d], i) => `<tr class="${i === 2 ? 'cur' : ''}"><td class="n">${n}<div class="tiny">${t}</div></td><td class="v">${v}</td><td>${a}</td><td class="t">${d}</td></tr>`).join('')}</table></div>
+      <div class="hud"><span style="color:var(--accent);font-weight:600">Audio</span><span>Tab → Video</span><span>·</span><span>Enter → new row</span><span>·</span><span>Narration ≈ 150 words/min</span></div>
+    </div></div>`;
+  },
+  // 8. Hebrew script, mirrored interface (v0.9)
+  rtl() {
+    const he = [
+      ['chr', 'סקיפר (ק.ר.)'], ['dlg', 'שניים. אני והבן שלי.'], ['gap'],
+      ['act', 'נל רושמת על גב המפה: מרגריט - 2 - בלי תורן.'], ['gap'],
+      ['chr', 'נל'], ['dlg', 'משמר החופים, גאל פוינט. יש לי כלי שיט במצוקה, שניים על הסיפון. המיקום לא ידוע.'], ['gap'],
+      ['act', 'נל מניחה את השפופרת. ארבעים דקות. היא מסתכלת על הברומטר.'], ['gap'],
+      ['chr', 'נל'], ['par', '(לתוך הקשר)'], ['dlg', 'מרגריט, תקשיבו לי. אני צריכה שתחפשו אור<span class="caret"></span>. כל אור. רואים את המגדלור ב-Hesper Rock?', 'cur'], ['gap'],
+      ['act', 'שקט ארוך של רעש סטטי.'], ['gap'],
+      ['chr', 'טאו (ק.ר.)'], ['dlg', 'זה טאו.'],
+    ];
+    const items = ['doc', 'nav', 'cards', 'outline', 'beats', 'people', 'notes', 'chart'];
+    return `<div class="app" dir="rtl"><div class="top"><span class="btn">${I('nav')}</span>${LOGO}<span style="font-weight:600">אות לילה</span><span class="soft">— טיוטה 2</span>
+      <span style="margin-right:auto" class="row"><span class="soft tiny">דיאלוג · עמוד 2 מתוך 4</span><span class="btn">${I('globe')}</span><span class="btn">${I('search')}</span><span class="btn">${I(dark ? 'sun' : 'moon')}</span></span></div>
+    <div class="desk">${paper(380, 18, { lines: he, elem: 'דיאלוג' })}
+      <div class="float" style="right:16px;top:18px">${items.map(n => `<span class="btn${n === 'doc' ? ' on' : ''}">${I(n)}</span>`).join('')}</div>
+      <div class="mini"><span class="caps" style="padding:0 6px 6px">סצנות</span>${['תחנת מזג האוויר', 'חדר הקשר', 'מרגריט - תא הגה', 'חדר הקשר - מאוחר', 'מגדלור הספר רוק'].map((t, i) => `<div class="m${i === 1 ? ' on' : ''}"><span class="w"><i style="width:${[22, 30, 46, 40, 26][i]}px"></i></span><span>${i + 1}. ${t}</span></div>`).join('')}</div>
+      <div class="hud"><span style="color:var(--accent);font-weight:600">דיאלוג</span><span>Tab ← דמות</span><span>·</span><span>699 מילים</span><span>·</span><span>פנים / חוץ · יום / לילה</span></div>
+    </div></div>`;
+  },
+  // 9. Welcome
+  welcome() {
+    const tpl = [['Screenplay', 'film', 'Feature, US Letter', [1, .6, .9, .3, .7]], ['Two-column', 'wave', 'Documentary, ads, video', [.45, .45, .45, .45, .45]], ['TV episode', 'tv', 'Single- or multi-camera', [1, .5, .8, .4, .6]], ['Stage play', 'stage', 'Acts, scenes, cast list', [.5, .9, .4, .8, .5]], ['From a file', 'folder', '.fdx · .fountain · .docx · .odt', [.8, .8, .8, .8, .8]]];
+    const rec = [['Night Signal', 'Screenplay · 4 pages', 'Today, 11:40', 'draft 2'], ['Hesper Rock (doc)', 'Two-column · 0:52', 'Yesterday', 'draft 1'], ['Gull Point — pilot', 'TV episode · 31 pages', '12 Nov', 'blue rev.'], ['The Barometer', 'Stage play · 18 pages', '2 Nov', 'draft 3']];
+    return `<div class="app"><div class="top"><span style="margin-left:auto" class="row"><span class="btn">${I('globe')}</span><span class="btn">${I(dark ? 'sun' : 'moon')}</span></span></div>
+    <div class="desk"><div class="welcome">
+      <div class="row" style="gap:16px"><img src="../images/icon.svg" width="64" height="64" style="border-radius:16px" alt="">
+        <div class="col" style="gap:2px"><b style="font-size:26px;letter-spacing:-.01em">Good evening.</b><span class="soft" style="font-size:14px">+212 words today · a 9-day streak · Night Signal is waiting on page 2.</span></div>
+        <span class="btn solid" style="margin-left:auto;height:38px">${I('play', 15)} Continue writing</span></div>
+      <div class="col" style="gap:10px"><span class="caps">New</span><div class="tpl">${tpl.map(([n, ic, d, ls], i) => `<div class="t${i === 0 ? ' on' : ''}"><div class="pv">${ls.map((w, j) => `<i style="width:${w * 100}%;${n === 'Two-column' ? 'margin-left:' + (j % 2 ? '52%' : '0') : ''}"></i>`).join('')}</div><div class="row">${I(ic, 16)}<b>${n}</b></div><span class="soft tiny" style="margin-top:-6px">${d}</span></div>`).join('')}</div></div>
+      <div class="col" style="gap:10px"><div class="row"><span class="caps">Recent</span><span class="soft tiny" style="margin-left:auto">Open from WebDAV · Nextcloud · this computer</span></div>
+        <div class="recent">${rec.map(([n, k, w, d], i) => `<div class="r"><span class="soft">${I(i === 1 ? 'wave' : 'doc', 16)}</span><b style="font-weight:550">${n}</b><span class="soft">${k}</span><span class="soft">${w}</span><span class="chip" style="justify-self:end">${d}</span></div>`).join('')}</div></div>
+      <div class="row soft tiny" style="justify-content:center;gap:18px"><span>${I('search', 13)} Ctrl K — every command</span><span>Guide</span><span>What's new in 0.6</span></div>
+    </div></div></div>`;
+  },
+};
+document.getElementById('root').innerHTML = (screens[S] || screens.write)();
+</script>
+</body>
+</html>

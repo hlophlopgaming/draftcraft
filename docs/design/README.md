@@ -16,3 +16,26 @@ The interface font in the mockups (Inter) is a stand-in until v0.8 chooses the b
 
 Edit `redesign-mockups.html` (open it with `?v=a|b|c&theme=light|dark`) and re-render with
 `node docs/design/render.mjs` (Playwright + Chromium).
+
+## Focus, developed (direction C)
+
+The owner asked to develop **C · Focus** further. `focus.html` shows it across the app's main
+screens, in light and dark (`focus/<screen>-<theme>.png`, overview in `focus/overview-*.png`);
+re-render with `node docs/design/render-focus.mjs`.
+
+| # | Screen | What it shows |
+|---|---|---|
+| 1 | `write` | The page and almost nothing else: floating tool rail, scene minimap, element in the margin, a HUD pill; SmartType on a new cue |
+| 2 | `typewriter` | Focus mode: all chrome hidden, the current speech in full contrast, the rest dimmed, the day's goal |
+| 3 | `navigator` | The rail opens a floating panel (Scenes, Characters, Locations, Notes) and a character card: the light, self-filling bible (v0.11) |
+| 4 | `cards` | Index cards on the desk, grouped by act, one being dragged, filter by character, colour by act/day/tag |
+| 5 | `stats` | Writer's statistics (v0.10): KPIs, words a day against the goal, who talks, INT/EXT and day/night, the writing heat map, scene lengths, this session |
+| 6 | `panels` | Movable panels (v0.6): docked Scenes and Scene panels, a panel being dragged with a dock zone and the five-way dock target, layout presets |
+| 7 | `av` | The two-column audio/visual script (v0.7): Video, Audio with VO/SFX/Music/Interview tags, timing per row and in total |
+| 8 | `rtl` | A Hebrew script with the interface mirrored (v0.9): rail and minimap swap sides, the element label in the right margin, mixed RTL/LTR text; the page in Liberation Mono |
+| 9 | `welcome` | Start screen: continue writing, new screenplay / two-column / TV / stage play / from a file (.odt included), recent scripts, WebDAV |
+
+Shared rules of the direction: one warm accent (terracotta) on paper and desk tones; chrome
+only where the writer looks for it (rail, minimap, HUD), everything else on demand (the command
+palette, floating panels); panels float over the desk or dock to its sides; the page is always
+the centre.
