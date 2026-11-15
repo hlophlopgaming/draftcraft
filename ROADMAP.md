@@ -30,6 +30,17 @@ The interface looks dated and crowded. A design pass before new features land:
       in `crates/ui-egui/src/theme.rs` (which already holds the colours), checked for contrast
 - [ ] New window layout: a slimmer toolbar, a left sidebar (navigator, cards, outline, beats,
       notes) that collapses, a right panel for context (scene info, notes, revisions)
+- [ ] **Movable panels**, like the older Final Draft releases but freer: every view (page,
+      navigator, index cards, outline, beat board, story map, reports, notes, scene properties,
+      revisions) is a panel the writer can drag, dock to any side, stack as tabs, split and
+      resize. Built on a docking library for egui 0.37 (egui_tiles 0.18 or egui_stack 0.25,
+      chosen after a spike); today's split screen (`split.rs`) becomes part of it
+- [ ] Layouts saved in settings, with presets ("Writing", "Structure", "Production") and
+      "Reset layout"; adaptive on narrow windows (panels collapse into tabs) and in the browser
+- [ ] Right-to-left layouts: the presets mirror for Arabic and Hebrew (navigator on the right),
+      and panel contents follow the interface direction (with v0.9)
+- [ ] Panels torn out into separate OS windows on the desktop (egui viewports), e.g. index
+      cards on a second monitor; not in the browser
 - [ ] Calmer page view: paper on a neutral desk, quieter page breaks and margins, the element
       of the current line shown in the margin
 - [ ] Redesigned dialogs: element settings, title page, page setup, find and replace,
