@@ -114,8 +114,16 @@ The same page rules for everyone, in each writer's language.
 - [ ] Rename a character everywhere (engine command `character.rename` done; a dialog in the
       window still to come); highlight one character's lines; read one character's lines on
       their own
-- [ ] Writing goals (pages or words a day) and statistics; goals and deadlines exported to any
-      calendar as `.ics`, later synced over CalDAV
+- [ ] **Writer's statistics**, a panel with charts (drawn in the app, light and dark themes):
+      - the script: pages, scenes, words, estimated screen time; dialogue vs action; each
+        character's share of the dialogue and scenes; scene lengths along the script; INT/EXT,
+        day/night and locations; how the script grew draft by draft
+      - this session: words and pages written, time spent, pace, what changed
+      - over time: words a day as a calendar heat map and a bar chart, streaks, best days
+      - kept on the writer's own computer only (data folder), never sent anywhere; export as CSV
+        and as a picture
+- [ ] Writing goals (pages or words a day, a deadline for a draft) shown against the
+      statistics; goals and deadlines exported to any calendar as `.ics`, later synced over CalDAV
 - [ ] Screen-time estimate per scene and for the script
 
 ### v0.11: story tools
