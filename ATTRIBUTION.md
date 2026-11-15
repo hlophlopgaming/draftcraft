@@ -42,3 +42,9 @@ DraftCraft contains **no** Final Draft icons, images, templates, sample scripts,
 | `docs/images/icon.svg` | Openclipart contributor (engraving); the DraftCraft contributors (tile) | Engraving "Beetle (Lucanus cinnamomeus)" from Openclipart (https://openclipart.org/detail/264956/beetle-lucanus-cinnamomeus), unchanged, on a sand tile with a paper backing traced from it by the DraftCraft contributors | CC0 1.0 (public domain dedication) |
 | `docs/images/icon-512.png` | same | Rendered from `docs/images/icon.svg` | CC0 1.0 |
 | `apps/draftcraft/assets/icon-256.png` | same | Rendered from `docs/images/icon.svg`; the window icon | CC0 1.0 |
+| `docs/design/mockup-a-light.png` | The DraftCraft contributors | Redesign mockup rendered from `docs/design/redesign-mockups.html` by `docs/design/render.mjs` | MIT OR Apache-2.0 |
+| `docs/design/mockup-a-dark.png` | The DraftCraft contributors | Redesign mockup rendered from `docs/design/redesign-mockups.html` by `docs/design/render.mjs` | MIT OR Apache-2.0 |
+| `docs/design/mockup-b-light.png` | The DraftCraft contributors | Redesign mockup rendered from `docs/design/redesign-mockups.html` by `docs/design/render.mjs` | MIT OR Apache-2.0 |
+| `docs/design/mockup-b-dark.png` | The DraftCraft contributors | Redesign mockup rendered from `docs/design/redesign-mockups.html` by `docs/design/render.mjs` | MIT OR Apache-2.0 |
+| `docs/design/mockup-c-light.png` | The DraftCraft contributors | Redesign mockup rendered from `docs/design/redesign-mockups.html` by `docs/design/render.mjs` | MIT OR Apache-2.0 |
+| `docs/design/mockup-c-dark.png` | The DraftCraft contributors | Redesign mockup rendered from `docs/design/redesign-mockups.html` by `docs/design/render.mjs` | MIT OR Apache-2.0 |

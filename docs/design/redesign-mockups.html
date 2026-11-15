@@ -1,0 +1,405 @@
+<!doctype html>
+<!--
+  DraftCraft v0.6 redesign: three mockups of the main window, for the owner to choose from
+  (issue "Redesign: choose a direction"). Static HTML, no app code. Open with
+  ?v=a|b|c&theme=light|dark, or render all PNGs with `node docs/design/render.mjs`.
+  Icons are drawn here (simple strokes), the page uses Courier Badi from crates/fonts.
+  Interface font: Inter is only a stand-in until v0.8 picks the bundled UI font.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DraftCraft redesign mockups</title>
+<style>
+@font-face { font-family: "Courier Badi"; src: url("../../crates/fonts/fonts/CourierBadi-Regular.ttf"); }
+@font-face { font-family: "Courier Badi"; font-weight: bold; src: url("../../crates/fonts/fonts/CourierBadi-Bold.ttf"); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1440px; height: 900px; overflow: hidden; }
+body { font: 13px/1.4 Inter, "Noto Sans", system-ui, sans-serif; color: var(--text); background: var(--desk);
+  -webkit-font-smoothing: antialiased; }
+svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.app { display: grid; width: 1440px; height: 900px; }
+.row { display: flex; align-items: center; gap: 8px; }
+.soft { color: var(--text-soft); }
+.tiny { font-size: 11px; }
+.caps { text-transform: uppercase; letter-spacing: .06em; font-size: 10.5px; font-weight: 600; color: var(--text-soft); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; min-width: 30px; padding: 0 8px;
+  border-radius: var(--r-s); color: var(--text-soft); }
+.btn.on { background: var(--accent-weak); color: var(--accent); }
+.kbd { font-size: 10.5px; padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); color: var(--text-soft); }
+.pill { white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px;
+  background: var(--field); border: 1px solid var(--line); color: var(--text); }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+
+/* ---------- the page ---------- */
+.desk { position: relative; overflow: hidden; background: var(--desk); }
+.paper { position: absolute; width: 680px; background: var(--paper); color: var(--ink); box-shadow: var(--paper-shadow);
+  font: 13.3px/13.3px "Courier Badi", "Courier 10 Pitch", monospace; padding: 0 80px 0 120px; border-radius: 2px; }
+.paper .ln { white-space: pre; position: relative; min-height: 13.3px; }
+.paper .gap { height: 13.3px; }
+.paper .dlg { margin-left: 80px; width: 280px; white-space: normal; }
+.paper .par { margin-left: 128px; width: 200px; white-space: normal; }
+.paper .chr { margin-left: 176px; }
+.paper .trn { text-align: right; }
+.paper .act { white-space: normal; }
+.paper .num { position: absolute; right: 60px; top: 48px; color: var(--ink-soft); }
+.paper .sel { background: var(--selection); }
+.paper .caret { display: inline-block; width: 1.5px; height: 14px; background: var(--caret); vertical-align: -2px; margin: 0 -0.75px; }
+.paper .cur::before { content: ""; position: absolute; left: -120px; right: -80px; top: -2px; bottom: -2px; background: var(--current-line); z-index: -1; }
+.paper .elem { position: absolute; left: -108px; width: 92px; font: 600 10px/13.3px Inter, sans-serif; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--accent); }
+.paper .elem::after { content: ""; position: absolute; right: -8px; top: 2px; width: 2px; height: 10px; background: var(--accent); border-radius: 1px; }
+.paper .bodywrap { position: relative; z-index: 0; }
+.pagebreak { position: absolute; width: 680px; display: flex; align-items: center; gap: 10px; color: var(--ink-soft);
+  font-size: 11px; }
+.pagebreak::before, .pagebreak::after { content: ""; flex: 1; border-top: 1px dashed var(--line); }
+
+/* ---------- shared panel bits ---------- */
+.scene { display: grid; grid-template-columns: 22px 1fr auto; gap: 2px 8px; padding: 8px 10px; border-radius: var(--r-m); }
+.scene .t { font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scene .s { grid-column: 2 / 4; color: var(--text-soft); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scene .n { color: var(--text-soft); font-variant-numeric: tabular-nums; }
+.scene.on { background: var(--accent-weak); }
+.scene.on .n, .scene.on .t { color: var(--accent); }
+.bar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 999px; background: var(--field); font-size: 12px; }
+.note { padding: 10px 12px; border-radius: var(--r-m); background: var(--note); color: var(--text); font-size: 12.5px; }
+.tab { padding: 6px 10px; border-radius: var(--r-s); color: var(--text-soft); font-weight: 500; }
+.tab.on { color: var(--text); background: var(--field); }
+.sect { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+
+/* ================= Variant A: Paper ================= */
+.va { --r-s: 6px; --r-m: 8px; }
+.va.light { --chrome:#fbfaf8; --panel:#f6f4f0; --desk:#e9e6e0; --paper:#fff; --ink:#1b1a18; --ink-soft:#8b877f; --text:#24221e;
+  --text-soft:#76726a; --line:#e2ded6; --field:#efece6; --accent:#2f5bd3; --accent-weak:#e4eafb; --selection:rgba(47,91,211,.20);
+  --caret:#2f5bd3; --current-line:rgba(47,91,211,.045); --note:#fbf3d6; --paper-shadow:0 1px 2px rgba(40,30,10,.06),0 8px 24px rgba(40,30,10,.08); }
+.va.dark { --chrome:#1c1b19; --panel:#201f1c; --desk:#141311; --paper:#262522; --ink:#e9e5dc; --ink-soft:#8f8a80; --text:#ebe7df;
+  --text-soft:#9a958b; --line:#34322d; --field:#2b2a26; --accent:#8aa6ff; --accent-weak:#29304a; --selection:rgba(138,166,255,.28);
+  --caret:#a9bdff; --current-line:rgba(138,166,255,.06); --note:#3a3423; --paper-shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35); }
+.va .app { grid-template-rows: 46px 1fr 28px; grid-template-columns: 52px 260px 1fr 288px; }
+.va .top { grid-column: 1 / 5; display: flex; align-items: center; gap: 4px; padding: 0 10px; background: var(--chrome); border-bottom: 1px solid var(--line); }
+.va .menu span { padding: 4px 8px; color: var(--text); }
+.va .title { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; align-items: center; font-weight: 600; }
+.va .rail { background: var(--chrome); border-right: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 10px; }
+.va .rail .btn { width: 36px; height: 36px; }
+.va .left { background: var(--panel); border-right: 1px solid var(--line); padding: 14px 10px; display: flex; flex-direction: column; gap: 4px; }
+.va .right { background: var(--panel); border-left: 1px solid var(--line); overflow: hidden; }
+.va .status { grid-column: 1 / 5; background: var(--chrome); border-top: 1px solid var(--line); display: flex; align-items: center; gap: 14px; padding: 0 14px; font-size: 12px; color: var(--text-soft); }
+.va .seg { display: inline-flex; padding: 2px; border-radius: 8px; background: var(--field); }
+.va .seg .btn { height: 26px; }
+.va .seg .btn.on { background: var(--paper); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+/* ================= Variant B: Studio ================= */
+.vb { --r-s: 4px; --r-m: 6px; }
+.vb.dark { --chrome:#16181c; --panel:#1c1f24; --panel2:#22262c; --desk:#101215; --paper:#f4f1ea; --ink:#18181a; --ink-soft:#7d7b76;
+  --text:#e3e5e9; --text-soft:#8b919c; --line:#2c3038; --field:#262a31; --accent:#3fb8a0; --accent-weak:#1d3a36;
+  --selection:rgba(63,184,160,.30); --caret:#16806c; --current-line:rgba(63,184,160,.07); --note:#33301f;
+  --paper-shadow:0 0 0 1px rgba(0,0,0,.4),0 14px 40px rgba(0,0,0,.5); }
+.vb.light { --chrome:#eceef1; --panel:#f7f8fa; --panel2:#ffffff; --desk:#d9dce1; --paper:#fff; --ink:#18181a; --ink-soft:#7d7b76;
+  --text:#1d2128; --text-soft:#68707c; --line:#d3d7dd; --field:#e6e9ed; --accent:#14806c; --accent-weak:#d6efe9;
+  --selection:rgba(20,128,108,.20); --caret:#14806c; --current-line:rgba(20,128,108,.05); --note:#fbf3d6;
+  --paper-shadow:0 0 0 1px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.10); }
+.vb .app { grid-template-rows: 32px 40px 1fr 24px; grid-template-columns: 290px 4px 1fr 4px 300px; }
+.vb .menu { grid-column: 1 / 6; display: flex; align-items: center; gap: 2px; padding: 0 8px; background: var(--chrome); }
+.vb .menu span { padding: 3px 8px; }
+.vb .tools { grid-column: 1 / 6; display: flex; align-items: center; gap: 2px; padding: 0 8px; background: var(--chrome); border-bottom: 1px solid var(--line); }
+.vb .sep { width: 1px; height: 20px; background: var(--line); margin: 0 6px; }
+.vb .dock { background: var(--panel); display: flex; flex-direction: column; overflow: hidden; }
+.vb .splitter { background: var(--chrome); position: relative; }
+.vb .splitter::after { content: ""; position: absolute; left: 1px; top: 50%; width: 2px; height: 28px; margin-top: -14px; border-radius: 1px; background: var(--line); }
+.vb .pane { display: flex; flex-direction: column; border-bottom: 4px solid var(--chrome); overflow: hidden; }
+.vb .tabs { display: flex; align-items: stretch; height: 32px; background: var(--chrome); padding-left: 2px; }
+.vb .tabs .t { display: flex; align-items: center; gap: 6px; padding: 0 12px; color: var(--text-soft); font-weight: 500; font-size: 12.5px; border-radius: 6px 6px 0 0; }
+.vb .tabs .t.on { background: var(--panel); color: var(--text); box-shadow: inset 0 2px 0 var(--accent); }
+.vb .tabs .grip { margin-left: auto; display: flex; align-items: center; gap: 2px; padding-right: 6px; color: var(--text-soft); }
+.vb .center .tabs .t.on { background: var(--desk); }
+.vb .status { grid-column: 1 / 6; background: var(--accent); color: #fff; display: flex; align-items: center; gap: 16px; padding: 0 12px; font-size: 11.5px; }
+.vb.light .status { color: #fff; }
+.vb .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
+.vb .card { background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; padding: 8px; font-size: 11.5px; min-height: 74px; border-top: 3px solid var(--c); }
+.vb .card b { display: block; font-size: 11px; margin-bottom: 4px; }
+.vb .card.on { outline: 2px solid var(--accent); outline-offset: -1px; }
+.vb .dropzone { position: absolute; border: 2px dashed var(--accent); border-radius: 8px; background: color-mix(in srgb, var(--accent) 12%, transparent); display: flex; align-items: center; justify-content: center; color: var(--accent); font-weight: 600; }
+
+/* ================= Variant C: Focus ================= */
+.vc { --r-s: 8px; --r-m: 10px; }
+.vc.light { --chrome:#f4f1ec; --panel:#fbfaf7; --desk:#f4f1ec; --paper:#fffefb; --ink:#1d1b18; --ink-soft:#9a948a; --text:#2a2621;
+  --text-soft:#857e73; --line:#e4dfd6; --field:#ebe6dd; --accent:#b4532a; --accent-weak:#f6e4da; --selection:rgba(180,83,42,.18);
+  --caret:#b4532a; --current-line:transparent; --note:#f8efd5; --paper-shadow:0 1px 3px rgba(60,40,20,.06),0 20px 50px rgba(60,40,20,.08);
+  --scrim: rgba(40,30,20,.10); --pop:#fffefb; }
+.vc.dark { --chrome:#181614; --panel:#1f1c19; --desk:#181614; --paper:#211e1b; --ink:#e6e0d6; --ink-soft:#8a8278; --text:#ece6dc;
+  --text-soft:#988f83; --line:#35302a; --field:#2b2722; --accent:#e58a5c; --accent-weak:#3d2a20; --selection:rgba(229,138,92,.26);
+  --caret:#f0a07a; --current-line:transparent; --note:#3a3223; --paper-shadow:0 1px 3px rgba(0,0,0,.3),0 20px 60px rgba(0,0,0,.35);
+  --scrim: rgba(0,0,0,.35); --pop:#26221e; }
+.vc .app { grid-template-rows: 40px 1fr; grid-template-columns: 1fr; }
+.vc .top { display: flex; align-items: center; gap: 4px; padding: 0 12px; background: var(--chrome); }
+.vc .float { position: absolute; display: flex; flex-direction: column; gap: 4px; padding: 6px; border-radius: 14px; background: var(--pop); border: 1px solid var(--line); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+.vc .float .btn { width: 34px; height: 34px; }
+.vc .scrim { position: absolute; inset: 0; background: var(--scrim); }
+.vc .palette { position: absolute; left: 50%; top: 96px; width: 600px; margin-left: -300px; background: var(--pop); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 24px 70px rgba(0,0,0,.25); overflow: hidden; }
+.vc .palette .q { display: flex; align-items: center; gap: 10px; padding: 14px 16px; font-size: 16px; border-bottom: 1px solid var(--line); }
+.vc .palette .it { display: flex; align-items: center; gap: 12px; padding: 9px 16px; }
+.vc .palette .it.on { background: var(--accent-weak); }
+.vc .palette .it .k { margin-left: auto; display: flex; gap: 4px; }
+.vc .palette .grp { padding: 10px 16px 4px; }
+.vc .mini { position: absolute; right: 16px; top: 70px; bottom: 70px; width: 210px; display: flex; flex-direction: column; gap: 2px; }
+.vc .mini .m { display: flex; align-items: center; gap: 8px; color: var(--text-soft); font-size: 11.5px; padding: 3px 6px; border-radius: 6px; white-space: nowrap; overflow: hidden; }
+.vc .mini .m > span:last-child { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.vc .mini .m .w { width: 48px; flex: none; display: flex; justify-content: flex-end; }
+.vc .mini .m i { display: block; height: 3px; border-radius: 2px; background: var(--line); }
+.vc .mini .m.on { color: var(--accent); }
+.vc .mini .m.on i { background: var(--accent); }
+.vc .hud { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 6px 14px; border-radius: 999px; background: var(--pop); border: 1px solid var(--line); color: var(--text-soft); font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const q = new URLSearchParams(location.search);
+const V = q.get('v') || 'a', T = q.get('theme') || 'light';
+document.body.className = `v${V} ${T}`;
+
+// ---- icons: our own simple strokes ----
+const P = {
+  doc: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+  nav: '<path d="M4 6h16M4 12h16M4 18h10"/>',
+  cards: '<rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/><rect x="13" y="13" width="8" height="7" rx="1.5"/>',
+  outline: '<path d="M5 6h.01M5 12h.01M5 18h.01M9 6h11M11 12h9M11 18h9"/>',
+  beats: '<circle cx="6" cy="12" r="2"/><circle cx="12" cy="7" r="2"/><circle cx="18" cy="14" r="2"/><path d="M7.5 10.5l3-2M13.6 8.6l3 4"/>',
+  notes: '<path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4"/>',
+  people: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c2.8.4 5 2.7 5 5.8"/>',
+  pin: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  chart: '<path d="M5 20V10M10 20V4M15 20v-7M20 20v-4"/>',
+  search: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
+  cmd: '<path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/>',
+  moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  undo: '<path d="M9 7L4 12l5 5"/><path d="M4 12h11a5 5 0 0 1 0 10h-2"/>',
+  redo: '<path d="M15 7l5 5-5 5"/><path d="M20 12H9a5 5 0 0 0 0 10h2"/>',
+  side: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',
+  sideR: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  save: '<path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/>',
+  pdf: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  rev: '<path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/><path d="M12 8v4l3 2"/>',
+  dots: '<circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/>',
+  grip: '<circle cx="9" cy="7" r=".8"/><circle cx="15" cy="7" r=".8"/><circle cx="9" cy="12" r=".8"/><circle cx="15" cy="12" r=".8"/><circle cx="9" cy="17" r=".8"/><circle cx="15" cy="17" r=".8"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  down: '<path d="M6 9l6 6 6-6"/>',
+  split: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/>',
+  people1: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/>',
+  type: '<path d="M5 6V4h14v2M12 4v16M9 20h6"/>',
+  focus: '<path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/>',
+  play: '<path d="M8 5l11 7-11 7z"/>',
+};
+const I = (n, s = 18) => `<svg class="i" viewBox="0 0 24 24" style="width:${s}px;height:${s}px">${P[n]}</svg>`;
+
+// ---- the script page (from the sample script "Night Signal", CC0) ----
+const page = [
+  ['chr', 'SKIPPER (V.O.)'], ['dlg', 'Two. Me and my boy.'], ['gap'],
+  ['act', 'Nell scrawls on the back of a chart: MARGUERITE - 2 - NO MAST.'], ['gap'],
+  ['act', 'She flips a switch on a second radio and keys a different handset.'], ['gap'],
+  ['chr', 'NELL'], ['dlg', 'Coast Guard Sector, Gull Point. I have a vessel in distress, the Marguerite, two aboard, dismasted. Position unknown. I am working on it.'], ['gap'],
+  ['chr', 'COAST GUARD (V.O.)'], ['dlg', "Copy, Gull Point. Cutter is forty minutes out in this weather. Get us a position and we'll get them home."], ['gap'],
+  ['act', 'Nell sets the handset down. Forty minutes. She looks at the barometer. Then at the black window.'], ['gap'],
+  ['chr', 'NELL'], ['par', '(into the radio)'],
+  ['dlg', 'Marguerite, listen to me. <span class="sel">I need you to look for a light</span><span class="caret"></span>. Any light. Can you see the lighthouse on Hesper Rock?', 'cur'], ['gap'],
+  ['act', 'A long beat of static.'], ['gap'],
+  ['chr', 'SKIPPER (V.O.)'], ['dlg', "I can't see my own hands."], ['gap'],
+  ['chr', 'NELL'], ['dlg', 'Then we do it the old way. Is your boy there? Put him on.'], ['gap'],
+  ['act', 'SCRATCHING on the line. Then a new voice, young and scared, trying hard not to be.'], ['gap'],
+  ['chr', 'TEO (V.O.)'], ['dlg', 'This is Teo.'], ['gap'],
+  ['chr', 'NELL'], ['dlg', "Teo, I'm Nell. I've been sitting in this little box for twenty-two years, and I've talked a lot of boats home."],
+  ['chr', '(MORE)'],
+];
+function paper(left, top, height, { elem = true, num = '2.' } = {}) {
+  const body = page.map(([k, t, cur]) => {
+    if (k === 'gap') return '<div class="gap"></div>';
+    const tag = cur ? ' cur' : '';
+    const label = cur && elem ? '<span class="elem" style="top:0">Dialogue</span>' : '';
+    return `<div class="ln ${k}${tag}">${label}${t}</div>`;
+  }).join('');
+  return `<div class="paper" style="left:${left}px;top:${top}px;height:${height}px">
+    <div class="num">${num}</div><div class="bodywrap" style="padding-top:96px">${body}</div></div>`;
+}
+
+const scenes = [
+  ['EXT. GULL POINT WEATHER STATION - NIGHT', 'Establish the station, the storm, and Nell alone.', 1, 0],
+  ['INT. WEATHER STATION - RADIO ROOM - CONTINUOUS', 'Nell logs the storm; a garbled mayday breaks through.', 1, 1],
+  ['INT. MARGUERITE - WHEELHOUSE - NIGHT', 'Teo reads the compass while his father bails.', 3, 2],
+  ['INT. WEATHER STATION - RADIO ROOM - LATER', 'The plan: count the flashes from Hesper Rock.', 3, 3],
+  ['EXT. HESPER ROCK LIGHTHOUSE - NIGHT', 'The lamp is dark. Nell has to light it by radio.', 4, 0],
+];
+const sceneList = (on = 1) => scenes.map(([t, s, p], i) =>
+  `<div class="scene${i === on ? ' on' : ''}"><span class="n">${i + 1}</span><span class="t">${t}</span><span class="n tiny">p.${p}</span><span class="s">${s}</span></div>`).join('');
+
+const menus = ['File', 'Edit', 'View', 'Format', 'Document', 'Tools', 'Help'].map(m => `<span>${m}</span>`).join('');
+
+// ================= A: Paper =================
+function A() {
+  const dark = T === 'dark';
+  return `<div class="app">
+  <div class="top">
+    <span class="btn">${I('side')}</span>
+    <div class="menu row" style="gap:0">${menus}</div>
+    <div class="title"><span class="dot" style="background:var(--accent)"></span>Night Signal <span class="soft" style="font-weight:400">· draft 2 · saved</span></div>
+    <div style="margin-left:auto" class="row">
+      <span class="pill" style="width:124px">Dialogue <span style="margin-left:auto" class="soft">${I('down', 14)}</span></span>
+      <span class="pill soft" style="width:236px">${I('search', 15)} Search or run a command <span class="kbd" style="margin-left:auto">Ctrl K</span></span>
+      <span class="seg"><span class="btn on">${I('doc', 16)}</span><span class="btn">${I('cards', 16)}</span><span class="btn">${I('outline', 16)}</span><span class="btn">${I('chart', 16)}</span></span>
+      <span class="btn">${I(dark ? 'sun' : 'moon')}</span>
+      <span class="btn">${I('sideR')}</span>
+    </div>
+  </div>
+  <div class="rail">
+    <span class="btn on" title="Navigator">${I('nav')}</span>
+    <span class="btn">${I('cards')}</span>
+    <span class="btn">${I('outline')}</span>
+    <span class="btn">${I('beats')}</span>
+    <span class="btn">${I('people')}</span>
+    <span class="btn">${I('pin')}</span>
+    <span class="btn">${I('notes')}</span>
+  </div>
+  <div class="left">
+    <div class="row" style="padding:0 6px 8px"><span class="caps">Scenes</span><span class="soft tiny" style="margin-left:auto">5 scenes · 4 pages</span></div>
+    ${sceneList()}
+  </div>
+  <div class="desk">
+    ${paper(118, 28, 980)}
+  </div>
+  <div class="right">
+    <div class="sect">
+      <span class="caps">Scene 2</span>
+      <div style="font-weight:600">INT. WEATHER STATION - RADIO ROOM - CONTINUOUS</div>
+      <div class="soft">Nell logs the storm; a garbled mayday breaks through the static.</div>
+      <div class="row soft tiny"><span>Pages 1–3</span><span>·</span><span>≈ 2 min 10 s</span><span>·</span><span>Night</span></div>
+    </div>
+    <div class="sect">
+      <span class="caps">In this scene</span>
+      <div class="row" style="flex-wrap:wrap;gap:6px">
+        <span class="chip"><span class="dot" style="background:#d07a3a"></span>NELL · 9</span>
+        <span class="chip"><span class="dot" style="background:#3f8f7a"></span>SKIPPER · 5</span>
+        <span class="chip"><span class="dot" style="background:#7a62c7"></span>COAST GUARD · 1</span>
+        <span class="chip"><span class="dot" style="background:#c0508f"></span>TEO · 1</span>
+      </div>
+    </div>
+    <div class="sect">
+      <div class="row"><span class="caps">Notes</span><span class="btn" style="margin-left:auto;height:22px">${I('plus', 14)}</span></div>
+      <div class="note">Keep the barometer in every shot of the room: it is the clock of the scene.</div>
+    </div>
+    <div class="sect">
+      <span class="caps">Revisions</span>
+      <div class="row"><span class="dot" style="background:#3b7bdc"></span><span>Blue · 14 Nov</span><span class="soft tiny" style="margin-left:auto">3 changes</span></div>
+      <div class="row"><span class="dot" style="background:#d65c8f"></span><span>Pink · 2 Nov</span><span class="soft tiny" style="margin-left:auto">11 changes</span></div>
+    </div>
+  </div>
+  <div class="status">
+    <span style="color:var(--accent);font-weight:600">Dialogue</span><span>Page 2 of 4</span><span>Scene 2 of 5</span><span>699 words</span>
+    <span style="margin-left:auto">Tab → Character · Enter → Action</span><span>100 %</span>
+  </div></div>`;
+}
+
+// ================= B: Studio =================
+function B() {
+  const cards = scenes.slice(0, 4).map(([t, s], i) =>
+    `<div class="card${i === 1 ? ' on' : ''}" style="--c:${['#556cd6', '#3f9c8a', '#c0843c', '#a85c9a'][i]}"><b>${i + 1}. ${t.split(' - ')[0]}</b><span class="soft">${s}</span></div>`).join('');
+  return `<div class="app">
+  <div class="menu">${menus}<span class="soft" style="margin-left:auto;font-size:12px">Night Signal.fdx — DraftCraft</span><span style="margin-left:auto"></span>
+    <span class="pill soft" style="height:24px;width:250px">${I('search', 14)} Command palette <span class="kbd" style="margin-left:auto">Ctrl Shift P</span></span></div>
+  <div class="tools">
+    <span class="btn">${I('plus')}</span><span class="btn">${I('folder')}</span><span class="btn">${I('save')}</span><span class="btn">${I('pdf')}</span>
+    <span class="sep"></span><span class="btn">${I('undo')}</span><span class="btn">${I('redo')}</span><span class="sep"></span>
+    <span class="pill" style="height:28px;width:150px;border-radius:6px">Dialogue <span style="margin-left:auto" class="soft">${I('down', 14)}</span></span>
+    <span class="btn">${I('type')}</span><span class="btn">${I('search')}</span><span class="btn">${I('play')}</span>
+    <span style="margin-left:auto" class="row" style="gap:6px">
+      <span class="soft tiny">Layout</span>
+      <span class="pill" style="height:26px;border-radius:6px">Writing ${I('down', 14)}</span>
+      <span class="btn">${I('split')}</span><span class="btn">${I(T === 'dark' ? 'sun' : 'moon')}</span>
+    </span>
+  </div>
+  <div class="dock">
+    <div class="pane" style="flex:1.1">
+      <div class="tabs"><span class="t on">${I('nav', 14)} Scenes</span><span class="t">${I('people', 14)} Characters</span><span class="t">${I('pin', 14)} Locations</span><span class="grip">${I('dots', 16)}</span></div>
+      <div style="padding:6px">${sceneList()}</div>
+    </div>
+    <div class="pane" style="flex:1;border-bottom:0">
+      <div class="tabs"><span class="t on">${I('cards', 14)} Index cards</span><span class="t">${I('beats', 14)} Beat board</span><span class="grip">${I('dots', 16)}</span></div>
+      <div class="cards">${cards}</div>
+    </div>
+  </div>
+  <div class="splitter"></div>
+  <div class="dock center" style="background:var(--desk)">
+    <div class="tabs"><span class="t on">${I('doc', 14)} Night Signal ${I('x', 12)}</span><span class="t">${I('outline', 14)} Outline</span><span class="t">${I('chart', 14)} Reports</span><span class="grip">${I('split', 16)}</span></div>
+    <div class="desk" style="flex:1">
+      ${paper(70, 22, 1000)}
+    </div>
+  </div>
+  <div class="splitter"></div>
+  <div class="dock" style="position:relative">
+    <div class="pane" style="flex:1.25">
+      <div class="tabs"><span class="t on">${I('doc', 14)} Scene</span><span class="t">${I('notes', 14)} Notes</span><span class="t">${I('rev', 14)} Revisions</span><span class="grip">${I('dots', 16)}</span></div>
+      <div class="sect">
+        <div style="font-weight:600">2 · INT. WEATHER STATION - RADIO ROOM</div>
+        <div class="soft">Nell logs the storm; a garbled mayday breaks through the static.</div>
+        <div class="row tiny soft"><span>Pages 1–3</span><span>·</span><span>≈ 2:10</span><span>·</span><span>Night</span><span>·</span><span>Act 1</span></div>
+      </div>
+      <div class="sect">
+        <span class="caps">Dialogue share</span>
+        ${[['NELL', 62, '#d07a3a'], ['SKIPPER', 24, '#3f8f7a'], ['COAST GUARD', 9, '#7a62c7'], ['TEO', 5, '#c0508f']].map(([n, p, c]) =>
+          `<div class="row tiny"><span style="width:86px">${n}</span><div class="bar" style="flex:1"><i style="width:${p}%;background:${c}"></i></div><span class="soft" style="width:30px;text-align:right">${p}%</span></div>`).join('')}
+      </div>
+      <div class="sect" style="border:0"><div class="note">Keep the barometer in every shot of the room: it is the clock of the scene.</div></div>
+    </div>
+    <div class="pane" style="flex:.75;border-bottom:0">
+      <div class="tabs"><span class="t on">${I('rev', 14)} Revisions</span><span class="grip">${I('grip', 16)}</span></div>
+      <div class="sect" style="border:0">
+        <div class="row"><span class="dot" style="background:#3b7bdc"></span>Blue · 14 Nov<span class="soft tiny" style="margin-left:auto">3</span></div>
+        <div class="row"><span class="dot" style="background:#d65c8f"></span>Pink · 2 Nov<span class="soft tiny" style="margin-left:auto">11</span></div>
+        <div class="row"><span class="dot" style="background:#9a9a9a"></span>White · 20 Oct<span class="soft tiny" style="margin-left:auto">—</span></div>
+      </div>
+    </div>
+    <div class="dropzone" style="left:10px;right:10px;top:640px;height:150px">Drop a panel here to split</div>
+  </div>
+  <div class="status"><span style="font-weight:600">DIALOGUE</span><span>Page 2/4</span><span>Scene 2/5</span><span>699 words</span><span style="margin-left:auto">Layout: Writing</span><span>Blue revision</span><span>100 %</span></div>
+  </div>`;
+}
+
+// ================= C: Focus =================
+function C() {
+  const minis = scenes.map(([t], i) => `<div class="m${i === 1 ? ' on' : ''}"><span class="w"><i style="width:${[22, 30, 46, 40, 26][i]}px"></i></span><span>${i + 1}. ${t.replace(/^(INT|EXT)\. /, '').split(' - ')[0]}</span></div>`).join('');
+  return `<div class="app">
+  <div class="top">
+    <span class="btn">${I('nav')}</span>
+    <span style="font-weight:600;margin-left:6px">Night Signal</span><span class="soft">— draft 2</span>
+    <span style="margin-left:auto" class="row">
+      <span class="soft tiny">Dialogue · page 2 of 4</span>
+      <span class="btn">${I('focus')}</span><span class="btn">${I(T === 'dark' ? 'sun' : 'moon')}</span><span class="btn">${I('dots')}</span>
+    </span>
+  </div>
+  <div class="desk">
+    ${paper(380, 18, 1000)}
+    <div class="float" style="left:16px;top:18px">
+      <span class="btn on">${I('doc')}</span><span class="btn">${I('nav')}</span><span class="btn">${I('cards')}</span><span class="btn">${I('outline')}</span>
+      <span class="btn">${I('beats')}</span><span class="btn">${I('people')}</span><span class="btn">${I('notes')}</span><span class="btn">${I('chart')}</span>
+    </div>
+    <div class="mini"><span class="caps" style="padding:0 6px 6px">Scenes</span>${minis}</div>
+    <div class="hud"><span style="color:var(--accent);font-weight:600">Dialogue</span><span>Tab → Character</span><span>·</span><span>699 words</span><span>·</span><span>+212 today</span></div>
+    <div class="scrim"></div>
+    <div class="palette">
+      <div class="q">${I('search', 20)}<span>rename</span><span class="caret" style="display:inline-block;width:1.5px;height:20px;background:var(--caret);margin-left:-8px"></span><span class="kbd" style="margin-left:auto">Esc</span></div>
+      <div class="grp caps">Commands</div>
+      <div class="it on">${I('people1')}<span><b>Rename</b> character everywhere…</span><span class="soft tiny">Document</span><span class="k"><span class="kbd">Ctrl</span><span class="kbd">Shift</span><span class="kbd">R</span></span></div>
+      <div class="it">${I('pin')}<span><b>Rename</b> location everywhere…</span><span class="soft tiny">Document</span></div>
+      <div class="it">${I('save')}<span>Save as… (<b>rename</b> file)</span><span class="soft tiny">File</span><span class="k"><span class="kbd">Ctrl</span><span class="kbd">Shift</span><span class="kbd">S</span></span></div>
+      <div class="grp caps">Recent</div>
+      <div class="it">${I('cards')}<span>Show index cards</span><span class="soft tiny">View</span></div>
+    </div>
+  </div></div>`;
+}
+
+document.getElementById('root').innerHTML = ({ a: A, b: B, c: C }[V] || A)();
+</script>
+</body>
+</html>
