@@ -106,7 +106,7 @@ Every screenshot is DraftCraft itself, rendered offscreen by its own UI harness
 - **Your files.** Opens and saves Final Draft XML (.fdx) and Fountain (.fountain) with bold,
   italic and underline intact; exports PDF with embedded, selectable Courier Badi. Autosave,
   crash recovery and backups keep your work safe.
-- **Built for agents.** Every action is a command with an id. The same 191 engine commands (plus 53 window
+- **Built for agents.** Every action is a command with an id. The same 194 engine commands (plus 53 window
   commands) drive the menus, toolbar, keyboard shortcuts, a command-line tool, a JSON
   control channel and an MCP server.
 - **Never crashes on your script.** No `unwrap`/`panic` outside tests, hostile input is clamped, and

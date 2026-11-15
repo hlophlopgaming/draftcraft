@@ -113,7 +113,13 @@ pub const FEATURES: &[Feature] = &[
         &["alt.add", "alt.list", "alt.choose", "alt.next", "alt.previous", "alt.edit", "alt.delete", "ui.alternates"],
         "only the active line prints and exports as script text; alternates kept in FDX (DraftCraft-only)",
     ),
-    f("Writing", "Format Assistant", Missing, &[], ""),
+    f(
+        "Writing",
+        "Format Assistant",
+        Partial,
+        &["assist.check", "assist.next", "assist.previous"],
+        "a cue with no dialogue, dialogue with no cue, an empty cue, two parentheticals in a row, a parenthetical ending a speech, an empty scene; a panel in the window still to come",
+    ),
     f(
         "Writing",
         "Speech-to-script (dictation)",
