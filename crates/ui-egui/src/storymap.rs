@@ -6,7 +6,7 @@
 //! bottom of the window when View › Story Map is on.
 
 use draftcraft_doc::StructureKind;
-use egui::{Align2, Color32, FontId, Id, Rect, RichText, Sense, Stroke, Ui, pos2, vec2};
+use egui::{Align2, FontId, Id, Rect, RichText, Sense, Stroke, Ui, pos2, vec2};
 use serde_json::json;
 
 use crate::ScriptApp;
@@ -92,7 +92,13 @@ pub fn strip(app: &mut ScriptApp, ui: &mut Ui) {
         }
         let fits = ((block.width() - 8.0) / 6.0).max(0.0) as usize;
         if fits >= 4 {
-            p.text(block.left_bottom() + vec2(4.0, -3.0), Align2::LEFT_BOTTOM, elide(&sc.heading, fits), FontId::proportional(10.0), t.text);
+            p.text(
+                block.left_bottom() + vec2(4.0, -3.0),
+                Align2::LEFT_BOTTOM,
+                elide(&sc.heading, fits),
+                FontId::proportional(crate::theme::type_scale::CAPTION),
+                t.text,
+            );
         }
         if resp.on_hover_text(format!("{num}. {} · p.{}", sc.heading, sc.page)).clicked() {
             go = Some(("scene.goto", json!({"index": sc.index})));
@@ -109,10 +115,22 @@ pub fn strip(app: &mut ScriptApp, ui: &mut Ui) {
         let major = k % step == 0;
         p.line_segment([pos2(x, ry), pos2(x, ry + if major { 6.0 } else { 3.0 })], Stroke::new(1.0, t.text_soft.gamma_multiply(0.7)));
         if major && k < whole {
-            p.text(pos2(x + 2.0, ry + 7.0), Align2::LEFT_TOP, format!("{}", k + 1), FontId::proportional(9.5), t.text_soft);
+            p.text(
+                pos2(x + 2.0, ry + 7.0),
+                Align2::LEFT_TOP,
+                format!("{}", k + 1),
+                FontId::proportional(crate::theme::type_scale::MICRO),
+                t.text_soft,
+            );
         }
     }
-    p.text(r.right_bottom(), Align2::RIGHT_BOTTOM, format!("{} pages", map.pages as usize), FontId::proportional(9.5), Color32::from_gray(140));
+    p.text(
+        r.right_bottom(),
+        Align2::RIGHT_BOTTOM,
+        format!("{} pages", map.pages as usize),
+        FontId::proportional(crate::theme::type_scale::MICRO),
+        t.text_soft,
+    );
     if let Some((id, v)) = go {
         app.run(id, v);
         crate::split::show_page(app);

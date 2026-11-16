@@ -384,7 +384,7 @@ fn paint_page(ui: &Ui, app: &ScriptApp, l: &Layout, i: usize, pr: Rect, bad: &[(
                     x += step;
                 }
                 if pts.len() > 1 {
-                    p.add(egui::Shape::line(pts, Stroke::new(0.9 * z.max(0.8), Color32::from_rgb(0xe0, 0x3b, 0x3b))));
+                    p.add(egui::Shape::line(pts, Stroke::new(0.9 * z.max(0.8), t.danger)));
                 }
             }
         }
@@ -398,7 +398,7 @@ fn paint_page(ui: &Ui, app: &ScriptApp, l: &Layout, i: usize, pr: Rect, bad: &[(
             pr.left_bottom() + vec2(10.0, -8.0),
             Align2::LEFT_BOTTOM,
             lang.text("Title page"),
-            FontId::proportional(10.0),
+            FontId::proportional(crate::theme::type_scale::CAPTION),
             t.ink_soft.gamma_multiply(0.7),
         );
     }

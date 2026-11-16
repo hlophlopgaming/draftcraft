@@ -196,7 +196,13 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
     }
     let beats: Vec<Beat> = app.session.script.board.beats.clone();
     if beats.is_empty() {
-        painter.text(rect.center(), Align2::CENTER_CENTER, "Double-click anywhere to add a beat", FontId::proportional(15.0), t.text_soft);
+        painter.text(
+            rect.center(),
+            Align2::CENTER_CENTER,
+            "Double-click anywhere to add a beat",
+            FontId::proportional(crate::theme::type_scale::SUBTITLE),
+            t.text_soft,
+        );
     }
     // Cards, bottom to top.
     let pointer = ui.input(|i| i.pointer.interact_pos());
@@ -422,7 +428,12 @@ pub fn dialog(app: &mut ScriptApp, ctx: &egui::Context) {
         .pivot(Align2::CENTER_TOP)
         .default_pos(ctx.content_rect().center_top() + vec2(0.0, 110.0))
         .show(ctx, |ui| {
-            let r = ui.add(egui::TextEdit::singleline(&mut ed.title).hint_text("Title").desired_width(380.0).font(FontId::proportional(15.0)));
+            let r = ui.add(
+                egui::TextEdit::singleline(&mut ed.title)
+                    .hint_text("Title")
+                    .desired_width(380.0)
+                    .font(FontId::proportional(crate::theme::type_scale::SUBTITLE)),
+            );
             if std::mem::take(&mut ed.grab) {
                 r.request_focus();
             }

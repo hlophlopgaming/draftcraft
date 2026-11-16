@@ -124,11 +124,17 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                         body.left_top() + vec2(12.0, 5.0),
                         Align2::LEFT_TOP,
                         sp.kind.label().to_uppercase(),
-                        FontId::proportional(10.0),
+                        FontId::proportional(crate::theme::type_scale::CAPTION),
                         t.text_soft,
                     );
                     if let Some(pg) = it["page"].as_str() {
-                        p.text(body.right_top() + vec2(-40.0, 5.0), Align2::RIGHT_TOP, format!("p.{pg}"), FontId::proportional(11.0), t.text_soft);
+                        p.text(
+                            body.right_top() + vec2(-40.0, 5.0),
+                            Align2::RIGHT_TOP,
+                            format!("p.{pg}"),
+                            FontId::proportional(crate::theme::type_scale::SMALL),
+                            t.text_soft,
+                        );
                     }
                     // Title and summary, edited in place.
                     let size = match sp.kind {
@@ -159,7 +165,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                             .id_salt(("outline-summary", index))
                             .hint_text("Summary…")
                             .frame(egui::Frame::NONE)
-                            .font(FontId::proportional(12.5))
+                            .font(FontId::proportional(crate::theme::type_scale::BODY))
                             .text_color(t.text_soft)
                             .desired_width(sr.width()),
                     );
@@ -210,7 +216,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                             body.left_top() + vec2(44.0, 26.0),
                             Align2::LEFT_TOP,
                             elide(s, ((body.width() - 120.0) / 6.0) as usize),
-                            FontId::proportional(11.5),
+                            FontId::proportional(crate::theme::type_scale::SMALL),
                             t.text_soft,
                         );
                     }
@@ -218,7 +224,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                         body.right_top() + vec2(-12.0, 9.0),
                         Align2::RIGHT_TOP,
                         format!("p.{}", it["page"].as_str().unwrap_or("")),
-                        FontId::proportional(11.0),
+                        FontId::proportional(crate::theme::type_scale::SMALL),
                         t.text_soft,
                     );
                     if resp.clicked() {
