@@ -399,7 +399,7 @@ pub fn toolbar(app: &mut ScriptApp, ui: &mut Ui) {
                     let on = states.get(k).copied().unwrap_or(false);
                     let mut text = RichText::new(label).font(crate::canvas::courier_styled(15.0, draftcraft_doc::Style::PLAIN.with(f, true)));
                     if on {
-                        text = text.color(egui::Color32::WHITE);
+                        text = text.color(t.on_accent);
                     }
                     let resp = ui.add(egui::Button::selectable(on, text).min_size(vec2(26.0, 24.0)));
                     if resp
@@ -630,12 +630,18 @@ pub fn navigator(app: &mut ScriptApp, ui: &mut Ui) {
                                 );
                                 let width = r.width() - 70.0;
                                 let head = elide(&sc.heading, (width / 6.3) as usize);
-                                p.text(r.left_top() + vec2(32.0, 6.0), egui::Align2::LEFT_TOP, head, egui::FontId::proportional(12.5), t.text);
+                                p.text(
+                                    r.left_top() + vec2(32.0, 6.0),
+                                    egui::Align2::LEFT_TOP,
+                                    head,
+                                    egui::FontId::proportional(crate::theme::type_scale::BODY),
+                                    t.text,
+                                );
                                 p.text(
                                     r.right_top() + vec2(-8.0, 6.0),
                                     egui::Align2::RIGHT_TOP,
                                     l.page_label_of(sc.para),
-                                    egui::FontId::proportional(11.0),
+                                    egui::FontId::proportional(crate::theme::type_scale::SMALL),
                                     t.text_soft,
                                 );
                                 if !sc.summary.is_empty() {
@@ -643,7 +649,7 @@ pub fn navigator(app: &mut ScriptApp, ui: &mut Ui) {
                                         r.left_top() + vec2(32.0, 23.0),
                                         egui::Align2::LEFT_TOP,
                                         elide(&sc.summary, (width / 5.6) as usize),
-                                        egui::FontId::proportional(11.0),
+                                        egui::FontId::proportional(crate::theme::type_scale::SMALL),
                                         t.text_soft,
                                     );
                                 }

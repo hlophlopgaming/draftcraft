@@ -105,7 +105,7 @@ pub fn paint_changes(app: &ScriptApp, p: &Painter, line: &Line, pr: Rect, z: f32
                     continue;
                 }
                 let x = x_of(c.start);
-                let red = Color32::from_rgb(0xd0, 0x2a, 0x2a);
+                let red = app.tokens().danger;
                 p.line_segment([pos2(x, top - 0.5 * z), pos2(x, top + lh * z)], Stroke::new(1.4 * z, red));
                 let tri = vec![pos2(x - 3.0 * z, top - 1.5 * z), pos2(x + 3.0 * z, top - 1.5 * z), pos2(x, top + 2.0 * z)];
                 p.add(egui::Shape::convex_polygon(tri, red, Stroke::NONE));
@@ -124,7 +124,7 @@ pub fn paint_changes(app: &ScriptApp, p: &Painter, line: &Line, pr: Rect, z: f32
     }
     if any {
         let x = pr.left() + 24.0 * z;
-        p.line_segment([pos2(x, top), pos2(x, top + lh * z)], Stroke::new(1.6 * z, Color32::from_rgb(0xd0, 0x2a, 0x2a).gamma_multiply(0.75)));
+        p.line_segment([pos2(x, top), pos2(x, top + lh * z)], Stroke::new(1.6 * z, app.tokens().danger.gamma_multiply(0.75)));
     }
 }
 
@@ -298,7 +298,7 @@ fn changes_window(app: &mut ScriptApp, ctx: &egui::Context) {
                         if t.chars().count() > 160 { format!("{}…", t.chars().take(160).collect::<String>()) } else { t }
                     };
                     let rich = match c.kind {
-                        ChangeKind::Delete => RichText::new(shown).strikethrough().color(Color32::from_rgb(0xc0, 0x30, 0x30)),
+                        ChangeKind::Delete => RichText::new(shown).strikethrough().color(app.tokens().danger),
                         ChangeKind::Insert => RichText::new(shown).underline().color(color),
                         _ => RichText::new(shown).color(color),
                     };
@@ -317,19 +317,19 @@ fn changes_window(app: &mut ScriptApp, ctx: &egui::Context) {
 
 /// Word pieces as one wrapped text: removed words struck through in red, added ones underlined
 /// in green.
-fn pieces_job(pieces: &[Value], ink: Color32) -> LayoutJob {
+fn pieces_job(pieces: &[Value], t: &crate::theme::Tokens) -> LayoutJob {
     let mut job = LayoutJob::default();
     let font = FontId::monospace(12.0);
     for pc in pieces {
         let text = pc["text"].as_str().unwrap_or("");
-        let mut f = TextFormat { font_id: font.clone(), color: ink, ..Default::default() };
+        let mut f = TextFormat { font_id: font.clone(), color: t.text, ..Default::default() };
         match pc["op"].as_str() {
             Some("removed") => {
-                f.color = Color32::from_rgb(0xc0, 0x30, 0x30);
+                f.color = t.danger;
                 f.strikethrough = Stroke::new(1.0, f.color);
             }
             Some("added") => {
-                f.color = Color32::from_rgb(0x1f, 0x8a, 0x3b);
+                f.color = t.success;
                 f.underline = Stroke::new(1.0, f.color);
             }
             _ => {}
@@ -344,7 +344,8 @@ fn compare_window(app: &mut ScriptApp, ctx: &egui::Context) {
     let Some(r) = app.drafts.compare.clone() else { return };
     let mut open = true;
     let mut go: Option<usize> = None;
-    let (soft, ink) = (app.tokens().text_soft, app.tokens().text);
+    let tk = app.tokens();
+    let soft = tk.text_soft;
     egui::Window::new("Compare Drafts")
         .open(&mut open)
         .collapsible(false)
@@ -378,10 +379,10 @@ fn compare_window(app: &mut ScriptApp, ctx: &egui::Context) {
                 for d in diffs {
                     let kind = d["kind"].as_str().unwrap_or("");
                     let (tag, color) = match kind {
-                        "added" => ("ADDED", Color32::from_rgb(0x1f, 0x8a, 0x3b)),
-                        "removed" => ("REMOVED", Color32::from_rgb(0xc0, 0x30, 0x30)),
-                        "moved" => ("MOVED", Color32::from_rgb(0x7a, 0x4c, 0xd0)),
-                        _ => ("CHANGED", Color32::from_rgb(0xc9, 0x6a, 0x12)),
+                        "added" => ("ADDED", tk.success),
+                        "removed" => ("REMOVED", tk.danger),
+                        "moved" => ("MOVED", tk.chart[2]),
+                        _ => ("CHANGED", tk.chart[0]),
                     };
                     let here = if older { d["new"].as_u64() } else { d["old"].as_u64() };
                     ui.horizontal(|ui| {
@@ -394,7 +395,7 @@ fn compare_window(app: &mut ScriptApp, ctx: &egui::Context) {
                         ui.label(RichText::new(d["scene"].as_str().unwrap_or("")).size(10.5).color(soft));
                     });
                     let resp = if let Some(pieces) = d["pieces"].as_array().filter(|v| !v.is_empty()) {
-                        ui.add(egui::Label::new(pieces_job(pieces, ink)).sense(egui::Sense::click()))
+                        ui.add(egui::Label::new(pieces_job(pieces, &tk)).sense(egui::Sense::click()))
                     } else {
                         let t = d["text"].as_str().unwrap_or("");
                         let mut rt = RichText::new(t).monospace();

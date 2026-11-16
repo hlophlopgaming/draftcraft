@@ -433,7 +433,7 @@ fn tag_menu(app: &mut ScriptApp, ui: &mut Ui) {
                     r.left_center() + vec2(20.0, 0.0),
                     Align2::LEFT_CENTER,
                     lang.category(&c),
-                    FontId::proportional(13.0),
+                    FontId::proportional(crate::theme::type_scale::BODY),
                     ui.visuals().text_color(),
                 );
                 if resp.clicked() {

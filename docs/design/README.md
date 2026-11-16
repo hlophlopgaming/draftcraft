@@ -39,3 +39,12 @@ Shared rules of the direction: one warm accent (terracotta) on paper and desk to
 only where the writer looks for it (rail, minimap, HUD), everything else on demand (the command
 palette, floating panels); panels float over the desk or dock to its sides; the page is always
 the centre.
+
+## In the app: the design tokens
+
+The Focus palette, type scale, spacing and radii live in `crates/ui-egui/src/theme.rs`
+(`LIGHT`, `DARK`, `type_scale`, `space`, `radius`). Interface code paints with these tokens,
+never with literal colours or sizes. `theme::tests::contrast_meets_wcag_aa` checks every
+text/background pair against WCAG AA (4.5:1 for text, 3:1 for the accent and chart colours,
+7:1 for script ink on paper); where a mockup colour fell short (`text_soft`, light `ink_soft`)
+the token is a shade darker (light) or lighter (dark) than in `focus.html`.

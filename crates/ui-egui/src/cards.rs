@@ -84,7 +84,13 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                             )
                         })
                         .unwrap_or_default();
-                    p.text(r.right_top() + vec2(-12.0, 19.0), Align2::RIGHT_TOP, info, FontId::proportional(11.0), t.text_soft);
+                    p.text(
+                        r.right_top() + vec2(-12.0, 19.0),
+                        Align2::RIGHT_TOP,
+                        info,
+                        FontId::proportional(crate::theme::type_scale::SMALL),
+                        t.text_soft,
+                    );
                     p.text(
                         r.left_top() + vec2(12.0, 40.0),
                         Align2::LEFT_TOP,
@@ -96,7 +102,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                     let mut x = r.left() + 12.0;
                     let y = r.bottom() - 52.0;
                     for tag in sc.tags.iter().take(4) {
-                        let g = p.layout_no_wrap(elide(tag, 16), FontId::proportional(10.5), t.text);
+                        let g = p.layout_no_wrap(elide(tag, 16), FontId::proportional(crate::theme::type_scale::CAPTION), t.text);
                         let w = g.size().x + 12.0;
                         if x + w > r.right() - 12.0 {
                             break;
@@ -108,7 +114,13 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                     }
                     let cast = reports.get(sc.index).map(|x| x.characters.join(", ")).unwrap_or_default();
                     if !cast.is_empty() {
-                        p.text(r.left_bottom() + vec2(12.0, -10.0), Align2::LEFT_BOTTOM, elide(&cast, 34), FontId::proportional(11.0), t.text_soft);
+                        p.text(
+                            r.left_bottom() + vec2(12.0, -10.0),
+                            Align2::LEFT_BOTTOM,
+                            elide(&cast, 34),
+                            FontId::proportional(crate::theme::type_scale::SMALL),
+                            t.text_soft,
+                        );
                     }
                     // Summary editor.
                     let body = Rect::from_min_max(r.min + vec2(10.0, 62.0), egui::pos2(r.right() - 10.0, y - 4.0));
@@ -121,7 +133,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
                             .hint_text(lang.text("Summary…"))
                             .desired_width(body.width())
                             .desired_rows(4)
-                            .font(FontId::proportional(13.0)),
+                            .font(FontId::proportional(crate::theme::type_scale::BODY)),
                     );
                     if edit.changed() {
                         actions.push(("scene.setSummary", json!({"index": sc.index, "summary": text})));

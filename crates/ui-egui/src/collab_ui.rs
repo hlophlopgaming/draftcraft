@@ -82,7 +82,7 @@ pub fn paint_peers(app: &ScriptApp, ui: &Ui, layout: &Layout, rects: &[Rect]) {
             continue;
         }
         p.rect_filled(r, 0.0, c);
-        let font = FontId::proportional(11.0);
+        let font = FontId::proportional(crate::theme::type_scale::SMALL);
         let galley = p.layout_no_wrap(peer.name.clone(), font, Color32::WHITE);
         let tag = Rect::from_min_size(pos2(r.left(), r.top() - galley.size().y - 3.0), galley.size() + vec2(8.0, 2.0));
         p.rect_filled(tag, 3.0, c);

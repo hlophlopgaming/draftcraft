@@ -82,21 +82,21 @@ pub fn tab(app: &mut ScriptApp, ui: &mut Ui) {
                     r.left_top() + vec2(28.0, 5.0),
                     egui::Align2::LEFT_TOP,
                     elide(&name, (width / 6.6) as usize),
-                    egui::FontId::proportional(12.5),
+                    egui::FontId::proportional(crate::theme::type_scale::BODY),
                     t.text,
                 );
                 p.text(
                     r.right_top() + vec2(-8.0, 5.0),
                     egui::Align2::RIGHT_TOP,
                     l.page_label_of(para),
-                    egui::FontId::proportional(11.0),
+                    egui::FontId::proportional(crate::theme::type_scale::SMALL),
                     t.text_soft,
                 );
                 p.text(
                     r.left_top() + vec2(28.0, 22.0),
                     egui::Align2::LEFT_TOP,
                     elide(&text, (width / 5.8) as usize),
-                    egui::FontId::proportional(11.0),
+                    egui::FontId::proportional(crate::theme::type_scale::SMALL),
                     t.text_soft,
                 );
                 resp

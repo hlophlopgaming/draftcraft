@@ -871,7 +871,8 @@ impl ScriptApp {
         self.install_fonts(ctx);
         // Cmd/Ctrl + =/- zoom the pages (our shortcuts), not the whole interface.
         ctx.options_mut(|o| o.zoom_with_keyboard = false);
-        ctx.set_visuals(self.tokens().visuals());
+        let tokens = self.tokens();
+        ctx.all_styles_mut(|style| tokens.apply(style));
         let now = ctx.input(|i| i.time);
         self.autosave(now);
         #[cfg(not(target_arch = "wasm32"))]
