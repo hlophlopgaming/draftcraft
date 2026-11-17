@@ -30,8 +30,9 @@ Right-to-left is easier once the redesign has settled where panels and menus liv
 
 The interface looks dated and crowded. A design pass before new features land:
 
-- [ ] Design system: colours, type scale, spacing, icons, light and dark themes, all as tokens
+- [x] Design system: colours, type scale, spacing, icons, light and dark themes, all as tokens
       in `crates/ui-egui/src/theme.rs` (which already holds the colours), checked for contrast
+      (line icons in `icons.rs`; the paper shadow is drawn with "Calmer page view")
 - [ ] New window layout: a slimmer toolbar, a left sidebar (navigator, cards, outline, beats,
       notes) that collapses, a right panel for context (scene info, notes, revisions)
 - [ ] **Movable panels**, like the older Final Draft releases but freer: every view (page,

@@ -48,3 +48,12 @@ never with literal colours or sizes. `theme::tests::contrast_meets_wcag_aa` chec
 text/background pair against WCAG AA (4.5:1 for text, 3:1 for the accent and chart colours,
 7:1 for script ink on paper); where a mockup colour fell short (`text_soft`, light `ink_soft`)
 the token is a shade darker (light) or lighter (dark) than in `focus.html`.
+
+## In the app: the icons
+
+`crates/ui-egui/src/icons.rs` draws every interface icon in the Focus line style, the same
+strokes as the `P` table in `focus.html`: a 24-unit grid, 1.6-unit strokes with round ends and
+rounded corners, never filled. Each icon is a table of strokes (`icons::shapes`), painted at
+any size; tests keep each icon on its grid, about the same size and centred, so the set reads
+as one family. Where the mockups have no icon (Save, Export PDF, Undo/Redo, Dual dialogue,
+Scene numbers, Title page, Story map, Split screen) it is drawn in the same manner.
