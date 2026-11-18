@@ -16,6 +16,7 @@ pub mod control;
 pub mod drafts;
 pub mod i18n;
 pub mod icons;
+pub mod minimap;
 pub mod outline;
 pub mod persist;
 pub mod printing;
@@ -88,6 +89,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ("ui.view.outline", "Outline", "View", "Mod+Alt+5"),
     ("ui.toggleStoryMap", "Story Map", "View", "Mod+Alt+M"),
     ("ui.toggleNavigator", "Navigator", "View", "Mod+Alt+N"),
+    ("ui.toggleMinimap", "Scene Minimap", "View", ""),
     ("ui.theme.toggle", "Dark Mode", "View", "Mod+Alt+D"),
     ("ui.theme.dark", "Dark Theme", "View", ""),
     ("ui.theme.light", "Light Theme", "View", ""),
@@ -158,6 +160,8 @@ pub struct ScriptApp {
     pub show_tags: bool,
     /// Show the story map strip at the bottom of the window.
     pub story_map: bool,
+    /// Show the scene minimap at the right edge of the page view.
+    pub minimap: bool,
     /// The custom category field of the Tag Selection As menu.
     pub custom_category: String,
     pub canvas: canvas::CanvasState,
@@ -257,6 +261,7 @@ impl ScriptApp {
             alt_window: false,
             show_tags: false,
             story_map: false,
+            minimap: true,
             custom_category: String::new(),
             canvas: canvas::CanvasState::default(),
             find: None,
@@ -355,6 +360,7 @@ impl ScriptApp {
         }
         self.canvas.zoom = p.appearance.zoom as f32;
         self.spelling = p.editing.spelling;
+        self.minimap = p.appearance.minimap;
         self.enter_picker = p.editing.element_list_on_enter;
         self.prefs = p;
     }
@@ -364,6 +370,7 @@ impl ScriptApp {
     fn sync_prefs(&mut self) {
         self.prefs.appearance.zoom = (f64::from(self.canvas.zoom) * 100.0).round() / 100.0;
         self.prefs.editing.spelling = self.spelling;
+        self.prefs.appearance.minimap = self.minimap;
         self.prefs.editing.element_list_on_enter = self.enter_picker;
         #[cfg(not(target_arch = "wasm32"))]
         if let Some(store) = self.settings.as_mut()
@@ -579,6 +586,7 @@ impl ScriptApp {
             "ui.view.beats" => split::set_view(self, View::BeatBoard),
             "ui.view.outline" => split::set_view(self, View::Outline),
             "ui.toggleStoryMap" => self.story_map = p.get("on").and_then(Value::as_bool).unwrap_or(!self.story_map),
+            "ui.toggleMinimap" => self.minimap = p.get("on").and_then(Value::as_bool).unwrap_or(!self.minimap),
             "ui.split" => {
                 let mode = match p.get("mode").and_then(Value::as_str) {
                     Some(m) => {
@@ -765,7 +773,7 @@ impl ScriptApp {
             other => return Err(CmdError::Unknown(other.to_string())),
         }
         Ok(
-            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "zoom": self.canvas.zoom, "navigator": self.navigator, "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language}),
+            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "zoom": self.canvas.zoom, "navigator": self.navigator, "minimap": self.minimap, "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language}),
         )
     }
 
@@ -969,6 +977,7 @@ impl ScriptApp {
         if self.story_map {
             storymap::panel(self, ui);
         }
+        minimap::panel(self, ui);
         let t = self.tokens();
         egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.desk)).show(ui, |ui| split::central(self, ui));
         self.dialog_buttons.clear();

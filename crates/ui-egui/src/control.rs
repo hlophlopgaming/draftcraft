@@ -72,6 +72,7 @@ pub fn inspect(app: &mut ScriptApp, ctx: &egui::Context) -> Value {
         "dark": app.dark,
         "zoom": app.canvas.zoom,
         "navigator": app.navigator,
+        "minimap": app.minimap,
         "window": [r.width(), r.height()],
         "pages": app.canvas.page_rects.iter().map(|r| [r.left(), r.top(), r.width(), r.height()]).collect::<Vec<_>>(),
         "caret": app.canvas.caret_screen.map(|c| [c.left(), c.top(), c.height()]),

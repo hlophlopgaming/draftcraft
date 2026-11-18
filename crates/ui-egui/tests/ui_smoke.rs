@@ -390,3 +390,57 @@ fn russian_language_switch_preserves_script_and_command_ids() {
     assert!(h.query_by_label("File").is_some());
     assert!(h.query_by_label("Файл").is_none());
 }
+
+#[test]
+fn scene_minimap_goes_to_a_scene_and_steps_aside() {
+    let mut app = ScriptApp::new(Session::sample());
+    app.dialogs = false;
+    let mut h = harness(app);
+    step(&mut h, 4);
+    let rows = |h: &egui_kittest::Harness<'static, ScriptApp>| -> Option<Vec<egui::Rect>> {
+        h.ctx.data(|d| d.get_temp(draftcraft_ui_egui::minimap::rows_id()))
+    };
+    let shown = rows(&h).expect("the minimap is on by default beside the page");
+    let scenes = h.state().session.script.scenes().len();
+    assert_eq!(shown.len(), scenes);
+    assert!(scenes >= 3, "the sample script has scenes");
+    // The minimap sits to the right of the page.
+    let page = h.state().canvas.page_rects.first().copied().unwrap();
+    assert!(shown.iter().all(|r| r.left() >= page.right()), "{shown:?} vs page {page:?}");
+    // Click the third scene: the caret goes there.
+    let at = shown[2].center();
+    h.state_mut().synthetic.push(egui::Event::PointerMoved(at));
+    step(&mut h, 1);
+    for pressed in [true, false] {
+        h.state_mut().synthetic.push(egui::Event::PointerButton {
+            pos: at,
+            button: egui::PointerButton::Primary,
+            pressed,
+            modifiers: Default::default(),
+        });
+        step(&mut h, 1);
+    }
+    step(&mut h, 2);
+    let st = h.state();
+    assert_eq!(st.session.script.scene_of(st.session.sel.focus.para), Some(2));
+    // View › Scene Minimap hides it; the setting is kept with the other preferences.
+    h.state_mut().execute("ui.toggleMinimap", json!({})).unwrap();
+    step(&mut h, 2);
+    assert!(rows(&h).is_none());
+    assert!(!h.state().minimap);
+    h.state_mut().execute("ui.toggleMinimap", json!({"on": true})).unwrap();
+    step(&mut h, 2);
+    assert!(rows(&h).is_some());
+    // Zoomed in until the page fills the desk: the minimap steps aside instead of covering it.
+    for _ in 0..8 {
+        h.state_mut().execute("ui.zoomIn", json!({})).unwrap();
+    }
+    step(&mut h, 2);
+    assert!(rows(&h).is_none());
+    assert!(h.state().minimap, "still on, only out of the way");
+    // Other views have no minimap.
+    h.state_mut().execute("ui.zoomReset", json!({})).unwrap();
+    h.state_mut().execute("ui.view.cards", json!({})).unwrap();
+    step(&mut h, 2);
+    assert!(rows(&h).is_none());
+}
