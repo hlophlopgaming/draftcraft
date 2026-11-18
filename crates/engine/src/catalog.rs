@@ -164,7 +164,13 @@ pub const FEATURES: &[Feature] = &[
     ),
     f("Pagination", "A4 paper", Done, &["page.set", "ui.pageSetup"], "58 lines per page; same indents"),
     // Navigation and structure
-    f("Structure", "Navigator: scene list", Done, &["scene.list", "scene.goto"], ""),
+    f(
+        "Structure",
+        "Navigator: scene list",
+        Done,
+        &["scene.list", "scene.goto", "ui.toggleNavigator", "ui.toggleMinimap"],
+        "also a scene minimap beside the page (DraftCraft-only)",
+    ),
     f("Structure", "Index cards with summaries", Done, &["scene.setSummary", "scene.setHeading", "ui.view.cards"], ""),
     f("Structure", "Reorder scenes", Done, &["scene.move"], "drag index cards"),
     f("Structure", "Index card colours and tags", Done, &["scene.setColor", "scene.setTags"], "kept in FDX and Fountain"),

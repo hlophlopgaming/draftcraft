@@ -56,11 +56,13 @@ pub struct Appearance {
     pub language: crate::i18n::Language,
     /// Page zoom (0.4 to 3.0).
     pub zoom: f64,
+    /// The scene minimap at the right edge of the page view.
+    pub minimap: bool,
 }
 
 impl Default for Appearance {
     fn default() -> Self {
-        Appearance { theme: Theme::System, language: Default::default(), zoom: 1.0 }
+        Appearance { theme: Theme::System, language: Default::default(), zoom: 1.0, minimap: true }
     }
 }
 
@@ -355,6 +357,7 @@ mod tests {
             p.touch_recent("/s/3.fdx");
             p.appearance.theme = Theme::Dark;
             p.appearance.zoom = 1.5;
+            p.appearance.minimap = false;
             p.appearance.language = crate::i18n::Language::Russian;
         });
         store.flush().unwrap();
@@ -366,6 +369,7 @@ mod tests {
         assert_eq!(q.files.recent.len(), MAX_RECENT);
         assert_eq!(q.files.recent[0], "/s/3.fdx");
         assert_eq!(q.appearance.zoom, 1.5);
+        assert!(!q.appearance.minimap);
         assert_eq!(q.appearance.language, crate::i18n::Language::Russian);
         // A hand-edited value out of range is clamped when used.
         let wild = Prefs { appearance: Appearance { zoom: f64::NAN, ..Default::default() }, ..Default::default() };

@@ -43,6 +43,8 @@ DraftCraft contains **no** Final Draft icons, images, templates, sample scripts,
 | `docs/images/pr/design-tokens-dark.png` | The DraftCraft contributors | Screenshot of DraftCraft rendered by `ui_shot` (PR: Focus design tokens) | MIT OR Apache-2.0 |
 | `docs/images/pr/focus-icons-light.png` | The DraftCraft contributors | Toolbar of DraftCraft rendered by `ui_shot` (PR: Focus line icons) | MIT OR Apache-2.0 |
 | `docs/images/pr/focus-icons-dark.png` | The DraftCraft contributors | Toolbar of DraftCraft rendered by `ui_shot` (PR: Focus line icons) | MIT OR Apache-2.0 |
+| `docs/images/pr/scene-minimap-light.png` | The DraftCraft contributors | Screenshot of DraftCraft rendered by `ui_shot` (PR: scene minimap) | MIT OR Apache-2.0 |
+| `docs/images/pr/scene-minimap-dark.png` | The DraftCraft contributors | Screenshot of DraftCraft rendered by `ui_shot` (PR: scene minimap) | MIT OR Apache-2.0 |
 | `docs/images/icon.svg` | Openclipart contributor (engraving); the DraftCraft contributors (tile) | Engraving "Beetle (Lucanus cinnamomeus)" from Openclipart (https://openclipart.org/detail/264956/beetle-lucanus-cinnamomeus), unchanged, on a sand tile with a paper backing traced from it by the DraftCraft contributors | CC0 1.0 (public domain dedication) |
 | `docs/images/icon-512.png` | same | Rendered from `docs/images/icon.svg` | CC0 1.0 |
 | `apps/draftcraft/assets/icon-256.png` | same | Rendered from `docs/images/icon.svg`; the window icon | CC0 1.0 |
