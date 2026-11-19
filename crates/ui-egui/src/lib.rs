@@ -9,6 +9,7 @@ pub mod annotations;
 pub mod beatboard;
 pub mod bookmarks;
 mod canvas;
+pub use canvas::margin_element_id;
 pub mod cards;
 mod chrome;
 pub mod collab_ui;
@@ -96,6 +97,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ("ui.zoomReset", "Actual Size", "View", "Mod+0"),
     ("ui.zoomFit", "Fit Page Width", "View", "Mod+9"),
     ("ui.view.speed", "Speed View", "View", "Mod+Alt+4"),
+    ("ui.toggleMarginElement", "Element in Margin", "View", ""),
     ("ui.view.beats", "Beat Board", "View", "Mod+Alt+6"),
     ("ui.split", "Split Screen", "View", "Mod+Alt+S"),
     ("ui.splitView", "View in Pane", "View", ""),
@@ -158,6 +160,8 @@ pub struct ScriptApp {
     pub show_tags: bool,
     /// Show the story map strip at the bottom of the window.
     pub story_map: bool,
+    /// Name the element of the caret's paragraph in the page's left margin (Focus design).
+    pub margin_element: bool,
     /// The custom category field of the Tag Selection As menu.
     pub custom_category: String,
     pub canvas: canvas::CanvasState,
@@ -257,6 +261,7 @@ impl ScriptApp {
             alt_window: false,
             show_tags: false,
             story_map: false,
+            margin_element: true,
             custom_category: String::new(),
             canvas: canvas::CanvasState::default(),
             find: None,
@@ -355,6 +360,7 @@ impl ScriptApp {
         }
         self.canvas.zoom = p.appearance.zoom as f32;
         self.spelling = p.editing.spelling;
+        self.margin_element = p.appearance.margin_element;
         self.enter_picker = p.editing.element_list_on_enter;
         self.prefs = p;
     }
@@ -364,6 +370,7 @@ impl ScriptApp {
     fn sync_prefs(&mut self) {
         self.prefs.appearance.zoom = (f64::from(self.canvas.zoom) * 100.0).round() / 100.0;
         self.prefs.editing.spelling = self.spelling;
+        self.prefs.appearance.margin_element = self.margin_element;
         self.prefs.editing.element_list_on_enter = self.enter_picker;
         #[cfg(not(target_arch = "wasm32"))]
         if let Some(store) = self.settings.as_mut()
@@ -651,6 +658,7 @@ impl ScriptApp {
                 self.prefs.appearance.theme = if self.dark { persist::Theme::Dark } else { persist::Theme::Light };
             }
             "ui.toggleSpelling" => self.spelling = !self.spelling,
+            "ui.toggleMarginElement" => self.margin_element = p.get("on").and_then(Value::as_bool).unwrap_or(!self.margin_element),
             "ui.toggleEnterPicker" => self.enter_picker = !self.enter_picker,
             "ui.theme.dark" => {
                 self.dark = true;
@@ -765,7 +773,7 @@ impl ScriptApp {
             other => return Err(CmdError::Unknown(other.to_string())),
         }
         Ok(
-            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "zoom": self.canvas.zoom, "navigator": self.navigator, "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language}),
+            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "zoom": self.canvas.zoom, "navigator": self.navigator, "marginElement": self.margin_element, "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language}),
         )
     }
 

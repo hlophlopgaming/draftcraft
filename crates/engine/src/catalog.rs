@@ -301,6 +301,7 @@ pub const FEATURES: &[Feature] = &[
     f("View", "Dark mode", Done, &["ui.theme.toggle"], ""),
     f("View", "Zoom (menus, Ctrl/Cmd+wheel, pinch, fit page width)", Done, &["ui.zoomIn", "ui.zoomOut", "ui.zoomFit"], ""),
     f("View", "Speed view (no page breaks)", Done, &["view.speed", "ui.view.speed"], ""),
+    f("View", "Element of the current line in the page margin", Done, &["ui.toggleMarginElement"], "DraftCraft-only (Focus design)"),
     f("View", "Focus / typewriter mode", Missing, &[], ""),
     f(
         "View",

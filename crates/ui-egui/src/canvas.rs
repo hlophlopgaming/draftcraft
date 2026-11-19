@@ -404,6 +404,54 @@ fn paint_page(ui: &Ui, app: &ScriptApp, l: &Layout, i: usize, pr: Rect, bad: &[(
     }
 }
 
+/// Where the element label of split-screen pane `pane` was last painted (a `Rect` in the
+/// context's temporary data; absent when it is hidden). For tests and the control channel.
+pub fn margin_element_id(pane: usize) -> Id {
+    Id::unique("draftcraft-margin-element").with(pane)
+}
+
+/// Name the element of the caret's paragraph in the left margin of the page, beside its first
+/// line on the caret's page, with a short accent bar (the Focus design, `docs/design/focus.html`).
+/// Steps aside when the margin is taken by the paragraph's notes or alternates, or too narrow.
+/// Returns the label's screen rect.
+fn paint_margin_element(app: &ScriptApp, ui: &Ui, l: &Layout, rects: &[Rect]) -> Option<Rect> {
+    let focus = app.session.sel.focus;
+    let para = app.session.script.para(focus.para)?;
+    if !para.notes.is_empty() || !para.alternates.is_empty() {
+        return None;
+    }
+    let caret = l.caret(focus)?;
+    let pr = *rects.get(caret.page)?;
+    let lines = &l.pages.get(caret.page)?.lines;
+    let line = lines.iter().find(|ln| ln.kind == LineKind::Body && ln.para == Some(focus.para))?;
+    // Dual dialogue: a column to the left on the same row; measure from the leftmost one.
+    let x = lines.iter().filter(|ln| ln.kind == LineKind::Body && (ln.y - line.y).abs() < 0.5).map(|ln| ln.x).fold(line.x, f32::min);
+    let z = app.canvas.zoom;
+    let t = app.tokens();
+    let lang = app.prefs.appearance.language;
+    let name = lang.text(para.element.name()).to_uppercase();
+    let mut job = egui::text::LayoutJob::single_section(
+        name,
+        egui::TextFormat { font_id: FontId::proportional(9.0 * z), color: t.accent, extra_letter_spacing: 0.45 * z, ..Default::default() },
+    );
+    job.wrap.max_width = f32::INFINITY;
+    let galley = ui.painter().layout_job(job);
+    // Measured from where the paragraph's text starts, as in the mockup: bar 7 pt to its left,
+    // the label 14 pt to its left, right-aligned.
+    let text_x = pr.left() + x * z;
+    let top = pr.top() + line.y * z;
+    let right = text_x - 14.0 * z;
+    let rect = Rect::from_min_size(pos2(right - galley.size().x, top + (LINE_H * z - galley.size().y) / 2.0), galley.size());
+    if rect.left() < pr.left() + 6.0 * z {
+        return None;
+    }
+    let p = ui.painter();
+    let bar = Rect::from_min_size(pos2(text_x - 7.0 * z - 1.8 * z, top + 1.5 * z), vec2(1.8 * z, LINE_H * z - 3.0 * z));
+    p.rect_filled(bar, 1.0 * z, t.accent);
+    p.galley(rect.min, galley, t.accent);
+    Some(rect)
+}
+
 /// The page under a screen point (nearest by vertical distance) and the point in page points.
 fn page_point(rects: &[Rect], z: f32, at: Pos2) -> Option<(usize, f32, f32)> {
     let (i, r) = rects.iter().enumerate().min_by(|(_, a), (_, b)| {
@@ -465,6 +513,13 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
             }
         }
         crate::collab_ui::paint_peers(app, ui, &layout, &rects);
+        let label = if app.margin_element { paint_margin_element(app, ui, &layout, &rects) } else { None };
+        ui.ctx().data_mut(|d| match label {
+            Some(r) => {
+                d.insert_temp(margin_element_id(app.canvas.pane), r);
+            }
+            None => d.remove::<Rect>(margin_element_id(app.canvas.pane)),
+        });
         // Caret.
         let caret = layout.caret(app.session.sel.focus).and_then(|c| {
             let pr = rects.get(c.page)?;
