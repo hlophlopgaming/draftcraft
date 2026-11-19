@@ -390,3 +390,50 @@ fn russian_language_switch_preserves_script_and_command_ids() {
     assert!(h.query_by_label("File").is_some());
     assert!(h.query_by_label("Файл").is_none());
 }
+
+#[test]
+fn element_of_the_current_line_sits_in_the_page_margin() {
+    use draftcraft_doc::Element;
+    let mut app = ScriptApp::new(Session::sample());
+    app.dialogs = false;
+    let mut h = harness(app);
+    step(&mut h, 4);
+    let label = |h: &egui_kittest::Harness<'static, ScriptApp>| -> Option<egui::Rect> {
+        h.ctx.data(|d| d.get_temp(draftcraft_ui_egui::margin_element_id(0)))
+    };
+    let para_of = |h: &egui_kittest::Harness<'static, ScriptApp>, e: Element| {
+        h.state().session.script.paras.iter().position(|p| p.element == e && p.notes.is_empty() && p.alternates.is_empty() && !p.dual).unwrap()
+    };
+    // On by default: in the page's left margin, left of where the paragraph's text starts.
+    let mut lefts = Vec::new();
+    for e in [Element::SceneHeading, Element::Action, Element::Dialogue] {
+        let para = para_of(&h, e);
+        h.state_mut().execute("caret.set", json!({"para": para, "off": 0})).unwrap();
+        step(&mut h, 3);
+        let r = label(&h).unwrap_or_else(|| panic!("a label for {e:?}"));
+        let caret = h.state().canvas.caret_screen.unwrap();
+        let page = h.state().canvas.page_rects.iter().copied().find(|p| p.contains(caret.center())).unwrap();
+        assert!(r.left() > page.left() && r.right() < caret.left() - 8.0, "{e:?}: label {r:?}, caret {caret:?}, page {page:?}");
+        assert!((r.center().y - caret.center().y).abs() < caret.height(), "{e:?}: on the caret's line");
+        lefts.push(r.right());
+    }
+    // Indented elements carry the label inwards with their text.
+    assert!(lefts[2] > lefts[1] + 20.0, "{lefts:?}");
+    assert!(h.query_by_label("DIALOGUE").is_none(), "painted, not a widget");
+    // A note in the margin takes the place of the label.
+    let para = para_of(&h, Element::Action);
+    h.state_mut().execute("note.add", json!({"text": "Tighten", "anchor": {"para": para, "off": 0}})).unwrap();
+    h.state_mut().execute("caret.set", json!({"para": para, "off": 0})).unwrap();
+    step(&mut h, 3);
+    assert!(label(&h).is_none());
+    // View › Element in Margin turns it off; the choice is kept with the preferences.
+    let dialogue = para_of(&h, Element::Dialogue);
+    h.state_mut().execute("caret.set", json!({"para": dialogue, "off": 0})).unwrap();
+    let r = h.state_mut().execute("ui.toggleMarginElement", json!({})).unwrap();
+    assert_eq!(r["marginElement"], false);
+    step(&mut h, 3);
+    assert!(label(&h).is_none());
+    h.state_mut().execute("ui.toggleMarginElement", json!({"on": true})).unwrap();
+    step(&mut h, 3);
+    assert!(label(&h).is_some());
+}
