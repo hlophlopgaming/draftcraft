@@ -13,6 +13,7 @@ pub mod cards;
 mod chrome;
 pub mod collab_ui;
 pub mod control;
+pub mod dock;
 pub mod drafts;
 pub mod i18n;
 pub mod icons;
@@ -88,6 +89,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ("ui.view.outline", "Outline", "View", "Mod+Alt+5"),
     ("ui.toggleStoryMap", "Story Map", "View", "Mod+Alt+M"),
     ("ui.toggleNavigator", "Navigator", "View", "Mod+Alt+N"),
+    ("ui.dockPanel", "Dock Panel", "View", ""),
     ("ui.theme.toggle", "Dark Mode", "View", "Mod+Alt+D"),
     ("ui.theme.dark", "Dark Theme", "View", ""),
     ("ui.theme.light", "Light Theme", "View", ""),
@@ -156,7 +158,7 @@ pub struct ScriptApp {
     pub alt_window: bool,
     /// Highlight production-tagged items on the page.
     pub show_tags: bool,
-    /// Show the story map strip at the bottom of the window.
+    /// Show the story map strip (docked to `prefs.layout.story_map`).
     pub story_map: bool,
     /// The custom category field of the Tag Selection As menu.
     pub custom_category: String,
@@ -646,6 +648,21 @@ impl ScriptApp {
                 self.nav_tab = 3;
             }
             "ui.toggleNavigator" => self.navigator = !self.navigator,
+            "ui.dockPanel" => {
+                let panel =
+                    p.get("panel").and_then(Value::as_str).ok_or_else(|| CmdError::Params("`panel` is required (navigator, storyMap)".into()))?;
+                let panel =
+                    dock::DockPanel::parse(panel).ok_or_else(|| CmdError::Params(format!("unknown panel `{panel}` (navigator, storyMap)")))?;
+                let side =
+                    p.get("side").and_then(Value::as_str).ok_or_else(|| CmdError::Params("`side` is required (left, right, top, bottom)".into()))?;
+                let side = dock::Side::parse(side).ok_or_else(|| CmdError::Params(format!("unknown side `{side}` (left, right, top, bottom)")))?;
+                self.prefs.layout.set(panel, side);
+                // Docking a hidden panel shows it, so the writer sees where it went.
+                match panel {
+                    dock::DockPanel::Navigator => self.navigator = true,
+                    dock::DockPanel::StoryMap => self.story_map = true,
+                }
+            }
             "ui.theme.toggle" => {
                 self.dark = !self.dark;
                 self.prefs.appearance.theme = if self.dark { persist::Theme::Dark } else { persist::Theme::Light };
@@ -765,7 +782,7 @@ impl ScriptApp {
             other => return Err(CmdError::Unknown(other.to_string())),
         }
         Ok(
-            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "zoom": self.canvas.zoom, "navigator": self.navigator, "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language}),
+            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "zoom": self.canvas.zoom, "navigator": self.navigator, "storyMap": self.story_map, "layout": self.prefs.layout.to_json(), "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language}),
         )
     }
 

@@ -2,11 +2,11 @@
 //! sections run as bands above the scenes; a ruler marks the pages; the current scene is
 //! outlined. Click a scene or a band to go there.
 //!
-//! [`strip`] draws into any `Ui` (a split-screen pane, for instance); [`panel`] docks it at the
-//! bottom of the window when View › Story Map is on.
+//! [`strip`] draws into any `Ui` (a split-screen pane, for instance); [`panel`] docks it to a
+//! side of the window (the bottom unless moved, see [`crate::dock`]) when View › Story Map is on.
 
 use draftcraft_doc::StructureKind;
-use egui::{Align2, FontId, Id, Rect, RichText, Sense, Stroke, Ui, pos2, vec2};
+use egui::{Align2, FontId, Id, Rect, Sense, Stroke, Ui, pos2, vec2};
 use serde_json::json;
 
 use crate::ScriptApp;
@@ -19,9 +19,13 @@ const BAND_H: f32 = 17.0;
 /// The story map docked at the bottom of the window.
 pub fn panel(app: &mut ScriptApp, ui: &mut Ui) {
     let t = app.tokens();
-    egui::Panel::bottom("storymap")
-        .resizable(false)
-        .exact_size(HEIGHT + 28.0)
+    let lang = app.prefs.appearance.language;
+    let side = app.prefs.layout.story_map;
+    let panel = side.panel("storymap");
+    // A row is exactly as tall as the strip; a column is as wide as the writer drags it.
+    let panel =
+        if side.is_column() { panel.resizable(true).default_size(360.0).min_size(240.0) } else { panel.resizable(false).exact_size(HEIGHT + 28.0) };
+    panel
         .frame(
             egui::Frame::NONE
                 .fill(t.panel)
@@ -30,9 +34,9 @@ pub fn panel(app: &mut ScriptApp, ui: &mut Ui) {
         )
         .show(ui, |ui| {
             ui.horizontal(|ui| {
-                ui.label(RichText::new("STORY MAP").size(11.0).strong().color(t.text_soft));
+                crate::dock::title(app, ui, crate::dock::DockPanel::StoryMap, lang.text("STORY MAP"));
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    if ui.small_button("×").on_hover_text("Hide the story map").clicked() {
+                    if ui.small_button("×").on_hover_text(lang.text("Hide the story map")).clicked() {
                         app.run("ui.toggleStoryMap", json!({}));
                     }
                 });
