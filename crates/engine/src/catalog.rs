@@ -304,6 +304,13 @@ pub const FEATURES: &[Feature] = &[
     f("View", "Focus / typewriter mode", Missing, &[], ""),
     f(
         "View",
+        "Movable, dockable panels",
+        Partial,
+        &["ui.dockPanel"],
+        "Navigator and Story Map dock to any side; dragging, tabs and splitting still to come",
+    ),
+    f(
+        "View",
         "Runs in the browser (WebAssembly)",
         Done,
         &["file.load", "document.export"],

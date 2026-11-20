@@ -216,6 +216,9 @@ pub fn menu_bar(app: &mut ScriptApp, ui: &mut Ui) {
                 });
                 ui.separator();
                 check(app, ui, "Navigator", app.navigator, "ui.toggleNavigator", json!({}));
+                for p in crate::dock::DockPanel::ALL {
+                    ui.menu_button(lang.text(p.menu_label()), |ui| crate::dock::side_choices(app, ui, p));
+                }
                 check(app, ui, "Scene Numbers", app.session.script.settings.show_scene_numbers, "view.toggleSceneNumbers", json!({}));
                 check(app, ui, "Dark Mode", app.dark, "ui.theme.toggle", json!({}));
                 ui.separator();
@@ -559,10 +562,12 @@ pub fn status_bar(app: &mut ScriptApp, ui: &mut Ui, status: Option<String>) {
 pub fn navigator(app: &mut ScriptApp, ui: &mut Ui) {
     let lang = app.prefs.appearance.language;
     let t = app.tokens();
-    egui::Panel::left("navigator")
+    let side = app.prefs.layout.navigator;
+    let (size, min) = if side.is_column() { (280.0, 200.0) } else { (240.0, 120.0) };
+    side.panel("navigator")
         .resizable(true)
-        .default_size(280.0)
-        .min_size(200.0)
+        .default_size(size)
+        .min_size(min)
         .frame(
             egui::Frame::NONE
                 .fill(t.panel)
@@ -571,7 +576,7 @@ pub fn navigator(app: &mut ScriptApp, ui: &mut Ui) {
         )
         .show(ui, |ui| {
             ui.horizontal(|ui| {
-                ui.label(RichText::new(lang.text("NAVIGATOR")).size(11.0).strong().color(t.text_soft));
+                crate::dock::title(app, ui, crate::dock::DockPanel::Navigator, lang.text("NAVIGATOR"));
             });
             ui.add_space(4.0);
             ui.horizontal(|ui| {

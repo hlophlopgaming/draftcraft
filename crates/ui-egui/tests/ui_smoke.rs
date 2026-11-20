@@ -390,3 +390,44 @@ fn russian_language_switch_preserves_script_and_command_ids() {
     assert!(h.query_by_label("File").is_some());
     assert!(h.query_by_label("Файл").is_none());
 }
+
+#[test]
+fn panels_dock_to_any_side() {
+    let mut app = ScriptApp::new(Session::sample());
+    app.dialogs = false;
+    let mut h = harness(app);
+    step(&mut h, 3);
+    let rect_of = |h: &egui_kittest::Harness<'static, ScriptApp>, label: &str| h.get_by_label(label).rect();
+    // By default the navigator is on the left.
+    assert!(rect_of(&h, "NAVIGATOR").center().x < 400.0);
+    // Docking it to the right moves it there and is reported in the state.
+    let v = h.state_mut().execute("ui.dockPanel", json!({"panel": "navigator", "side": "right"})).unwrap();
+    assert_eq!(v["layout"]["navigator"], "right");
+    step(&mut h, 3);
+    assert!(rect_of(&h, "NAVIGATOR").center().x > 880.0);
+    // Docking a hidden story map shows it, here at the top, under the toolbar.
+    assert!(!h.state().story_map);
+    let v = h.state_mut().execute("ui.dockPanel", json!({"panel": "storyMap", "side": "top"})).unwrap();
+    assert_eq!((v["storyMap"].as_bool(), v["layout"]["storyMap"].as_str()), (Some(true), Some("top")));
+    step(&mut h, 3);
+    assert!(rect_of(&h, "STORY MAP").center().y < 250.0);
+    // Then to the left: a column on the left edge.
+    h.state_mut().execute("ui.dockPanel", json!({"panel": "map", "side": "left"})).unwrap();
+    step(&mut h, 3);
+    let map = rect_of(&h, "STORY MAP");
+    assert!(map.center().x < 400.0 && map.center().y < 250.0, "{map:?}");
+    // The settings keep the choice.
+    assert_eq!(h.state().prefs.layout.story_map, draftcraft_ui_egui::dock::Side::Left);
+    // Bad or missing parameters are errors, never a crash, and change nothing.
+    for p in [
+        json!({}),
+        json!({"panel": "navigator"}),
+        json!({"panel": "toolbar", "side": "left"}),
+        json!({"panel": "navigator", "side": "diagonal"}),
+        json!({"panel": 7, "side": []}),
+    ] {
+        assert!(h.state_mut().execute("ui.dockPanel", p).is_err());
+    }
+    assert_eq!(h.state().prefs.layout.navigator, draftcraft_ui_egui::dock::Side::Right);
+    step(&mut h, 2);
+}

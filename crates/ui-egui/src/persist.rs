@@ -46,6 +46,8 @@ pub struct Prefs {
     pub editing: Editing,
     pub files: Files,
     pub speech: Speech,
+    /// `[layout]`: where the docking panels sit.
+    pub layout: crate::dock::Layout,
 }
 
 /// `[appearance]`
@@ -193,6 +195,7 @@ pub fn parse_legacy_prefs(bytes: &[u8]) -> Result<Prefs, String> {
             backups_kept: old.backups.unwrap_or(d.files.backups_kept),
         },
         speech: d.speech,
+        layout: d.layout,
     }
     .sanitized())
 }
@@ -356,6 +359,7 @@ mod tests {
             p.appearance.theme = Theme::Dark;
             p.appearance.zoom = 1.5;
             p.appearance.language = crate::i18n::Language::Russian;
+            p.layout.navigator = crate::dock::Side::Right;
         });
         store.flush().unwrap();
         let toml = std::fs::read_to_string(dir.join("config.toml")).unwrap();
@@ -367,6 +371,9 @@ mod tests {
         assert_eq!(q.files.recent[0], "/s/3.fdx");
         assert_eq!(q.appearance.zoom, 1.5);
         assert_eq!(q.appearance.language, crate::i18n::Language::Russian);
+        assert!(toml.contains("[layout]") && toml.contains("navigator = \"right\""), "{toml}");
+        assert_eq!(q.layout.navigator, crate::dock::Side::Right);
+        assert_eq!(q.layout.story_map, crate::dock::Side::Bottom);
         // A hand-edited value out of range is clamped when used.
         let wild = Prefs { appearance: Appearance { zoom: f64::NAN, ..Default::default() }, ..Default::default() };
         assert_eq!(wild.sanitized().appearance.zoom, 1.0);
