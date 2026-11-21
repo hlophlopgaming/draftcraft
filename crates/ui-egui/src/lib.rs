@@ -160,6 +160,10 @@ pub struct ScriptApp {
     pub show_tags: bool,
     /// Show the story map strip (docked to `prefs.layout.story_map`).
     pub story_map: bool,
+    /// The panel being dragged by its title to another side, if any (see [`dock::overlay`]).
+    pub dock_drag: Option<dock::DockPanel>,
+    /// Where docked panels go (under the toolbar, above the status bar), from the last frame.
+    pub dock_area: egui::Rect,
     /// The custom category field of the Tag Selection As menu.
     pub custom_category: String,
     pub canvas: canvas::CanvasState,
@@ -259,6 +263,8 @@ impl ScriptApp {
             alt_window: false,
             show_tags: false,
             story_map: false,
+            dock_drag: None,
+            dock_area: egui::Rect::NOTHING,
             custom_category: String::new(),
             canvas: canvas::CanvasState::default(),
             find: None,
@@ -980,6 +986,7 @@ impl ScriptApp {
         }
         let status = self.status.as_ref().map(|(s, _)| s.clone());
         chrome::status_bar(self, ui, status);
+        self.dock_area = ui.available_rect_before_wrap();
         if self.navigator {
             chrome::navigator(self, ui);
         }
@@ -995,5 +1002,6 @@ impl ScriptApp {
         collab_ui::window(self, &ctx);
         speech::windows(self, &ctx);
         drafts::dialogs(self, &ctx);
+        dock::overlay(self, &ctx);
     }
 }

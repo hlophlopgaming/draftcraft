@@ -74,6 +74,7 @@ pub fn inspect(app: &mut ScriptApp, ctx: &egui::Context) -> Value {
         "navigator": app.navigator,
         "storyMap": app.story_map,
         "layout": app.prefs.layout.to_json(),
+        "dockDrag": app.dock_drag.map(|p| p.id()),
         "window": [r.width(), r.height()],
         "pages": app.canvas.page_rects.iter().map(|r| [r.left(), r.top(), r.width(), r.height()]).collect::<Vec<_>>(),
         "caret": app.canvas.caret_screen.map(|c| [c.left(), c.top(), c.height()]),
@@ -145,8 +146,12 @@ pub fn handle(app: &mut ScriptApp, ctx: &egui::Context, req: &ControlRequest) ->
                 app.synthetic.push(sep());
                 app.synthetic.push(egui::Event::PointerMoved(egui::pos2(x + (tx - x) * q, y + (ty - y) * q)));
             }
-            app.synthetic.push(sep());
-            app.synthetic.push(egui::Event::PointerButton { pos: egui::pos2(tx, ty), button, pressed: false, modifiers: m });
+            // `"hold": true` keeps the button down (to look at the window mid-drag); the next
+            // `ui.click` or `ui.drag` releases it.
+            if p.get("hold").and_then(Value::as_bool) != Some(true) {
+                app.synthetic.push(sep());
+                app.synthetic.push(egui::Event::PointerButton { pos: egui::pos2(tx, ty), button, pressed: false, modifiers: m });
+            }
             ok(json!({}))
         }
         other => err(format!("unknown method `{other}`")),

@@ -431,3 +431,79 @@ fn panels_dock_to_any_side() {
     assert_eq!(h.state().prefs.layout.navigator, draftcraft_ui_egui::dock::Side::Right);
     step(&mut h, 2);
 }
+
+/// Press at `from`, move to `to` over several frames, and release unless `hold`.
+fn drag(h: &mut egui_kittest::Harness<'static, ScriptApp>, from: egui::Pos2, to: egui::Pos2, hold: bool) {
+    use egui::{Event, PointerButton};
+    let m = egui::Modifiers::default();
+    let s = &mut h.state_mut().synthetic;
+    s.push(Event::PointerMoved(from));
+    s.push(Event::PointerButton { pos: from, button: PointerButton::Primary, pressed: true, modifiers: m });
+    for k in 1..=8 {
+        s.push(Event::WindowFocused(true));
+        s.push(Event::PointerMoved(from + (to - from) * (k as f32 / 8.0)));
+    }
+    if !hold {
+        s.push(Event::WindowFocused(true));
+        s.push(Event::PointerButton { pos: to, button: PointerButton::Primary, pressed: false, modifiers: m });
+    }
+    step(h, 24);
+}
+
+#[test]
+fn panels_dock_by_dragging_their_title() {
+    use draftcraft_ui_egui::dock::{DockPanel, Side};
+    let mut app = ScriptApp::new(Session::sample());
+    app.dialogs = false;
+    let mut h = harness(app);
+    step(&mut h, 3);
+    let title = |h: &egui_kittest::Harness<'static, ScriptApp>| h.get_by_label("NAVIGATOR").rect().center();
+    // Mid-drag the overlay is up and the panel has not moved yet.
+    let from = title(&h);
+    drag(&mut h, from, egui::pos2(1265.0, 400.0), true);
+    assert_eq!(h.state().dock_drag, Some(DockPanel::Navigator));
+    assert_eq!(h.state().prefs.layout.navigator, Side::Left);
+    // Releasing near the right edge docks it there.
+    h.state_mut().synthetic.push(egui::Event::PointerButton {
+        pos: egui::pos2(1265.0, 400.0),
+        button: egui::PointerButton::Primary,
+        pressed: false,
+        modifiers: egui::Modifiers::default(),
+    });
+    step(&mut h, 4);
+    assert_eq!(h.state().dock_drag, None);
+    assert_eq!(h.state().prefs.layout.navigator, Side::Right);
+    assert!(title(&h).x > 880.0);
+    // Dropping on the target's "top" button docks it at the top.
+    let top = draftcraft_ui_egui::dock::target_rects(h.state().dock_area)[2];
+    assert_eq!(top.0, Side::Top);
+    let from = title(&h);
+    drag(&mut h, from, top.1.center(), false);
+    assert_eq!(h.state().prefs.layout.navigator, Side::Top);
+    // Dropping in the middle of the page changes nothing.
+    let from = title(&h);
+    drag(&mut h, from, egui::pos2(400.0, 500.0), false);
+    assert_eq!(h.state().prefs.layout.navigator, Side::Top);
+    assert_eq!(h.state().dock_drag, None);
+    // Esc cancels a drag that is still going on.
+    let from = title(&h);
+    drag(&mut h, from, egui::pos2(20.0, 400.0), true);
+    assert_eq!(h.state().dock_drag, Some(DockPanel::Navigator));
+    h.state_mut().synthetic.push(egui::Event::Key {
+        key: egui::Key::Escape,
+        physical_key: None,
+        pressed: true,
+        repeat: false,
+        modifiers: egui::Modifiers::default(),
+    });
+    step(&mut h, 2);
+    assert_eq!(h.state().dock_drag, None);
+    h.state_mut().synthetic.push(egui::Event::PointerButton {
+        pos: egui::pos2(20.0, 400.0),
+        button: egui::PointerButton::Primary,
+        pressed: false,
+        modifiers: egui::Modifiers::default(),
+    });
+    step(&mut h, 3);
+    assert_eq!(h.state().prefs.layout.navigator, Side::Top);
+}
