@@ -307,7 +307,7 @@ pub const FEATURES: &[Feature] = &[
         "Movable, dockable panels",
         Partial,
         &["ui.dockPanel"],
-        "Navigator and Story Map dock to any side; dragging, tabs and splitting still to come",
+        "Navigator and Story Map dock to any side, by menu or by dragging their title; tabs and splitting still to come",
     ),
     f(
         "View",
