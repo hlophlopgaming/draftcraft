@@ -431,3 +431,61 @@ fn panels_dock_to_any_side() {
     assert_eq!(h.state().prefs.layout.navigator, draftcraft_ui_egui::dock::Side::Right);
     step(&mut h, 2);
 }
+
+#[test]
+fn layout_presets_reset_and_survive_a_restart() {
+    use draftcraft_ui_egui::dock::Side;
+    let dir = std::env::temp_dir().join(format!("draftcraft-ui-layout-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let mut app = ScriptApp::new(Session::sample()).with_state_dir(dir.clone());
+    app.dialogs = false;
+    let mut h = harness(app);
+    step(&mut h, 3);
+    // Structure: index cards with the navigator and the story map.
+    let v = h.state_mut().execute("ui.layoutPreset", json!({"preset": "structure"})).unwrap();
+    assert_eq!((v["view"].as_str(), v["navigator"].as_bool(), v["storyMap"].as_bool()), (Some("cards"), Some(true), Some(true)));
+    assert_eq!(v["layoutPreset"], "structure");
+    step(&mut h, 3);
+    assert!(h.query_by_label("STORY MAP").is_some());
+    // Production: the page beside the reports.
+    let v = h.state_mut().execute("ui.layoutPreset", json!({"preset": "Production"})).unwrap();
+    assert_eq!((v["view"].as_str(), v["split"].as_str(), v["second"].as_str()), (Some("page"), Some("sideBySide"), Some("reports")));
+    assert_eq!(v["layoutPreset"], "production");
+    step(&mut h, 3);
+    // Writing: the page and nothing else.
+    let v = h.state_mut().execute("ui.layoutPreset", json!({"preset": "writing"})).unwrap();
+    assert_eq!((v["split"].as_str(), v["navigator"].as_bool(), v["storyMap"].as_bool()), (Some("off"), Some(false), Some(false)));
+    step(&mut h, 3);
+    assert!(h.query_by_label("NAVIGATOR").is_none());
+    // Changing a panel leaves the preset.
+    let v = h.state_mut().execute("ui.dockPanel", json!({"panel": "navigator", "side": "right"})).unwrap();
+    assert!(v["layoutPreset"].is_null());
+    step(&mut h, 2);
+    // Bad presets are errors and change nothing.
+    for p in [json!({}), json!({"preset": "cinema"}), json!({"preset": 3})] {
+        assert!(h.state_mut().execute("ui.layoutPreset", p).is_err());
+    }
+    assert_eq!(h.state().prefs.layout.navigator, Side::Right);
+    // The panels, where they dock and whether they are open, are kept in settings.
+    h.state_mut().on_exit();
+    let toml = std::fs::read_to_string(dir.join("config.toml")).unwrap();
+    assert!(toml.contains("navigator_open = true") && toml.contains("story_map_open = false"), "{toml}");
+    let next = ScriptApp::new(Session::sample()).with_state_dir(dir.clone());
+    assert!(next.navigator && !next.story_map);
+    assert_eq!(next.prefs.layout.navigator, Side::Right);
+    // Reset Layout puts everything back as on the first run.
+    let mut h = harness(next);
+    step(&mut h, 2);
+    h.state_mut().execute("ui.view.cards", json!({})).unwrap();
+    h.state_mut().execute("ui.toggleStoryMap", json!({"on": true})).unwrap();
+    let v = h.state_mut().execute("ui.resetLayout", json!({})).unwrap();
+    assert_eq!(
+        (v["view"].as_str(), v["split"].as_str(), v["navigator"].as_bool(), v["storyMap"].as_bool()),
+        (Some("page"), Some("off"), Some(true), Some(false))
+    );
+    assert_eq!(h.state().prefs.layout, draftcraft_ui_egui::dock::Layout::default());
+    step(&mut h, 3);
+    assert!(h.get_by_label("NAVIGATOR").rect().center().x < 400.0);
+    let _ = std::fs::remove_dir_all(&dir);
+}

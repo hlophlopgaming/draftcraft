@@ -219,6 +219,7 @@ pub fn menu_bar(app: &mut ScriptApp, ui: &mut Ui) {
                 for p in crate::dock::DockPanel::ALL {
                     ui.menu_button(lang.text(p.menu_label()), |ui| crate::dock::side_choices(app, ui, p));
                 }
+                ui.menu_button(lang.text("Layout"), |ui| crate::dock::layout_menu(app, ui));
                 check(app, ui, "Scene Numbers", app.session.script.settings.show_scene_numbers, "view.toggleSceneNumbers", json!({}));
                 check(app, ui, "Dark Mode", app.dark, "ui.theme.toggle", json!({}));
                 ui.separator();

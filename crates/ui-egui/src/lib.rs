@@ -90,6 +90,8 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ("ui.toggleStoryMap", "Story Map", "View", "Mod+Alt+M"),
     ("ui.toggleNavigator", "Navigator", "View", "Mod+Alt+N"),
     ("ui.dockPanel", "Dock Panel", "View", ""),
+    ("ui.layoutPreset", "Layout Preset", "View", ""),
+    ("ui.resetLayout", "Reset Layout", "View", ""),
     ("ui.theme.toggle", "Dark Mode", "View", "Mod+Alt+D"),
     ("ui.theme.dark", "Dark Theme", "View", ""),
     ("ui.theme.light", "Light Theme", "View", ""),
@@ -358,6 +360,8 @@ impl ScriptApp {
         self.canvas.zoom = p.appearance.zoom as f32;
         self.spelling = p.editing.spelling;
         self.enter_picker = p.editing.element_list_on_enter;
+        self.navigator = p.layout.navigator_open;
+        self.story_map = p.layout.story_map_open;
         self.prefs = p;
     }
 
@@ -367,6 +371,8 @@ impl ScriptApp {
         self.prefs.appearance.zoom = (f64::from(self.canvas.zoom) * 100.0).round() / 100.0;
         self.prefs.editing.spelling = self.spelling;
         self.prefs.editing.element_list_on_enter = self.enter_picker;
+        self.prefs.layout.navigator_open = self.navigator;
+        self.prefs.layout.story_map_open = self.story_map;
         #[cfg(not(target_arch = "wasm32"))]
         if let Some(store) = self.settings.as_mut()
             && store.get() != &self.prefs
@@ -663,6 +669,16 @@ impl ScriptApp {
                     dock::DockPanel::StoryMap => self.story_map = true,
                 }
             }
+            "ui.layoutPreset" => {
+                let name = p
+                    .get("preset")
+                    .and_then(Value::as_str)
+                    .ok_or_else(|| CmdError::Params("`preset` is required (writing, structure, production)".into()))?;
+                let preset =
+                    dock::Preset::parse(name).ok_or_else(|| CmdError::Params(format!("unknown preset `{name}` (writing, structure, production)")))?;
+                dock::apply(self, preset.layout(), preset.views());
+            }
+            "ui.resetLayout" => dock::apply(self, dock::Layout::default(), (View::Page, None)),
             "ui.theme.toggle" => {
                 self.dark = !self.dark;
                 self.prefs.appearance.theme = if self.dark { persist::Theme::Dark } else { persist::Theme::Light };
@@ -782,7 +798,7 @@ impl ScriptApp {
             other => return Err(CmdError::Unknown(other.to_string())),
         }
         Ok(
-            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "zoom": self.canvas.zoom, "navigator": self.navigator, "storyMap": self.story_map, "layout": self.prefs.layout.to_json(), "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language}),
+            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "zoom": self.canvas.zoom, "navigator": self.navigator, "storyMap": self.story_map, "layout": self.prefs.layout.to_json(), "layoutPreset": dock::Preset::current(self).map(dock::Preset::id), "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language}),
         )
     }
 

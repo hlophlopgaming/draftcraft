@@ -311,6 +311,13 @@ pub const FEATURES: &[Feature] = &[
     ),
     f(
         "View",
+        "Saved layouts with presets and Reset layout",
+        Partial,
+        &["ui.layoutPreset", "ui.resetLayout"],
+        "Writing, Structure and Production presets; panels kept in settings; adaptive narrow-window layout still to come",
+    ),
+    f(
+        "View",
         "Runs in the browser (WebAssembly)",
         Done,
         &["file.load", "document.export"],
