@@ -13,6 +13,7 @@ pub mod cards;
 mod chrome;
 pub mod collab_ui;
 pub mod control;
+pub mod dialog;
 pub mod dock;
 pub mod drafts;
 pub mod i18n;

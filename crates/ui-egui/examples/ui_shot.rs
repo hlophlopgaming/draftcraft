@@ -85,6 +85,12 @@ fn step(harness: &mut egui_kittest::Harness<'_, ScriptApp>) {
     harness.state_mut().raw_input_hook(&mut raw);
     *harness.input_mut() = raw;
     harness.step();
+    // What the desktop app does when Quit is chosen: ask the window to close (a script with
+    // unsaved changes then shows the "Save changes?" question instead of quitting).
+    let app = harness.state_mut();
+    if std::mem::take(&mut app.close_wanted) {
+        let _ = app.close_requested();
+    }
 }
 
 fn step_n(harness: &mut egui_kittest::Harness<'_, ScriptApp>, n: usize) {

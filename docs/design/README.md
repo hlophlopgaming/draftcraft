@@ -57,3 +57,15 @@ rounded corners, never filled. Each icon is a table of strokes (`icons::shapes`)
 any size; tests keep each icon on its grid, about the same size and centred, so the set reads
 as one family. Where the mockups have no icon (Save, Export PDF, Undo/Redo, Dual dialogue,
 Scene numbers, Title page, Story map, Split screen) it is drawn in the same manner.
+
+## In the app: dialogs
+
+`crates/ui-egui/src/dialog.rs` draws every redesigned dialog the same way: a `pop` card with
+the large radius and a soft shadow, a heading in the type scale with a close cross (no system
+title bar), roomy margins, and a footer under a hairline with the buttons on the right and the
+main action last, filled with the accent. Questions that must be answered first ("Save
+changes?", "Save changes first?", "Recover unsaved changes?") are modal: the desk dims under
+the `scrim` token and Escape or a click outside means Cancel (never for the recovery question,
+so an autosave is not lost by accident). Done so far: Title Page, About and those three
+questions; the other dialogs (element settings, page setup, find and replace, collaboration,
+print, revisions, track changes, read aloud) move to it one by one.

@@ -431,3 +431,41 @@ fn panels_dock_to_any_side() {
     assert_eq!(h.state().prefs.layout.navigator, draftcraft_ui_egui::dock::Side::Right);
     step(&mut h, 2);
 }
+
+#[test]
+fn the_title_page_dialog_closes_from_its_cross_and_done() {
+    let mut app = ScriptApp::new(Session::sample());
+    app.dialogs = false;
+    let mut h = harness(app);
+    step(&mut h, 3);
+    for button in ["Close", "Done"] {
+        h.state_mut().execute("ui.titlePage", json!({})).unwrap();
+        step(&mut h, 3);
+        assert!(h.state().title_dialog);
+        h.get_by_label(button).click();
+        step(&mut h, 3);
+        assert!(!h.state().title_dialog, "{button} closes the dialog");
+    }
+    // Free-form layout from the dialog's footer, translated.
+    h.state_mut().execute("ui.language", json!({"language": "ru"})).unwrap();
+    h.state_mut().execute("ui.titlePage", json!({})).unwrap();
+    step(&mut h, 3);
+    h.get_by_label("Свободная раскладка").click();
+    step(&mut h, 3);
+    assert!(h.state().session.script.title.is_free_form());
+    h.get_by_label("Добавить строку");
+}
+
+#[test]
+fn escape_cancels_the_save_question() {
+    let mut h = harness(ScriptApp::new(Session::sample()));
+    step(&mut h, 3);
+    h.state_mut().execute("text.insert", json!({"text": "x"})).unwrap();
+    assert!(!h.state_mut().close_requested());
+    step(&mut h, 3);
+    h.get_by_label("This script has unsaved changes. Save them before closing?");
+    h.key_press(egui::Key::Escape);
+    step(&mut h, 3);
+    assert!(!h.state().confirm_close, "Escape is Cancel");
+    assert!(!h.state().quit_requested && h.state().session.dirty, "nothing saved or discarded");
+}

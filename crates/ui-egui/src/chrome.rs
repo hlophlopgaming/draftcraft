@@ -5,6 +5,7 @@ use egui::{Key, Modifiers, RichText, Ui, vec2};
 use serde_json::json;
 
 use crate::icons::{self, Icon};
+use crate::theme::space;
 use crate::{ScriptApp, UI_COMMANDS, View};
 
 /// Run the command bound to a shortcut (UI commands first, then the engine registry).
@@ -712,9 +713,15 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
         let mut lines = tp.lines.clone();
         let mut lines_changed = false;
         let mut action: Option<&str> = None;
-        egui::Window::new(lang.text("Title Page")).open(&mut open).resizable(false).collapsible(false).default_width(480.0).show(ctx, |ui| {
+        let t = app.tokens();
+        let mut done = false;
+        crate::dialog::window(ctx, &t, "title-page", lang.text("Title Page"), lang.text("Close"), &mut open, 480.0, |ui| {
             if tp.is_free_form() {
-                ui.label(RichText::new(lang.text("Free-form title page: each row is one printed line, top to bottom.")).size(11.5));
+                ui.label(
+                    RichText::new(lang.text("Free-form title page: each row is one printed line, top to bottom."))
+                        .size(crate::theme::type_scale::SMALL)
+                        .color(t.text_soft),
+                );
                 ui.add_space(4.0);
                 let mut remove = None;
                 egui::ScrollArea::vertical().max_height(380.0).show(ui, |ui| {
@@ -745,19 +752,26 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
                     lines.remove(i);
                     lines_changed = true;
                 }
-                ui.add_space(6.0);
-                ui.horizontal(|ui| {
-                    if ui.button(lang.text("Add Line")).clicked() {
-                        lines.push(draftcraft_doc::TitleLine::new(draftcraft_doc::Align::Center, ""));
-                        lines_changed = true;
-                    }
-                    if ui.button(lang.text("Use Fields Instead")).on_hover_text(lang.text("Lay out the title page from its fields")).clicked() {
-                        action = Some("title.useFields");
-                    }
-                });
+                crate::dialog::footer(
+                    ui,
+                    &t,
+                    |ui| {
+                        if crate::dialog::secondary(ui, &t, lang.text("Add Line")).clicked() {
+                            lines.push(draftcraft_doc::TitleLine::new(draftcraft_doc::Align::Center, ""));
+                            lines_changed = true;
+                        }
+                        if crate::dialog::secondary(ui, &t, lang.text("Use Fields Instead"))
+                            .on_hover_text(lang.text("Lay out the title page from its fields"))
+                            .clicked()
+                        {
+                            action = Some("title.useFields");
+                        }
+                    },
+                    |ui| done = crate::dialog::primary(ui, &t, lang.text("Done")).clicked(),
+                );
                 return;
             }
-            egui::Grid::new("tp").num_columns(2).spacing([12.0, 8.0]).show(ui, |ui| {
+            egui::Grid::new("tp").num_columns(2).spacing([space::M, space::S]).show(ui, |ui| {
                 for (label, field, multi) in [
                     (lang.text("Title"), "title", false),
                     (lang.text("Credit"), "credit", false),
@@ -768,12 +782,12 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
                     (lang.text("Copyright"), "copyright", false),
                     (lang.text("Notes"), "notes", true),
                 ] {
-                    ui.label(lang.text(label));
+                    ui.label(RichText::new(lang.text(label)).color(t.text_soft));
                     let mut v = tp.get(field).unwrap_or("").to_string();
                     let r = if multi {
-                        ui.add(egui::TextEdit::multiline(&mut v).desired_rows(2).desired_width(300.0))
+                        ui.add(egui::TextEdit::multiline(&mut v).desired_rows(2).desired_width(360.0))
                     } else {
-                        ui.add(egui::TextEdit::singleline(&mut v).desired_width(300.0))
+                        ui.add(egui::TextEdit::singleline(&mut v).desired_width(360.0))
                     };
                     if r.changed() {
                         tp.set(field, &v);
@@ -782,11 +796,23 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
                     ui.end_row();
                 }
             });
-            ui.add_space(6.0);
-            if ui.button("Free-Form Layout").on_hover_text("Edit the title page line by line").clicked() {
-                action = Some("title.makeFreeForm");
-            }
+            crate::dialog::footer(
+                ui,
+                &t,
+                |ui| {
+                    if crate::dialog::secondary(ui, &t, lang.text("Free-Form Layout"))
+                        .on_hover_text(lang.text("Edit the title page line by line"))
+                        .clicked()
+                    {
+                        action = Some("title.makeFreeForm");
+                    }
+                },
+                |ui| done = crate::dialog::primary(ui, &t, lang.text("Done")).clicked(),
+            );
         });
+        if done {
+            open = false;
+        }
         if changed {
             let fields = serde_json::to_value(&tp).unwrap_or_default();
             app.run("title.set", json!({"fields": fields}));
@@ -887,8 +913,8 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
     }
     if app.about {
         let mut open = true;
-        egui::Window::new(lang.text("About DraftCraft")).open(&mut open).resizable(false).collapsible(false).show(ctx, |ui| {
-            ui.heading("DraftCraft");
+        let t = app.tokens();
+        crate::dialog::window(ctx, &t, "about", lang.text("About DraftCraft"), lang.text("Close"), &mut open, 420.0, |ui| {
             ui.label(lang.format("Version {version}", &[("version", (env!("CARGO_PKG_VERSION")).to_string())]));
             ui.label(lang.text("Open-source screenwriting in pure Rust, by the ArtCraft community."));
             ui.label(lang.text("MIT OR Apache-2.0. Typeface: Courier Badi (SIL Open Font License 1.1)."));
@@ -907,33 +933,39 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
         });
         app.about = open;
     }
+    let t = app.tokens();
     if let Some(r) = app.recovery_offer.clone() {
-        let mut choice = None;
-        egui::Window::new(lang.text("Recover unsaved changes?"))
-            .collapsible(false)
-            .resizable(false)
-            .anchor(egui::Align2::CENTER_CENTER, vec2(0.0, 0.0))
-            .show(ctx, |ui| {
-                let name = r
-                    .path
-                    .as_deref()
-                    .and_then(|p| std::path::Path::new(p).file_name())
-                    .and_then(|n| n.to_str())
-                    .unwrap_or(lang.text("an untitled script"))
-                    .to_string();
-                ui.label(lang.format(
-                    "DraftCraft did not close normally. An autosaved copy of {name} ({scenes} scenes) is available.",
-                    &[("name", (name).to_string()), ("scenes", (r.script.scenes().len()).to_string())],
-                ));
-                ui.horizontal(|ui| {
-                    if ui.button(lang.text("Recover")).clicked() {
-                        choice = Some(true);
+        let name = r
+            .path
+            .as_deref()
+            .and_then(|p| std::path::Path::new(p).file_name())
+            .and_then(|n| n.to_str())
+            .unwrap_or(lang.text("an untitled script"))
+            .to_string();
+        let message = lang.format(
+            "DraftCraft did not close normally. An autosaved copy of {name} ({scenes} scenes) is available.",
+            &[("name", name), ("scenes", (r.script.scenes().len()).to_string())],
+        );
+        // Not dismissable: Escape or a stray click must not throw the autosave away.
+        let (choice, _) = crate::dialog::modal(ctx, &t, "recover", lang.text("Recover unsaved changes?"), &message, |ui| {
+            let (mut discard, mut recover) = (None, None);
+            crate::dialog::footer(
+                ui,
+                &t,
+                |ui| discard = Some(crate::dialog::secondary(ui, &t, lang.text("Discard"))),
+                |ui| recover = Some(crate::dialog::primary(ui, &t, lang.text("Recover"))),
+            );
+            let mut choice = None;
+            for (label, r, c) in [(lang.text("Recover"), recover, true), (lang.text("Discard"), discard, false)] {
+                if let Some(r) = r {
+                    app.dialog_buttons.push((label.to_string(), r.rect));
+                    if r.clicked() {
+                        choice = Some(c);
                     }
-                    if ui.button(lang.text("Discard")).clicked() {
-                        choice = Some(false);
-                    }
-                });
-            });
+                }
+            }
+            choice
+        });
         match choice {
             Some(true) => {
                 app.session.replace_script(r.script);
@@ -950,30 +982,16 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
         }
     }
     if let Some((id, params)) = app.confirm_replace.clone() {
-        let mut choice = None;
-        egui::Window::new(lang.text("Save changes first?"))
-            .collapsible(false)
-            .resizable(false)
-            .anchor(egui::Align2::CENTER_CENTER, vec2(0.0, 0.0))
-            .show(ctx, |ui| {
-                ui.label(lang.text("This script has unsaved changes."));
-                ui.horizontal(|ui| {
-                    if ui.button(lang.text("Save")).clicked() {
-                        choice = Some(1);
-                    }
-                    if ui.button(lang.text("Don't Save")).clicked() {
-                        choice = Some(2);
-                    }
-                    if ui.button(lang.text("Cancel")).clicked() {
-                        choice = Some(0);
-                    }
-                });
+        let (choice, dismissed) =
+            crate::dialog::modal(ctx, &t, "save-first", lang.text("Save changes first?"), lang.text("This script has unsaved changes."), |ui| {
+                save_buttons(app, ui, &t)
             });
+        let choice = if dismissed { Some(SaveChoice::Cancel) } else { choice };
         if let Some(c) = choice {
-            if c == 1 {
+            if c == SaveChoice::Save {
                 let _ = app.execute("ui.save", json!({}));
             }
-            if c == 2 || (c == 1 && !app.session.dirty) {
+            if c == SaveChoice::DontSave || (c == SaveChoice::Save && !app.session.dirty) {
                 app.session.dirty = false;
                 let _ = app.execute(&id, params);
             }
@@ -981,33 +999,68 @@ pub fn dialogs(app: &mut ScriptApp, ctx: &egui::Context) {
         }
     }
     if app.confirm_close {
-        egui::Window::new(lang.text("Save changes?")).collapsible(false).resizable(false).anchor(egui::Align2::CENTER_CENTER, vec2(0.0, 0.0)).show(
+        let (choice, dismissed) = crate::dialog::modal(
             ctx,
-            |ui| {
-                ui.label(lang.text("This script has unsaved changes. Save them before closing?"));
-                ui.horizontal(|ui| {
-                    let save = ui.button(lang.text("Save"));
-                    let discard = ui.button(lang.text("Don't Save"));
-                    let cancel = ui.button(lang.text("Cancel"));
-                    for (n, r) in [(lang.text("Save"), &save), (lang.text("Don't Save"), &discard), (lang.text("Cancel"), &cancel)] {
-                        app.dialog_buttons.push((n.to_string(), r.rect));
-                    }
-                    if save.clicked() {
-                        let _ = app.execute("ui.save", json!({}));
-                        app.confirm_close = false;
-                        if !app.session.dirty {
-                            app.quit_requested = true;
-                        }
-                    }
-                    if discard.clicked() {
-                        app.confirm_close = false;
-                        app.quit_requested = true;
-                    }
-                    if cancel.clicked() {
-                        app.confirm_close = false;
-                    }
-                });
-            },
+            &t,
+            "save-close",
+            lang.text("Save changes?"),
+            lang.text("This script has unsaved changes. Save them before closing?"),
+            |ui| save_buttons(app, ui, &t),
         );
+        let choice = if dismissed { Some(SaveChoice::Cancel) } else { choice };
+        match choice {
+            Some(SaveChoice::Save) => {
+                let _ = app.execute("ui.save", json!({}));
+                app.confirm_close = false;
+                if !app.session.dirty {
+                    app.quit_requested = true;
+                }
+            }
+            Some(SaveChoice::DontSave) => {
+                app.confirm_close = false;
+                app.quit_requested = true;
+            }
+            Some(SaveChoice::Cancel) => app.confirm_close = false,
+            None => {}
+        }
     }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum SaveChoice {
+    Save,
+    DontSave,
+    Cancel,
+}
+
+/// "Don't Save" on the left, "Cancel" and "Save" on the right (the main action last), each
+/// listed in `dialog_buttons` for the control channel in the order Save, Don't Save, Cancel.
+fn save_buttons(app: &mut ScriptApp, ui: &mut Ui, t: &crate::theme::Tokens) -> Option<SaveChoice> {
+    let lang = app.prefs.appearance.language;
+    let mut discard = None;
+    let mut save = None;
+    let mut cancel = None;
+    crate::dialog::footer(
+        ui,
+        t,
+        |ui| discard = Some(crate::dialog::secondary(ui, t, lang.text("Don't Save"))),
+        |ui| {
+            save = Some(crate::dialog::primary(ui, t, lang.text("Save")));
+            cancel = Some(crate::dialog::secondary(ui, t, lang.text("Cancel")));
+        },
+    );
+    let mut choice = None;
+    for (label, r, c) in [
+        (lang.text("Save"), save, SaveChoice::Save),
+        (lang.text("Don't Save"), discard, SaveChoice::DontSave),
+        (lang.text("Cancel"), cancel, SaveChoice::Cancel),
+    ] {
+        if let Some(r) = r {
+            app.dialog_buttons.push((label.to_string(), r.rect));
+            if r.clicked() {
+                choice = Some(c);
+            }
+        }
+    }
+    choice
 }
