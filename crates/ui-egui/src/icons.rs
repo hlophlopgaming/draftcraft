@@ -36,11 +36,12 @@ pub enum Icon {
     Redo,
     Beats,
     Split,
+    Close,
 }
 
 impl Icon {
     /// Every icon, for tests and the icon sheet.
-    pub const ALL: [Icon; 20] = [
+    pub const ALL: [Icon; 21] = [
         Icon::New,
         Icon::Open,
         Icon::Save,
@@ -61,6 +62,7 @@ impl Icon {
         Icon::Redo,
         Icon::Beats,
         Icon::Split,
+        Icon::Close,
     ];
 }
 
@@ -197,6 +199,8 @@ pub fn shapes(icon: Icon) -> &'static [Prim] {
             Poly(&[(6.0, 13.0), (9.0, 13.0)], false, 0.0),
             Poly(&[(15.0, 9.0), (18.0, 9.0)], false, 0.0),
         ],
+        // Close a dialog: a plain cross, drawn by Focus (no mockup icon).
+        Icon::Close => &[Poly(&[(5.0, 5.0), (19.0, 19.0)], false, 0.0), Poly(&[(19.0, 5.0), (5.0, 19.0)], false, 0.0)],
     }
 }
 
