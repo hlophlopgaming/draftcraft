@@ -50,7 +50,8 @@ The interface looks dated and crowded. A design pass before new features land:
       of the current line shown in the margin
 - [ ] Redesigned dialogs: element settings, title page, page setup, find and replace,
       collaboration, print
-- [ ] A command palette (every command by name; they already all have ids)
+- [x] A command palette (every command by name; they already all have ids): View › Command
+      Palette…, Ctrl/⌘+K, `ui.commandPalette`
 - [ ] Welcome screen: new script, templates, recent files, the guide
 - [ ] Interface text size and theme choice in settings; keep it usable at 100–200 % scale
 - [ ] Translate the remaining English-only menu items (Split Screen, Read Aloud, Track Changes,

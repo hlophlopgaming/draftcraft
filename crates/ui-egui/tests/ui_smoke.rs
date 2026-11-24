@@ -431,3 +431,71 @@ fn panels_dock_to_any_side() {
     assert_eq!(h.state().prefs.layout.navigator, draftcraft_ui_egui::dock::Side::Right);
     step(&mut h, 2);
 }
+
+#[test]
+fn command_palette_finds_and_runs_commands() {
+    let mut app = ScriptApp::new(Session::sample());
+    app.dialogs = false;
+    let mut h = harness(app);
+    step(&mut h, 3);
+    let key = |h: &mut egui_kittest::Harness<'static, ScriptApp>, key: egui::Key| {
+        for pressed in [true, false] {
+            h.input_mut().events.push(egui::Event::Key { key, physical_key: None, pressed, repeat: false, modifiers: egui::Modifiers::NONE });
+        }
+        step(h, 2);
+    };
+    // Mod+K opens it with the field focused; typing filters the list.
+    h.input_mut().events.push(egui::Event::Key {
+        key: egui::Key::K,
+        physical_key: None,
+        pressed: true,
+        repeat: false,
+        modifiers: egui::Modifiers::COMMAND,
+    });
+    step(&mut h, 3);
+    assert!(h.state().palette.is_some());
+    h.input_mut().events.push(egui::Event::Text("index cards".into()));
+    step(&mut h, 2);
+    assert_eq!(h.state().palette.as_ref().map(|p| p.query.as_str()), Some("index cards"));
+    // Enter runs the best match and closes the palette.
+    key(&mut h, egui::Key::Enter);
+    assert_eq!(h.state().view, draftcraft_ui_egui::View::Cards);
+    assert!(h.state().palette.is_none());
+    // The command reports its matches, best first: a name that starts with the query wins.
+    let v = h.state_mut().execute("ui.commandPalette", json!({"query": "dark"})).unwrap();
+    assert_eq!((v["open"].as_bool(), v["matches"][0].as_str()), (Some(true), Some("ui.theme.toggle")));
+    // Arrow keys choose, Enter runs the chosen one.
+    let v = h.state_mut().execute("ui.commandPalette", json!({"query": "page view"})).unwrap();
+    assert_eq!(v["matches"][0], "ui.view.page");
+    step(&mut h, 2);
+    key(&mut h, egui::Key::Enter);
+    assert_eq!(h.state().view, draftcraft_ui_egui::View::Page);
+    // A command that needs details keeps the palette open and says what it needs.
+    let v = h.state_mut().execute("ui.commandPalette", json!({"query": "scene.move"})).unwrap();
+    assert_eq!(v["matches"][0], "scene.move");
+    step(&mut h, 2);
+    let before = h.state().session.script.clone();
+    key(&mut h, egui::Key::Enter);
+    let pal = h.state().palette.clone().expect("palette stays open");
+    assert_eq!(pal.error.map(|(id, _)| id).as_deref(), Some("scene.move"));
+    assert_eq!(h.state().session.script, before);
+    // Escape closes it; nothing matches nonsense; the window survives hostile queries.
+    key(&mut h, egui::Key::Escape);
+    assert!(h.state().palette.is_none());
+    let v = h.state_mut().execute("ui.commandPalette", json!({"query": "zzqqxx"})).unwrap();
+    assert_eq!(v["matches"].as_array().map(Vec::len), Some(0));
+    step(&mut h, 2);
+    for p in [json!({"query": "ё".repeat(10_000)}), json!({"query": 7}), json!({"open": "yes"}), json!({"open": false})] {
+        assert!(h.state_mut().execute("ui.commandPalette", p).is_ok());
+        step(&mut h, 2);
+    }
+    assert!(h.state().palette.is_none());
+    // In Russian the names are translated and found in either language.
+    h.state_mut().execute("ui.language", json!({"language": "ru"})).unwrap();
+    for q in ["карточки", "index cards"] {
+        let v = h.state_mut().execute("ui.commandPalette", json!({"query": q})).unwrap();
+        assert_eq!(v["matches"][0], "ui.view.cards", "{q}");
+    }
+    step(&mut h, 2);
+    assert!(h.query_by_label("Введите команду…").is_some() || h.query_by_label("Карточки сцен").is_some());
+}

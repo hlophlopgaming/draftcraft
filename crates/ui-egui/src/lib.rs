@@ -18,6 +18,7 @@ pub mod drafts;
 pub mod i18n;
 pub mod icons;
 pub mod outline;
+pub mod palette;
 pub mod persist;
 pub mod printing;
 pub mod production;
@@ -105,6 +106,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ("ui.editBeat", "Edit Beat…", "View", ""),
     ("ui.bookmarks", "Show Bookmarks", "Edit", ""),
     ("ui.find", "Find…", "Edit", "Mod+F"),
+    ("ui.commandPalette", "Command Palette…", "View", "Mod+K"),
     ("ui.toggleSpelling", "Check Spelling as You Type", "Tools", ""),
     ("ui.toggleEnterPicker", "Element List on Enter in an Empty Paragraph", "Format", ""),
     ("ui.titlePage", "Title Page…", "Document", ""),
@@ -164,6 +166,8 @@ pub struct ScriptApp {
     pub custom_category: String,
     pub canvas: canvas::CanvasState,
     pub find: Option<FindBar>,
+    /// The command palette, while it is open.
+    pub palette: Option<palette::Palette>,
     pub title_dialog: bool,
     pub element_dialog: bool,
     /// Page Setup, Print and Revisions dialogs.
@@ -262,6 +266,7 @@ impl ScriptApp {
             custom_category: String::new(),
             canvas: canvas::CanvasState::default(),
             find: None,
+            palette: None,
             title_dialog: false,
             element_dialog: false,
             production: production::Dialogs::default(),
@@ -580,6 +585,7 @@ impl ScriptApp {
             "ui.view.reports" => split::set_view(self, View::Reports),
             "ui.view.beats" => split::set_view(self, View::BeatBoard),
             "ui.view.outline" => split::set_view(self, View::Outline),
+            "ui.commandPalette" => return Ok(palette::command(self, p)),
             "ui.toggleStoryMap" => self.story_map = p.get("on").and_then(Value::as_bool).unwrap_or(!self.story_map),
             "ui.split" => {
                 let mode = match p.get("mode").and_then(Value::as_str) {
@@ -995,5 +1001,6 @@ impl ScriptApp {
         collab_ui::window(self, &ctx);
         speech::windows(self, &ctx);
         drafts::dialogs(self, &ctx);
+        palette::show(self, &ctx);
     }
 }
