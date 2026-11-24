@@ -172,6 +172,8 @@ pub fn menu_bar(app: &mut ScriptApp, ui: &mut Ui) {
                 crate::bookmarks::menu(app, ui);
             });
             ui.menu_button(lang.text("View"), |ui| {
+                item(app, ui, "Command Palette…", "ui.commandPalette", "Mod+K");
+                ui.separator();
                 let v = crate::split::active_view(app);
                 check(app, ui, "Page View", v == View::Page, "ui.view.page", json!({}));
                 check(app, ui, "Index Cards", v == View::Cards, "ui.view.cards", json!({}));
