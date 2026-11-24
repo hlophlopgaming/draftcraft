@@ -269,6 +269,21 @@ pub fn show(app: &mut ScriptApp, ctx: &egui::Context) {
     }
 }
 
+/// A shortcut as the palette writes it: `Mod+Alt+2` → `Cmd+Option+2` on macOS, `Ctrl+Alt+2`
+/// elsewhere. Spelled out in letters, because the interface fonts have no ⌘ ⌥ ⇧ glyphs.
+pub fn key_text(k: &str, mac: bool) -> String {
+    let k = k.split(" / ").next().unwrap_or(k);
+    k.split('+')
+        .map(|p| match p {
+            "Mod" if mac => "Cmd",
+            "Mod" => "Ctrl",
+            "Alt" if mac => "Option",
+            other => other,
+        })
+        .collect::<Vec<_>>()
+        .join("+")
+}
+
 /// One row: the name, where it lives, and its shortcut.
 fn row(ui: &mut Ui, t: &crate::theme::Tokens, e: &Entry, selected: bool, scroll: bool) -> egui::Response {
     let h = 30.0;
@@ -295,7 +310,7 @@ fn row(ui: &mut Ui, t: &crate::theme::Tokens, e: &Entry, selected: bool, scroll:
         );
     }
     if !e.shortcut.is_empty() {
-        let k = crate::chrome::pretty_key(&e.shortcut);
+        let k = key_text(&e.shortcut, cfg!(target_os = "macos"));
         let galley = p.layout_no_wrap(k, egui::FontId::proportional(type_scale::CAPTION), t.text_soft);
         let kr = egui::Rect::from_min_size(
             egui::pos2(rect.right() - space::S - galley.size().x - 10.0, cy - galley.size().y / 2.0 - 2.0),
@@ -337,6 +352,14 @@ mod tests {
         assert_eq!(score(&save, "save pdf"), None);
         assert_eq!(score(&save, "   "), Some(3));
         assert_eq!(score(&save, "СОХР"), None);
+    }
+
+    #[test]
+    fn shortcuts_are_spelled_out_in_letters_the_fonts_have() {
+        assert_eq!(key_text("Mod+Alt+2", true), "Cmd+Option+2");
+        assert_eq!(key_text("Mod+Shift+Z / Mod+Y", false), "Ctrl+Shift+Z");
+        assert_eq!(key_text("Mod+=", false), "Ctrl+=");
+        assert!(key_text("Mod+Shift+K", true).is_ascii());
     }
 
     #[test]
