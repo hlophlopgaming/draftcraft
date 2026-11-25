@@ -14,9 +14,10 @@ use serde_json::Value;
 
 /// File › New from Template.
 pub(crate) fn new_menu(app: &mut ScriptApp, ui: &mut Ui) {
-    ui.menu_button("New from Template", |ui| {
+    let lang = app.prefs.appearance.language;
+    ui.menu_button(lang.text("New from Template"), |ui| {
         for t in Template::ALL {
-            if ui.button(t.name()).on_hover_text(t.description()).clicked() {
+            if ui.button(lang.text(t.name())).on_hover_text(lang.text(t.description())).clicked() {
                 app.run("template.new", json!({"template": t.id()}));
                 ui.close();
             }

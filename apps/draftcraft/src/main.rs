@@ -2,7 +2,9 @@
 //!
 //! Usage: `draftcraft [--new | --sample] [--config-dir <dir>] [--control <port>] [file.fountain|file.fdx|file.docx|file.celtx|file.pdf]`
 //!
-//! With no file it opens the sample script (`--new` starts blank). Settings and data follow the
+//! With no file it opens the sample script (`--new` starts blank) and shows the welcome screen
+//! over it, unless `--new`, `--sample` or `--control` is given or the welcome screen is switched
+//! off in its "Show at start" box. Settings and data follow the
 //! Craft suite's folder rules (craft-settings): `--config-dir`, then `DRAFTCRAFT_CONFIG_DIR`
 //! (empty = isolated, nothing read or written), then a `portable` marker, then the platform
 //! folder. `--control <port>` (or `DRAFTCRAFT_CONTROL_PORT`) starts a localhost JSON-lines
@@ -98,14 +100,22 @@ fn main() -> eframe::Result<()> {
     let mut control_port: Option<u16> = std::env::var("DRAFTCRAFT_CONTROL_PORT").ok().and_then(|p| p.parse().ok());
     let mut file: Option<String> = None;
     let mut blank = false;
+    // `--new`/`--sample` say what to start with, so the welcome screen is not needed.
+    let mut chosen = false;
     let mut config_dir: Option<std::path::PathBuf> = None;
     let mut args = std::env::args().skip(1);
     while let Some(a) = args.next() {
         match a.as_str() {
             "--control" => control_port = args.next().and_then(|p| p.parse().ok()),
             "--config-dir" => config_dir = args.next().map(std::path::PathBuf::from),
-            "--new" => blank = true,
-            "--sample" => blank = false,
+            "--new" => {
+                blank = true;
+                chosen = true;
+            }
+            "--sample" => {
+                blank = false;
+                chosen = true;
+            }
             "--help" | "-h" => {
                 println!(
                     "draftcraft [--new | --sample] [--config-dir <dir>] [--control <port>] [file.fountain|file.fdx|file.docx|file.celtx|file.pdf]"
@@ -115,6 +125,7 @@ fn main() -> eframe::Result<()> {
             other => file = Some(other.to_string()),
         }
     }
+    let file_given = file.is_some() || chosen || control_port.is_some();
     let mut session = if blank { Session::new(Default::default()) } else { Session::sample() };
     if let Some(f) = &file
         && let Err(e) = session.run("file.open", &json!({"path": f}))
@@ -150,6 +161,7 @@ fn main() -> eframe::Result<()> {
             let folders = draftcraft_control_key::folders(config_dir);
             let data = folders.data.clone();
             app = app.with_folders(folders);
+            app.welcome = draftcraft_ui_egui::welcome::at_start(&app, file_given);
             // Read aloud with the system's voices (and whisper.cpp dictation when installed).
             app.speaker = tts::detect().map(|s| Box::new(s) as Box<dyn draftcraft_ui_egui::speech::SpeechHost>);
             // Print to the system's printers (CUPS, or the Windows print action).

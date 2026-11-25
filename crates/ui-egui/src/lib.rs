@@ -27,6 +27,7 @@ pub mod speech;
 pub mod split;
 pub mod storymap;
 pub mod theme;
+pub mod welcome;
 
 use std::sync::mpsc::Receiver;
 
@@ -123,6 +124,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ("ui.exportFdx", "Export Final Draft (FDX)…", "File", ""),
     ("ui.exportFountain", "Export Fountain…", "File", ""),
     ("ui.about", "About DraftCraft", "Help", ""),
+    ("ui.welcome", "Welcome Screen", "Help", ""),
     ("ui.quit", "Quit DraftCraft", "File", "Mod+Q"),
     ("ui.openRecent", "Open Recent", "File", ""),
     ("ui.clearRecent", "Clear Recent Files", "File", ""),
@@ -183,6 +185,8 @@ pub struct ScriptApp {
     /// The tags field of an index card's menu: (scene, text).
     pub tag_edit: Option<(usize, String)>,
     pub about: bool,
+    /// The welcome screen fills the window (`ui.welcome`, see [`welcome`]).
+    pub welcome: bool,
     /// Native file dialogs are allowed (off in tests and headless screenshots).
     pub dialogs: bool,
     /// Ask before closing with unsaved changes.
@@ -276,6 +280,7 @@ impl ScriptApp {
             card_rects: Vec::new(),
             tag_edit: None,
             about: false,
+            welcome: false,
             dialogs: true,
             confirm_close: false,
             quit_requested: false,
@@ -546,6 +551,9 @@ impl ScriptApp {
         match &r {
             Ok(_) => {
                 self.after_file(id);
+                if welcome::CLOSES.contains(&id) {
+                    self.welcome = false;
+                }
                 if id == "spell.addWord"
                     && let Some(dir) = &self.state_dir
                     && let Err(e) = persist::save_words(dir, &self.session.user_words)
@@ -586,6 +594,7 @@ impl ScriptApp {
             "ui.view.beats" => split::set_view(self, View::BeatBoard),
             "ui.view.outline" => split::set_view(self, View::Outline),
             "ui.commandPalette" => return Ok(palette::command(self, p)),
+            "ui.welcome" => return Ok(welcome::command(self, p)),
             "ui.toggleStoryMap" => self.story_map = p.get("on").and_then(Value::as_bool).unwrap_or(!self.story_map),
             "ui.split" => {
                 let mode = match p.get("mode").and_then(Value::as_str) {
@@ -788,7 +797,7 @@ impl ScriptApp {
             other => return Err(CmdError::Unknown(other.to_string())),
         }
         Ok(
-            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "zoom": self.canvas.zoom, "navigator": self.navigator, "storyMap": self.story_map, "layout": self.prefs.layout.to_json(), "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language}),
+            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "zoom": self.canvas.zoom, "navigator": self.navigator, "storyMap": self.story_map, "layout": self.prefs.layout.to_json(), "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language, "welcome": self.welcome}),
         )
     }
 
@@ -980,6 +989,16 @@ impl ScriptApp {
         }
         chrome::global_shortcuts(self, &ctx);
         chrome::menu_bar(self, ui);
+        if self.welcome {
+            let status = self.status.as_ref().map(|(s, _)| s.clone());
+            chrome::status_bar(self, ui, status);
+            let t = self.tokens();
+            egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.desk)).show(ui, |ui| welcome::show(self, ui));
+            self.dialog_buttons.clear();
+            chrome::dialogs(self, &ctx);
+            palette::show(self, &ctx);
+            return;
+        }
         chrome::toolbar(self, ui);
         if self.find.is_some() {
             chrome::find_bar(self, ui);

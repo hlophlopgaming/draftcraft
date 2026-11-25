@@ -58,11 +58,13 @@ pub struct Appearance {
     pub language: crate::i18n::Language,
     /// Page zoom (0.4 to 3.0).
     pub zoom: f64,
+    /// Show the welcome screen when the app starts without a file.
+    pub show_welcome: bool,
 }
 
 impl Default for Appearance {
     fn default() -> Self {
-        Appearance { theme: Theme::System, language: Default::default(), zoom: 1.0 }
+        Appearance { theme: Theme::System, language: Default::default(), zoom: 1.0, show_welcome: true }
     }
 }
 
