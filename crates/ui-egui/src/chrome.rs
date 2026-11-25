@@ -294,6 +294,7 @@ pub fn menu_bar(app: &mut ScriptApp, ui: &mut Ui) {
                 crate::drafts::tools_menu(app, ui);
             });
             ui.menu_button(lang.text("Help"), |ui| {
+                item(app, ui, "Welcome Screen", "ui.welcome", "");
                 item(app, ui, "About DraftCraft", "ui.about", "");
                 item(app, ui, "Open Sample Script", "file.sample", "");
             });
