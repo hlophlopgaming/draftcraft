@@ -123,6 +123,56 @@ pub fn read_noted(path: &Path) -> Result<(Script, Format, Vec<String>), String> 
     Ok((script, format, notes))
 }
 
+/// What the welcome screen and `file.info` tell about a script file without opening it in the
+/// window: its pages, scenes, the template its formatting matches, the latest revision set that
+/// marked its text, and when it was last changed.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FileInfo {
+    pub format: Format,
+    /// Pages of script (the title page not counted).
+    pub pages: usize,
+    pub scenes: usize,
+    /// The template the formatting matches, if any.
+    pub template: Option<draftcraft_doc::Template>,
+    /// The name of the latest revision set with marks in the text (`Blue`), if any.
+    pub revision: Option<String>,
+    /// Last change, seconds since the Unix epoch (`None` when the system can't tell).
+    pub modified: Option<u64>,
+    pub bytes: u64,
+}
+
+impl FileInfo {
+    /// Summarise a script already read.
+    pub fn of(script: &Script, format: Format, modified: Option<u64>, bytes: u64) -> FileInfo {
+        let layout = draftcraft_layout::layout(script);
+        let scenes = script.paras.iter().filter(|p| p.element == draftcraft_doc::Element::SceneHeading).count();
+        let level = script.paras.iter().flat_map(|p| p.revs.iter().map(|m| m.level)).max();
+        let revision = level.and_then(|l| script.settings.revision.set(l)).map(|s| s.name.trim().to_string()).filter(|n| !n.is_empty());
+        let template = draftcraft_doc::Template::detect(&script.settings);
+        FileInfo { format, pages: layout.script_pages(), scenes, template, revision, modified, bytes }
+    }
+
+    pub fn to_json(&self) -> serde_json::Value {
+        serde_json::json!({
+            "format": self.format.name(),
+            "pages": self.pages,
+            "scenes": self.scenes,
+            "template": self.template.map(|t| t.id()),
+            "revision": self.revision,
+            "modified": self.modified,
+            "bytes": self.bytes,
+        })
+    }
+}
+
+/// Read a script file and summarise it (see [`FileInfo`]). The file is only read.
+pub fn info(path: &Path) -> Result<FileInfo, String> {
+    let meta = std::fs::metadata(path).map_err(|e| format!("cannot open {}: {e}", path.display()))?;
+    let modified = meta.modified().ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map(|d| d.as_secs());
+    let (script, format, _) = read_noted(path)?;
+    Ok(FileInfo::of(&script, format, modified, meta.len()))
+}
+
 /// Write a script file (format by extension), through a temporary file so a failed write never
 /// leaves half a script behind.
 pub fn write(script: &Script, path: &Path) -> Result<Format, String> {

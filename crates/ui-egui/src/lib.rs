@@ -187,6 +187,8 @@ pub struct ScriptApp {
     pub about: bool,
     /// The welcome screen fills the window (`ui.welcome`, see [`welcome`]).
     pub welcome: bool,
+    /// What the welcome screen read from each recent file (see [`welcome::details`]).
+    pub recent_details: welcome::DetailsCache,
     /// Native file dialogs are allowed (off in tests and headless screenshots).
     pub dialogs: bool,
     /// Ask before closing with unsaved changes.
@@ -281,6 +283,7 @@ impl ScriptApp {
             tag_edit: None,
             about: false,
             welcome: false,
+            recent_details: welcome::DetailsCache::new(),
             dialogs: true,
             confirm_close: false,
             quit_requested: false,

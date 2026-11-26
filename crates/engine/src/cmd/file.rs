@@ -15,6 +15,9 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("file.new", "New Script", "File", new).key("Mod+N").pure(),
         CommandSpec::new("file.sample", "Open Sample Script", "Help", sample).pure(),
         CommandSpec::new("file.open", "Open", "File", open).params(r#"{"path": ".fountain|.fdx file, or .docx|.celtx|.pdf (imported)"}"#).pure(),
+        CommandSpec::new("file.info", "File Info", "File", info)
+            .params(r#"{"path": a script file} → {"format", "pages", "scenes", "template", "revision", "modified" (Unix seconds), "bytes"}; the open script is untouched"#)
+            .pure(),
         CommandSpec::new("file.import", "Import", "File", import)
             .params(r#"{"path": ".docx|.celtx|.pdf"} or {"name": "draft.docx", "data": base64} → {"paragraphs", "format", "notes"}"#)
             .pure(),
@@ -55,6 +58,16 @@ fn open(s: &mut Session, v: &Value) -> CmdResult {
     s.status = format!("Opened {}", path.display());
     s.path = Some(path);
     Ok(json!({"paragraphs": s.script.paras.len()}))
+}
+
+fn info(_: &mut Session, v: &Value) -> CmdResult {
+    let path = PathBuf::from(p::req_str(v, "path")?);
+    let info = io::info(&path).map_err(CmdError::Failed)?;
+    let mut out = info.to_json();
+    if let Some(o) = out.as_object_mut() {
+        o.insert("path".into(), json!(path.display().to_string()));
+    }
+    Ok(out)
 }
 
 /// Take an imported script: not tied to its file (it can't be saved back), so it starts unsaved.
