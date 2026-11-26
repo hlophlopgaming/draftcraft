@@ -29,6 +29,8 @@ image = { version = "0.25", default-features = false, features = ["png"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 rfd = { workspace = true }
+# Local time for the welcome screen (greeting, "Today, 11:40"): the system time zone.
+jiff = { workspace = true }
 
 [dev-dependencies]
 egui_kittest = { workspace = true, features = ["wgpu", "snapshot"] }

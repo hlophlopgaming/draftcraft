@@ -263,6 +263,37 @@ fn files_round_trip() {
 }
 
 #[test]
+fn file_info_reads_without_opening() {
+    let dir = std::env::temp_dir().join(format!("draftcraft-info-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let mut s = Session::sample();
+    let pages = s.layout().script_pages();
+    let p = dir.join("night.fdx");
+    run(&mut s, "file.saveAs", json!({"path": p.to_str().unwrap()}));
+    let mut other = Session::new(draftcraft_doc::Script::new());
+    let before = other.script.clone();
+    let v = run(&mut other, "file.info", json!({"path": p.to_str().unwrap()}));
+    assert_eq!(other.script, before, "file.info leaves the open script alone");
+    assert!(other.path.is_none());
+    assert_eq!(v["pages"], json!(pages));
+    assert_eq!(v["scenes"], json!(4));
+    assert_eq!(v["template"], json!("feature"));
+    assert_eq!(v["format"], json!("Final Draft (FDX)"));
+    assert!(v["revision"].is_null());
+    assert!(v["modified"].as_u64().unwrap() > 1_600_000_000);
+    assert!(v["bytes"].as_u64().unwrap() > 0);
+    assert!(other.run("file.info", &json!({"path": dir.join("missing.fdx").to_str().unwrap()})).is_err());
+    assert!(other.run("file.info", &json!({})).is_err());
+    // The latest revision set with marks in the text names the draft.
+    let mut script = crate::sample::script();
+    draftcraft_doc::revision::add_mark(&mut script.paras[1], 0, 3, 1);
+    draftcraft_doc::revision::add_mark(&mut script.paras[2], 0, 3, 2);
+    let info = crate::io::FileInfo::of(&script, crate::io::Format::Fdx, None, 0);
+    assert_eq!(info.revision.as_deref(), Some("Pink"));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
 fn bold_italic_underline() {
     let mut s = Session::new(draftcraft_doc::Script::new());
     run(&mut s, "text.insert", json!({"text": "x"}));

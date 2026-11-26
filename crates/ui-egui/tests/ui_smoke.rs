@@ -517,19 +517,31 @@ fn welcome_screen_starts_scripts_and_opens_recent_files() {
     assert_eq!(v["open"], true);
     assert_eq!(v["recent"][0], file.display().to_string());
     assert_eq!(v["templates"].as_array().unwrap().len(), 4);
+    // Each recent file with what was read from it: pages, template, when it changed.
+    assert_eq!(v["files"][0]["pages"], 1);
+    assert_eq!(v["files"][0]["template"], "feature");
+    assert!(v["files"][0]["revision"].is_null());
+    assert!(v["files"][0]["modified"].as_u64().unwrap() > 1_600_000_000);
+    assert_eq!(v["files"][1]["missing"], true);
+    assert!(v["files"][1]["pages"].is_null());
     let mut h = harness(app);
     step(&mut h, 4);
-    assert!(h.query_by_label("Welcome to DraftCraft").is_some());
+    assert!(h.query_by_label("Continue writing").is_some());
     assert!(h.query_by_label("Lost.fdx").is_some());
     // A card starts a script from its template and the window returns to the page.
     h.get_by_label("Stage play").click();
     step(&mut h, 3);
     assert!(!h.state().welcome);
     assert_eq!(h.state_mut().execute("template.current", json!({})).unwrap()["id"], "stage-play");
-    assert!(h.query_by_label("Welcome to DraftCraft").is_none());
+    assert!(h.query_by_label("Continue writing").is_none());
     // A recent file opens with a click.
     h.state_mut().execute("ui.welcome", json!({})).unwrap();
     step(&mut h, 3);
+    // A changed file is read again.
+    std::fs::write(&file, format!("INT. LIGHTHOUSE - NIGHT\n\n{}", "The lamp turns.\n\n".repeat(60))).unwrap();
+    let v = h.state_mut().execute("ui.welcome", json!({"open": true})).unwrap();
+    assert!(v["files"][0]["pages"].as_u64().unwrap() > 1);
+    step(&mut h, 2);
     h.get_by_label("Gull Point.fountain").click();
     step(&mut h, 3);
     assert!(!h.state().welcome);

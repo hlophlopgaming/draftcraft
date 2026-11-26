@@ -287,7 +287,7 @@ pub const FEATURES: &[Feature] = &[
     ),
     f("Files", "Templates (.fdxt)", Missing, &[], ""),
     f("Files", "Autosave, crash recovery and backups", Done, &[], "data folder; recovery offered after a crash, previous versions kept on save"),
-    f("Files", "Recent files", Done, &["ui.openRecent", "ui.clearRecent"], ""),
+    f("Files", "Recent files", Done, &["ui.openRecent", "ui.clearRecent", "file.info"], "welcome screen shows kind, pages, date and latest revision"),
     f("Files", "Settings shared with the other Craft apps (config.toml, folder rules)", Done, &[], "craft-settings from storytold/craft-libs"),
     f(
         "Files",

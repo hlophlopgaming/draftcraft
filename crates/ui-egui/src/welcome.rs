@@ -41,6 +41,181 @@ pub struct Recent {
     pub format: &'static str,
 }
 
+/// What a recent row tells about its file: read from the file once and kept until the file
+/// changes (its size or modification time), so drawing never re-reads it.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Details {
+    /// The file is not there.
+    pub missing: bool,
+    /// Last change, seconds since the Unix epoch.
+    pub modified: Option<u64>,
+    /// Pages of script; Fountain and Final Draft files only (imports are not read).
+    pub pages: Option<usize>,
+    /// The template its formatting matches.
+    pub template: Option<Template>,
+    /// The latest revision set with marks in its text (`Blue`).
+    pub revision: Option<String>,
+}
+
+impl Details {
+    pub fn to_json(&self, path: &str) -> Value {
+        json!({
+            "path": path,
+            "missing": self.missing,
+            "modified": self.modified,
+            "pages": self.pages,
+            "template": self.template.map(Template::id),
+            "revision": self.revision,
+        })
+    }
+}
+
+/// Details read so far, by path, with the (modified, size) stamp they were read at.
+pub type DetailsCache = std::collections::HashMap<String, (Option<(u64, u64)>, Details)>;
+
+/// The details of a recent file, from the cache while the file is unchanged. Never on the web,
+/// which has no file system (the row then shows its format only).
+pub fn details(cache: &mut DetailsCache, path: &str) -> Details {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let p = std::path::Path::new(path);
+        let Ok(meta) = std::fs::metadata(p) else {
+            cache.remove(path);
+            return Details { missing: true, ..Details::default() };
+        };
+        let modified = meta.modified().ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map(|d| d.as_secs());
+        let stamp = Some((modified.unwrap_or(0), meta.len()));
+        if let Some((s, d)) = cache.get(path)
+            && *s == stamp
+        {
+            return d.clone();
+        }
+        let mut d = Details { modified, ..Details::default() };
+        let native =
+            matches!(draftcraft_engine::io::Format::of(p), Some(draftcraft_engine::io::Format::Fountain | draftcraft_engine::io::Format::Fdx));
+        if native
+            && meta.is_file()
+            && let Ok(info) = draftcraft_engine::io::info(p)
+        {
+            d.pages = Some(info.pages);
+            d.template = info.template;
+            d.revision = info.revision;
+        }
+        // The list holds at most `persist::MAX_RECENT` files; drop paths no longer in it.
+        if cache.len() > 4 * crate::persist::MAX_RECENT {
+            cache.clear();
+        }
+        cache.insert(path.to_string(), (stamp, d.clone()));
+        d
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        let _ = (cache, path);
+        Details::default()
+    }
+}
+
+/// A local date and time.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Civil {
+    pub year: i32,
+    /// 1–12.
+    pub month: u8,
+    /// 1–31.
+    pub day: u8,
+    pub hour: u8,
+    pub minute: u8,
+}
+
+impl Civil {
+    /// Days since 1970-01-01 (proleptic Gregorian), to tell "yesterday" across months and years.
+    fn day_number(self) -> i64 {
+        let (m, d) = (i64::from(self.month.clamp(1, 12)), i64::from(self.day.clamp(1, 31)));
+        let y = i64::from(self.year) - i64::from(m <= 2);
+        let era = y.div_euclid(400);
+        let yoe = y - era * 400;
+        let doy = (153 * (if m > 2 { m - 3 } else { m + 9 }) + 2) / 5 + d - 1;
+        let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+        era * 146_097 + doe - 719_468
+    }
+}
+
+/// Unix seconds as local time (the system's time zone). `None` on the web and for times out of
+/// range.
+pub fn local(secs: u64) -> Option<Civil> {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let ts = jiff::Timestamp::from_second(i64::try_from(secs).ok()?).ok()?;
+        let z = ts.to_zoned(jiff::tz::TimeZone::system());
+        Some(Civil {
+            year: i32::from(z.year()),
+            month: u8::try_from(z.month()).ok()?,
+            day: u8::try_from(z.day()).ok()?,
+            hour: u8::try_from(z.hour()).ok()?,
+            minute: u8::try_from(z.minute()).ok()?,
+        })
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        let _ = secs;
+        None
+    }
+}
+
+/// Now as local time; `None` on the web.
+pub fn now() -> Option<Civil> {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let secs = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).ok()?.as_secs();
+        local(secs)
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        None
+    }
+}
+
+/// Month abbreviations, catalogue keys.
+const MONTHS: [&str; 12] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/// When a file was changed, as the row shows it: `Today, 11:40`, `Yesterday`, `12 Nov`, or
+/// `2 Nov 2025` for another year.
+pub fn when(lang: crate::i18n::Language, t: Civil, today: Civil) -> String {
+    let days = today.day_number() - t.day_number();
+    let time = format!("{:02}:{:02}", t.hour.min(23), t.minute.min(59));
+    if days == 0 {
+        return lang.format("Today, {time}", &[("time", time)]);
+    }
+    if days == 1 {
+        return lang.text("Yesterday").to_string();
+    }
+    let month = MONTHS.get(usize::from(t.month.clamp(1, 12)) - 1).map_or("", |m| lang.text(m));
+    if t.year == today.year { format!("{} {month}", t.day) } else { format!("{} {month} {}", t.day, t.year) }
+}
+
+/// The greeting for the hour: morning from 5, afternoon from 12, evening from 18, night from 23.
+pub fn greeting(hour: u8) -> &'static str {
+    match hour {
+        5..=11 => "Good morning.",
+        12..=17 => "Good afternoon.",
+        18..=22 => "Good evening.",
+        _ => "Good night.",
+    }
+}
+
+/// The kind of script a row shows: the "New" card's name for its template, else its format.
+fn kind(lang: crate::i18n::Language, f: &Recent, d: &Details) -> String {
+    let base = d
+        .template
+        .and_then(|t| NEW_CARDS.iter().find(|(c, ..)| *c == t).map(|(_, label, _)| *label))
+        .map_or_else(|| lang.text(f.format).to_string(), |l| lang.text(l).to_string());
+    match d.pages {
+        Some(1) => format!("{base} · {}", lang.text("1 page")),
+        Some(n) => format!("{base} · {}", lang.format("{pages} pages", &[("pages", n.to_string())])),
+        None => base,
+    }
+}
+
 /// The recent files, most recent first. Paths are hostile input from `config.toml`: only their
 /// last component and extension are read, nothing is opened.
 pub fn recent(app: &ScriptApp) -> Vec<Recent> {
@@ -67,15 +242,17 @@ pub fn recent(app: &ScriptApp) -> Vec<Recent> {
 }
 
 /// `ui.welcome`: `{"open": bool (default: toggle), "atStart": bool}`. Returns whether it is
-/// open, whether it shows at start, the recent files and the templates it offers.
+/// open, whether it shows at start, the recent files (`recent`: paths; `files`: each with its
+/// pages, template, latest revision and modification time) and the templates it offers.
 pub fn command(app: &mut ScriptApp, p: &Value) -> Value {
     app.welcome = p.get("open").and_then(Value::as_bool).unwrap_or(!app.welcome);
     if let Some(on) = p.get("atStart").and_then(Value::as_bool) {
         app.prefs.appearance.show_welcome = on;
     }
     let recent: Vec<String> = recent(app).into_iter().map(|r| r.path).collect();
+    let files: Vec<Value> = recent.iter().map(|p| details(&mut app.recent_details, p).to_json(p)).collect();
     let templates: Vec<&str> = NEW_CARDS.iter().map(|(t, ..)| t.id()).collect();
-    json!({"open": app.welcome, "atStart": app.prefs.appearance.show_welcome, "recent": recent, "templates": templates})
+    json!({"open": app.welcome, "atStart": app.prefs.appearance.show_welcome, "recent": recent, "files": files, "templates": templates})
 }
 
 /// Whether the screen opens at start: the setting is on, nothing was chosen on the command line
@@ -153,7 +330,7 @@ fn link(ui: &mut Ui, t: &Tokens, text: &str) -> egui::Response {
         .on_hover_cursor(egui::CursorIcon::PointingHand)
 }
 
-/// The greeting, what is open, and "Continue writing".
+/// The greeting for the time of day, what is open, and "Continue writing".
 fn header(app: &mut ScriptApp, ui: &mut Ui, t: &Tokens, run: &mut Option<(String, Value)>) {
     let lang = app.prefs.appearance.language;
     let name = app
@@ -172,7 +349,10 @@ fn header(app: &mut ScriptApp, ui: &mut Ui, t: &Tokens, run: &mut Option<(String
     };
     ui.horizontal(|ui| {
         ui.vertical(|ui| {
-            ui.label(RichText::new(lang.text("Welcome to DraftCraft")).size(type_scale::DISPLAY).strong().color(t.text));
+            // The greeting for the time of day, as in the mockup; the web has no local clock.
+            let title = now().map_or("Welcome to DraftCraft", |c| greeting(c.hour));
+            ui.label(RichText::new(lang.text(title)).size(type_scale::DISPLAY).strong().color(t.text))
+                .on_hover_text(lang.text("Welcome to DraftCraft"));
             ui.add_space(space::XS);
             ui.label(RichText::new(line).size(type_scale::BODY).color(t.text_soft));
         });
@@ -268,8 +448,9 @@ fn recent_list(app: &mut ScriptApp, ui: &mut Ui, t: &Tokens, run: &mut Option<(S
             return;
         }
         let n = list.len();
+        let today = now();
         for (i, f) in list.into_iter().enumerate() {
-            let missing = missing(&f.path);
+            let d = details(&mut app.recent_details, &f.path);
             let (r, resp) = ui.allocate_exact_size(vec2(ui.available_width(), 44.0), Sense::click());
             resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, &f.name));
             let p = ui.painter();
@@ -283,38 +464,61 @@ fn recent_list(app: &mut ScriptApp, ui: &mut Ui, t: &Tokens, run: &mut Option<(S
             icons::paint(ui, Icon::Page, Rect::from_center_size(pos2(x + 8.0, r.center().y), vec2(16.0, 16.0)), t.text_soft);
             let body = egui::FontId::proportional(type_scale::BODY);
             let small = egui::FontId::proportional(type_scale::SMALL);
-            let name_w = (r.width() * 0.4).max(120.0);
-            let name = p.layout(f.name.clone(), body, if missing { t.text_soft } else { t.text }, name_w);
-            p.galley(pos2(x + 28.0, r.center().y - name.size().y / 2.0), name, t.text);
-            let right = if missing { lang.text("Not found").to_string() } else { lang.text(f.format).to_string() };
-            p.text(pos2(r.right() - space::L, r.center().y), egui::Align2::RIGHT_CENTER, right, small.clone(), t.text_soft);
-            let folder_x = x + 28.0 + name_w + space::M;
-            let folder_w = (r.right() - space::L - 110.0 - folder_x).max(0.0);
-            if folder_w > 40.0 {
-                let mut job = egui::text::LayoutJob::simple_singleline(f.folder.clone(), small, t.text_soft);
-                job.wrap = egui::text::TextWrapping::truncate_at_width(folder_w);
-                let g = p.layout_job(job);
+            let one_line = |text: String, font: egui::FontId, color: Color32, w: f32| {
+                let mut job = egui::text::LayoutJob::simple_singleline(text, font, color);
+                job.wrap = egui::text::TextWrapping::truncate_at_width(w.max(1.0));
+                p.layout_job(job)
+            };
+            // Columns from the right, as in the mockup: the revision badge, the date, then the
+            // kind and pages. Narrow windows drop the date, then the kind.
+            let right = r.right() - space::L;
+            let badge_w = 96.0;
+            let date_w = 120.0;
+            let kind_w = 190.0;
+            let room = r.width() - 2.0 * space::L - 28.0;
+            let show_date = room > 360.0 + badge_w + date_w;
+            let show_kind = room > 220.0 + badge_w;
+            if let Some(rev) = &d.revision {
+                let label = lang.format("{name} rev.", &[("name", lang.text(rev).to_string())]);
+                let g = one_line(label, small.clone(), t.text, badge_w - 2.0 * space::S);
+                let pill = Rect::from_min_size(
+                    pos2(right - g.size().x - 2.0 * space::S, r.center().y - g.size().y / 2.0 - 3.0),
+                    vec2(g.size().x + 2.0 * space::S, g.size().y + 6.0),
+                );
+                p.rect_filled(pill, CornerRadius::from(radius::M), t.chrome_line);
+                p.galley(pos2(pill.left() + space::S, pill.top() + 3.0), g, t.text);
+            }
+            let mut col = right - badge_w - space::M;
+            if show_date && let (Some(m), Some(today)) = (d.modified.and_then(local), today) {
+                let g = one_line(when(lang, m, today), small.clone(), t.text_soft, date_w);
+                p.galley(pos2(col - date_w, r.center().y - g.size().y / 2.0), g, t.text_soft);
+            }
+            if show_date {
+                col -= date_w + space::M;
+            }
+            let kind_text = if d.missing { lang.text("Not found").to_string() } else { kind(lang, &f, &d) };
+            if show_kind {
+                let g = one_line(kind_text, small.clone(), t.text_soft, kind_w);
+                p.galley(pos2(col - kind_w, r.center().y - g.size().y / 2.0), g, t.text_soft);
+                col -= kind_w + space::M;
+            }
+            // The name, and the folder after it in the space that is left.
+            let name_x = x + 28.0;
+            let name_room = (col - name_x).max(40.0);
+            let name = one_line(f.name.clone(), body, if d.missing { t.text_soft } else { t.text }, name_room);
+            let name_w = name.size().x;
+            p.galley(pos2(name_x, r.center().y - name.size().y / 2.0), name, t.text);
+            let folder_x = name_x + name_w + space::M;
+            if col - folder_x > 60.0 {
+                let g = one_line(f.folder.clone(), small, t.text_soft, col - folder_x);
                 p.galley(pos2(folder_x, r.center().y - g.size().y / 2.0), g, t.text_soft);
             }
-            let resp = resp.on_hover_text(&f.path).on_hover_cursor(egui::CursorIcon::PointingHand);
+            let resp = resp.on_hover_text(format!("{}\n{}", f.path, lang.text(f.format))).on_hover_cursor(egui::CursorIcon::PointingHand);
             if resp.clicked() {
                 *run = Some(("ui.openRecent".into(), json!({"path": f.path})));
             }
         }
     });
-}
-
-/// A recent file that is no longer there (never on the web, which has no file system).
-fn missing(path: &str) -> bool {
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        !std::path::Path::new(path).exists()
-    }
-    #[cfg(target_arch = "wasm32")]
-    {
-        let _ = path;
-        false
-    }
 }
 
 /// Every command, the guide, the sample script and "Show at start".
@@ -337,4 +541,52 @@ fn footer(app: &mut ScriptApp, ui: &mut Ui, t: &Tokens, run: &mut Option<(String
             *run = Some(("ui.welcome".into(), json!({"open": true, "atStart": on})));
         }
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::i18n::Language;
+
+    fn at(year: i32, month: u8, day: u8, hour: u8, minute: u8) -> Civil {
+        Civil { year, month, day, hour, minute }
+    }
+
+    #[test]
+    fn dates_read_like_the_mockup() {
+        let today = at(2026, 11, 26, 18, 5);
+        assert_eq!(when(Language::English, at(2026, 11, 26, 9, 7), today), "Today, 09:07");
+        assert_eq!(when(Language::English, at(2026, 11, 25, 23, 59), today), "Yesterday");
+        assert_eq!(when(Language::English, at(2026, 11, 12, 10, 0), today), "12 Nov");
+        assert_eq!(when(Language::English, at(2025, 11, 2, 10, 0), today), "2 Nov 2025");
+        assert_eq!(when(Language::Russian, at(2026, 11, 26, 11, 40), today), "Сегодня, 11:40");
+        assert_eq!(when(Language::Russian, at(2026, 5, 9, 11, 40), today), "9 мая");
+        // Yesterday across a month and a year, and in a leap year.
+        assert_eq!(when(Language::English, at(2026, 10, 31, 1, 0), at(2026, 11, 1, 1, 0)), "Yesterday");
+        assert_eq!(when(Language::English, at(2025, 12, 31, 1, 0), at(2026, 1, 1, 1, 0)), "Yesterday");
+        assert_eq!(when(Language::English, at(2028, 2, 29, 1, 0), at(2028, 3, 1, 1, 0)), "Yesterday");
+        assert_eq!(at(1970, 1, 1, 0, 0).day_number(), 0);
+        // Hostile values never panic.
+        for c in [at(i32::MIN, 0, 0, 255, 255), at(i32::MAX, 13, 99, 24, 60)] {
+            let _ = when(Language::English, c, today);
+        }
+    }
+
+    #[test]
+    fn greetings_follow_the_hour() {
+        assert_eq!(greeting(4), "Good night.");
+        assert_eq!(greeting(5), "Good morning.");
+        assert_eq!(greeting(12), "Good afternoon.");
+        assert_eq!(greeting(18), "Good evening.");
+        assert_eq!(greeting(23), "Good night.");
+        assert_eq!(greeting(200), "Good night.");
+    }
+
+    #[test]
+    fn local_time_is_read() {
+        assert!(now().is_some());
+        let c = local(0).unwrap();
+        assert!(c.year == 1970 || c.year == 1969);
+        assert!(local(u64::MAX).is_none());
+    }
 }
