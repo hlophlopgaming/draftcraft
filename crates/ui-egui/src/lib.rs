@@ -95,6 +95,10 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ("ui.theme.toggle", "Dark Mode", "View", "Mod+Alt+D"),
     ("ui.theme.dark", "Dark Theme", "View", ""),
     ("ui.theme.light", "Light Theme", "View", ""),
+    ("ui.theme.system", "Match System Theme", "View", ""),
+    ("ui.interfaceSize", "Default Interface Size", "View › Interface Size", ""),
+    ("ui.interfaceLarger", "Larger Interface", "View › Interface Size", ""),
+    ("ui.interfaceSmaller", "Smaller Interface", "View › Interface Size", ""),
     ("ui.zoomIn", "Zoom In", "View", "Mod+="),
     ("ui.zoomOut", "Zoom Out", "View", "Mod+-"),
     ("ui.zoomReset", "Actual Size", "View", "Mod+0"),
@@ -511,6 +515,21 @@ impl ScriptApp {
         theme::Tokens::get(self.dark)
     }
 
+    /// The interface size as a factor (1.0 to 2.0): egui's zoom factor for the whole window.
+    pub fn interface_scale(&self) -> f32 {
+        persist::clamp_interface_size(self.prefs.appearance.interface_size) as f32 / 100.0
+    }
+
+    /// Points per page unit: the page zoom without the interface size, so a larger interface
+    /// leaves the page as big as the writer zoomed it.
+    pub fn page_zoom(&self) -> f32 {
+        self.canvas.zoom / self.interface_scale()
+    }
+
+    fn set_interface_size(&mut self, percent: u32) {
+        self.prefs.appearance.interface_size = persist::clamp_interface_size(percent);
+    }
+
     pub fn set_status(&mut self, s: impl Into<String>) {
         self.status = Some((s.into(), 0.0));
     }
@@ -692,13 +711,34 @@ impl ScriptApp {
                 self.dark = false;
                 self.prefs.appearance.theme = persist::Theme::Light;
             }
+            // The window follows the system's light/dark setting from the next frame on.
+            "ui.theme.system" => self.prefs.appearance.theme = persist::Theme::System,
+            "ui.interfaceSize" => {
+                let percent = match p.get("percent") {
+                    None | Some(Value::Null) => persist::INTERFACE_SIZE_MIN,
+                    Some(v) => match v.as_f64() {
+                        Some(f) if f.is_finite() => f.round().clamp(0.0, f64::from(persist::INTERFACE_SIZE_MAX)) as u32,
+                        _ => return Err(CmdError::Params("`percent` must be a number from 100 to 200".into())),
+                    },
+                };
+                self.set_interface_size(percent);
+            }
+            "ui.interfaceLarger" => {
+                let cur = self.prefs.appearance.interface_size;
+                self.set_interface_size((cur / persist::INTERFACE_SIZE_STEP + 1) * persist::INTERFACE_SIZE_STEP);
+            }
+            "ui.interfaceSmaller" => {
+                let cur = self.prefs.appearance.interface_size;
+                let step = persist::INTERFACE_SIZE_STEP;
+                self.set_interface_size(if cur.is_multiple_of(step) { cur.saturating_sub(step) } else { cur / step * step });
+            }
             "ui.zoomIn" => self.canvas.zoom = (self.canvas.zoom * 1.1).min(3.0),
             "ui.zoomOut" => self.canvas.zoom = (self.canvas.zoom / 1.1).max(0.4),
             "ui.zoomReset" => self.canvas.zoom = 1.0,
             "ui.zoomFit" => {
                 let w = self.canvas.canvas_rect.map_or(900.0, |r| r.width());
                 let pw = self.session.layout().page_width();
-                self.canvas.zoom = ((w - 2.0 * 28.0 - 16.0) / pw).clamp(0.4, 3.0);
+                self.canvas.zoom = ((w - 2.0 * 28.0 - 16.0) / pw * self.interface_scale()).clamp(0.4, 3.0);
             }
             "ui.view.speed" => {
                 split::set_view(self, View::Page);
@@ -797,7 +837,7 @@ impl ScriptApp {
             other => return Err(CmdError::Unknown(other.to_string())),
         }
         Ok(
-            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "zoom": self.canvas.zoom, "navigator": self.navigator, "storyMap": self.story_map, "layout": self.prefs.layout.to_json(), "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language, "welcome": self.welcome}),
+            json!({"view": self.view.id(), "split": self.split.mode.id(), "second": self.split.second.id(), "focusPane": self.split.focus, "dark": self.dark, "theme": self.prefs.appearance.theme, "interfaceSize": self.prefs.appearance.interface_size, "zoom": self.canvas.zoom, "navigator": self.navigator, "storyMap": self.story_map, "layout": self.prefs.layout.to_json(), "showTags": self.show_tags, "alternates": self.alt_window, "language": self.prefs.appearance.language, "welcome": self.welcome}),
         )
     }
 
@@ -872,7 +912,13 @@ impl ScriptApp {
         let mut v = self.session.registry.describe(Some(&self.session));
         if let Some(a) = v.as_array_mut() {
             for (id, label, location, key) in UI_COMMANDS {
-                a.push(json!({"id": id, "label": label, "location": location, "shortcut": key, "params": "{}", "mutates": false, "enabled": true}));
+                let params = match *id {
+                    "ui.interfaceSize" => "{percent?: 100–200 (default 100)}",
+                    "ui.dockPanel" => "{panel: navigator|storyMap, side: left|right|top|bottom}",
+                    "ui.language" => "{language: en|ru}",
+                    _ => "{}",
+                };
+                a.push(json!({"id": id, "label": label, "location": location, "shortcut": key, "params": params, "mutates": false, "enabled": true}));
             }
         }
         v
@@ -903,6 +949,15 @@ impl ScriptApp {
         self.install_fonts(ctx);
         // Cmd/Ctrl + =/- zoom the pages (our shortcuts), not the whole interface.
         ctx.options_mut(|o| o.zoom_with_keyboard = false);
+        if self.prefs.appearance.theme == persist::Theme::System
+            && let Some(system) = ctx.system_theme()
+        {
+            self.dark = system == egui::Theme::Dark;
+        }
+        let scale = self.interface_scale();
+        if (ctx.zoom_factor() - scale).abs() > 1e-3 {
+            ctx.set_zoom_factor(scale);
+        }
         let tokens = self.tokens();
         ctx.all_styles_mut(|style| tokens.apply(style));
         let now = ctx.input(|i| i.time);

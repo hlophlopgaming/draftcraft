@@ -38,6 +38,16 @@ pub enum Theme {
     Dark,
 }
 
+/// The smallest and largest interface size (per cent) and the step of Larger/Smaller Interface.
+pub const INTERFACE_SIZE_MIN: u32 = 100;
+pub const INTERFACE_SIZE_MAX: u32 = 200;
+pub const INTERFACE_SIZE_STEP: u32 = 25;
+
+/// Keep an interface size in 100–200 %.
+pub fn clamp_interface_size(percent: u32) -> u32 {
+    percent.clamp(INTERFACE_SIZE_MIN, INTERFACE_SIZE_MAX)
+}
+
 /// DraftCraft's settings: the sections of `config.toml`.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
@@ -58,13 +68,16 @@ pub struct Appearance {
     pub language: crate::i18n::Language,
     /// Page zoom (0.4 to 3.0).
     pub zoom: f64,
+    /// Interface size in per cent (100 to 200): menus, panels, dialogs and their text. The page
+    /// keeps its own zoom.
+    pub interface_size: u32,
     /// Show the welcome screen when the app starts without a file.
     pub show_welcome: bool,
 }
 
 impl Default for Appearance {
     fn default() -> Self {
-        Appearance { theme: Theme::System, language: Default::default(), zoom: 1.0, show_welcome: true }
+        Appearance { theme: Theme::System, language: Default::default(), zoom: 1.0, interface_size: 100, show_welcome: true }
     }
 }
 
@@ -153,6 +166,7 @@ impl Prefs {
         let z = self.appearance.zoom;
         // Two decimals: `zoom = 1.1` in the file, not float noise.
         self.appearance.zoom = if z.is_finite() { (z.clamp(0.4, 3.0) * 100.0).round() / 100.0 } else { 1.0 };
+        self.appearance.interface_size = clamp_interface_size(self.appearance.interface_size);
         self.files.recent.truncate(MAX_RECENT);
         self.files.autosave_seconds = self.files.autosave_seconds.min(3600);
         self.files.backups_kept = self.files.backups_kept.min(100);
@@ -360,6 +374,7 @@ mod tests {
             p.touch_recent("/s/3.fdx");
             p.appearance.theme = Theme::Dark;
             p.appearance.zoom = 1.5;
+            p.appearance.interface_size = 150;
             p.appearance.language = crate::i18n::Language::Russian;
             p.layout.navigator = crate::dock::Side::Right;
         });
@@ -372,6 +387,8 @@ mod tests {
         assert_eq!(q.files.recent.len(), MAX_RECENT);
         assert_eq!(q.files.recent[0], "/s/3.fdx");
         assert_eq!(q.appearance.zoom, 1.5);
+        assert_eq!(q.appearance.interface_size, 150);
+        assert!(toml.contains("interface_size = 150"), "{toml}");
         assert_eq!(q.appearance.language, crate::i18n::Language::Russian);
         assert!(toml.contains("[layout]") && toml.contains("navigator = \"right\""), "{toml}");
         assert_eq!(q.layout.navigator, crate::dock::Side::Right);
@@ -379,6 +396,10 @@ mod tests {
         // A hand-edited value out of range is clamped when used.
         let wild = Prefs { appearance: Appearance { zoom: f64::NAN, ..Default::default() }, ..Default::default() };
         assert_eq!(wild.sanitized().appearance.zoom, 1.0);
+        for (asked, kept) in [(0, 100), (99, 100), (150, 150), (200, 200), (u32::MAX, 200)] {
+            let p = Prefs { appearance: Appearance { interface_size: asked, ..Default::default() }, ..Default::default() };
+            assert_eq!(p.sanitized().appearance.interface_size, kept, "{asked}");
+        }
         // Recovery.
         assert!(read_recovery(&dir).is_none());
         let s = draftcraft_engine::sample::script();

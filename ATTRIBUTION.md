@@ -49,6 +49,8 @@ DraftCraft contains **no** Final Draft icons, images, templates, sample scripts,
 | `docs/images/pr/command-palette-dark-ru.png` | The DraftCraft contributors | DraftCraft window rendered by `ui_shot` (PR: command palette, Russian) | MIT OR Apache-2.0 |
 | `docs/images/pr/welcome-light.png` | The DraftCraft contributors | DraftCraft window rendered by `ui_shot` (PR: welcome screen) | MIT OR Apache-2.0 |
 | `docs/images/pr/welcome-dark-ru.png` | The DraftCraft contributors | DraftCraft window rendered by `ui_shot` (PR: welcome screen, Russian) | MIT OR Apache-2.0 |
+| `docs/images/pr/interface-size-150-menu.png` | The DraftCraft contributors | DraftCraft window at 150 % interface size rendered by `ui_shot` (PR: interface size and theme choice) | MIT OR Apache-2.0 |
+| `docs/images/pr/interface-size-200.png` | The DraftCraft contributors | DraftCraft window at 200 % interface size rendered by `ui_shot` (PR: interface size and theme choice) | MIT OR Apache-2.0 |
 | `docs/images/icon.svg` | Openclipart contributor (engraving); the DraftCraft contributors (tile) | Engraving "Beetle (Lucanus cinnamomeus)" from Openclipart (https://openclipart.org/detail/264956/beetle-lucanus-cinnamomeus), unchanged, on a sand tile with a paper backing traced from it by the DraftCraft contributors | CC0 1.0 (public domain dedication) |
 | `docs/images/icon-512.png` | same | Rendered from `docs/images/icon.svg` | CC0 1.0 |
 | `apps/draftcraft/assets/icon-256.png` | same | Rendered from `docs/images/icon.svg`; the window icon | CC0 1.0 |

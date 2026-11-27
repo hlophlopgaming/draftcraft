@@ -549,3 +549,67 @@ fn welcome_screen_starts_scripts_and_opens_recent_files() {
     }
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn interface_size_scales_the_window_but_not_the_page() {
+    let mut app = ScriptApp::new(Session::sample());
+    app.dialogs = false;
+    app.welcome = false;
+    let mut h = harness(app);
+    step(&mut h, 3);
+    assert_eq!(h.state().prefs.appearance.interface_size, 100);
+    assert!((h.ctx.zoom_factor() - 1.0).abs() < 1e-3);
+    let page_before = h.state().page_zoom() * h.ctx.zoom_factor();
+
+    h.state_mut().execute("ui.interfaceSize", json!({"percent": 150})).unwrap();
+    step(&mut h, 2);
+    assert_eq!(h.state().prefs.appearance.interface_size, 150);
+    assert!((h.ctx.zoom_factor() - 1.5).abs() < 1e-3);
+    // The page keeps its size on screen: points per page unit times pixels per point.
+    let page_after = h.state().page_zoom() * h.ctx.zoom_factor();
+    assert!((page_before - page_after).abs() < 1e-3, "{page_before} vs {page_after}");
+
+    // Larger/Smaller step by 25 % and stay within 100–200 %.
+    for (id, want) in [("ui.interfaceLarger", 175), ("ui.interfaceLarger", 200), ("ui.interfaceLarger", 200), ("ui.interfaceSmaller", 175)] {
+        h.state_mut().execute(id, json!({})).unwrap();
+        assert_eq!(h.state().prefs.appearance.interface_size, want, "{id}");
+    }
+    h.state_mut().execute("ui.interfaceSize", json!({"percent": 130})).unwrap();
+    h.state_mut().execute("ui.interfaceSmaller", json!({})).unwrap();
+    assert_eq!(h.state().prefs.appearance.interface_size, 125);
+    h.state_mut().execute("ui.interfaceSize", json!({"percent": 130})).unwrap();
+    h.state_mut().execute("ui.interfaceLarger", json!({})).unwrap();
+    assert_eq!(h.state().prefs.appearance.interface_size, 150);
+
+    // Hostile sizes are clamped or refused, never a panic.
+    for (p, want) in [(json!(-5), 100), (json!(1e300), 200), (json!(99999), 200)] {
+        h.state_mut().execute("ui.interfaceSize", json!({"percent": p})).unwrap();
+        assert_eq!(h.state().prefs.appearance.interface_size, want);
+    }
+    assert!(h.state_mut().execute("ui.interfaceSize", json!({"percent": "big"})).is_err());
+    // No size: back to 100 %.
+    h.state_mut().execute("ui.interfaceSize", json!({})).unwrap();
+    step(&mut h, 2);
+    assert_eq!(h.state().prefs.appearance.interface_size, 100);
+    assert!((h.ctx.zoom_factor() - 1.0).abs() < 1e-3);
+}
+
+#[test]
+fn theme_can_follow_the_system() {
+    use draftcraft_ui_egui::persist::Theme;
+    let mut app = ScriptApp::new(Session::sample());
+    app.dialogs = false;
+    let mut h = harness(app);
+    step(&mut h, 2);
+    h.state_mut().execute("ui.theme.dark", json!({})).unwrap();
+    assert_eq!(h.state().prefs.appearance.theme, Theme::Dark);
+    assert!(h.state().dark);
+    h.state_mut().execute("ui.theme.system", json!({})).unwrap();
+    assert_eq!(h.state().prefs.appearance.theme, Theme::System);
+    h.state_mut().execute("ui.theme.light", json!({})).unwrap();
+    assert_eq!(h.state().prefs.appearance.theme, Theme::Light);
+    assert!(!h.state().dark);
+    let cmds = h.state().describe_commands();
+    let size = cmds.as_array().unwrap().iter().find(|c| c["id"] == "ui.interfaceSize").unwrap();
+    assert!(size["params"].as_str().unwrap().contains("percent"));
+}
