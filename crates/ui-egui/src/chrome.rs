@@ -222,7 +222,35 @@ pub fn menu_bar(app: &mut ScriptApp, ui: &mut Ui) {
                     ui.menu_button(lang.text(p.menu_label()), |ui| crate::dock::side_choices(app, ui, p));
                 }
                 check(app, ui, "Scene Numbers", app.session.script.settings.show_scene_numbers, "view.toggleSceneNumbers", json!({}));
-                check(app, ui, "Dark Mode", app.dark, "ui.theme.toggle", json!({}));
+                ui.menu_button(lang.text("Theme"), |ui| {
+                    use crate::persist::Theme;
+                    let cur = app.prefs.appearance.theme;
+                    for (label, theme, id) in [
+                        ("Light", Theme::Light, "ui.theme.light"),
+                        ("Dark", Theme::Dark, "ui.theme.dark"),
+                        ("Match System", Theme::System, "ui.theme.system"),
+                    ] {
+                        if ui.radio(cur == theme, lang.text(label)).clicked() {
+                            app.run(id, json!({}));
+                            ui.close();
+                        }
+                    }
+                    ui.separator();
+                    check(app, ui, "Dark Mode", app.dark, "ui.theme.toggle", json!({}));
+                });
+                ui.menu_button(lang.text("Interface Size"), |ui| {
+                    use crate::persist::{INTERFACE_SIZE_MAX, INTERFACE_SIZE_MIN, INTERFACE_SIZE_STEP};
+                    let cur = app.prefs.appearance.interface_size;
+                    for percent in (INTERFACE_SIZE_MIN..=INTERFACE_SIZE_MAX).step_by(INTERFACE_SIZE_STEP as usize) {
+                        if ui.radio(cur == percent, format!("{percent} %")).clicked() {
+                            app.run("ui.interfaceSize", json!({"percent": percent}));
+                            ui.close();
+                        }
+                    }
+                    ui.separator();
+                    item(app, ui, "Larger Interface", "ui.interfaceLarger", "");
+                    item(app, ui, "Smaller Interface", "ui.interfaceSmaller", "");
+                });
                 ui.separator();
                 item(app, ui, "Zoom In", "ui.zoomIn", "Mod+=");
                 item(app, ui, "Zoom Out", "ui.zoomOut", "Mod+-");
@@ -347,18 +375,23 @@ pub fn toolbar(app: &mut ScriptApp, ui: &mut Ui) {
         .show(ui, |ui| {
             ui.horizontal(|ui| {
                 ui.spacing_mut().item_spacing.x = 2.0;
+                // A narrow window or a large interface size: drop the groups that are also in
+                // the menus, least used first, so nothing overlaps.
+                let fit = ToolbarFit::for_width(ui.available_width());
                 if icons::button(ui, Icon::Navigator, lang.text("Navigator"), app.navigator).clicked() {
                     app.run("ui.toggleNavigator", json!({}));
                 }
-                sep(ui);
-                for (icon, tip, id) in [
-                    (Icon::New, lang.text("New script"), "file.new"),
-                    (Icon::Open, lang.text("Open…"), "ui.open"),
-                    (Icon::Save, lang.text("Save"), "ui.save"),
-                    (Icon::Pdf, lang.text("Export PDF…"), "ui.exportPdf"),
-                ] {
-                    if icons::button(ui, icon, lang.text(tip), false).clicked() {
-                        app.run(id, json!({}));
+                if fit.files {
+                    sep(ui);
+                    for (icon, tip, id) in [
+                        (Icon::New, lang.text("New script"), "file.new"),
+                        (Icon::Open, lang.text("Open…"), "ui.open"),
+                        (Icon::Save, lang.text("Save"), "ui.save"),
+                        (Icon::Pdf, lang.text("Export PDF…"), "ui.exportPdf"),
+                    ] {
+                        if icons::button(ui, icon, lang.text(tip), false).clicked() {
+                            app.run(id, json!({}));
+                        }
                     }
                 }
                 sep(ui);
@@ -422,40 +455,11 @@ pub fn toolbar(app: &mut ScriptApp, ui: &mut Ui) {
                         app.run(id, json!({}));
                     }
                 }
-                sep(ui);
-                if icons::button(ui, Icon::Dual, lang.text("Dual dialogue"), false).clicked() {
-                    app.run("dialogue.toggleDual", json!({}));
+                if fit.tools {
+                    script_tools(app, ui);
                 }
-                if icons::button(ui, Icon::Numbers, lang.text("Scene numbers"), app.session.script.settings.show_scene_numbers).clicked() {
-                    app.run("view.toggleSceneNumbers", json!({}));
-                }
-                if icons::button(ui, Icon::Title, lang.text("Title page…"), app.title_dialog).clicked() {
-                    app.run("ui.titlePage", json!({}));
-                }
-                if icons::button(ui, Icon::Find, lang.text("Find and replace"), app.find.is_some()).clicked() {
-                    if app.find.is_some() {
-                        app.find = None;
-                    } else {
-                        app.run("ui.find", json!({}));
-                    }
-                }
-                sep(ui);
-                for (icon, tip, id, v) in [
-                    (Icon::Page, lang.text("Page view"), "ui.view.page", View::Page),
-                    (Icon::Cards, lang.text("Index cards"), "ui.view.cards", View::Cards),
-                    (Icon::Reports, lang.text("Reports"), "ui.view.reports", View::Reports),
-                    (Icon::Outline, lang.text("Outline"), "ui.view.outline", View::Outline),
-                    (Icon::Beats, lang.text("Beat board"), "ui.view.beats", View::BeatBoard),
-                ] {
-                    if icons::button(ui, icon, lang.text(tip), crate::split::active_view(app) == v).clicked() {
-                        app.run(id, json!({}));
-                    }
-                }
-                if icons::button(ui, Icon::StoryMap, "Story map", app.story_map).clicked() {
-                    app.run("ui.toggleStoryMap", json!({}));
-                }
-                if icons::button(ui, Icon::Split, "Split screen", app.split.on()).clicked() {
-                    app.run("ui.split", json!({}));
+                if fit.views {
+                    view_switcher(app, ui);
                 }
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     let (icon, tip) = if app.dark { (Icon::Sun, lang.text("Light mode")) } else { (Icon::Moon, lang.text("Dark mode")) };
@@ -473,6 +477,68 @@ pub fn toolbar(app: &mut ScriptApp, ui: &mut Ui) {
                 });
             });
         });
+}
+
+/// Which toolbar groups fit in the window's width (points, after the interface size).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ToolbarFit {
+    /// New, Open, Save, Export PDF.
+    pub files: bool,
+    /// Dual dialogue, scene numbers, title page, find.
+    pub tools: bool,
+    /// Page, cards, reports, outline, beat board, story map, split.
+    pub views: bool,
+}
+
+impl ToolbarFit {
+    /// Widths below which a group is dropped: the whole toolbar needs about 1000 points; the
+    /// navigator button, undo/redo, the element picker, B/I/U and zoom always stay.
+    pub fn for_width(width: f32) -> ToolbarFit {
+        ToolbarFit { files: width >= 1000.0, tools: width >= 870.0, views: width >= 740.0 }
+    }
+}
+
+fn script_tools(app: &mut ScriptApp, ui: &mut Ui) {
+    let lang = app.prefs.appearance.language;
+    sep(ui);
+    if icons::button(ui, Icon::Dual, lang.text("Dual dialogue"), false).clicked() {
+        app.run("dialogue.toggleDual", json!({}));
+    }
+    if icons::button(ui, Icon::Numbers, lang.text("Scene numbers"), app.session.script.settings.show_scene_numbers).clicked() {
+        app.run("view.toggleSceneNumbers", json!({}));
+    }
+    if icons::button(ui, Icon::Title, lang.text("Title page…"), app.title_dialog).clicked() {
+        app.run("ui.titlePage", json!({}));
+    }
+    if icons::button(ui, Icon::Find, lang.text("Find and replace"), app.find.is_some()).clicked() {
+        if app.find.is_some() {
+            app.find = None;
+        } else {
+            app.run("ui.find", json!({}));
+        }
+    }
+}
+
+fn view_switcher(app: &mut ScriptApp, ui: &mut Ui) {
+    let lang = app.prefs.appearance.language;
+    sep(ui);
+    for (icon, tip, id, v) in [
+        (Icon::Page, lang.text("Page view"), "ui.view.page", View::Page),
+        (Icon::Cards, lang.text("Index cards"), "ui.view.cards", View::Cards),
+        (Icon::Reports, lang.text("Reports"), "ui.view.reports", View::Reports),
+        (Icon::Outline, lang.text("Outline"), "ui.view.outline", View::Outline),
+        (Icon::Beats, lang.text("Beat board"), "ui.view.beats", View::BeatBoard),
+    ] {
+        if icons::button(ui, icon, lang.text(tip), crate::split::active_view(app) == v).clicked() {
+            app.run(id, json!({}));
+        }
+    }
+    if icons::button(ui, Icon::StoryMap, "Story map", app.story_map).clicked() {
+        app.run("ui.toggleStoryMap", json!({}));
+    }
+    if icons::button(ui, Icon::Split, "Split screen", app.split.on()).clicked() {
+        app.run("ui.split", json!({}));
+    }
 }
 
 pub fn find_bar(app: &mut ScriptApp, ui: &mut Ui) {

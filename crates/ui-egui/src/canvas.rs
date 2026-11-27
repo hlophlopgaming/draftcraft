@@ -334,7 +334,7 @@ fn page_color(app: &ScriptApp, l: &Layout, i: usize, paper: Color32, dark: bool)
 fn paint_page(ui: &Ui, app: &ScriptApp, l: &Layout, i: usize, pr: Rect, bad: &[(usize, usize, usize)]) {
     let lang = app.prefs.appearance.language;
     let t = app.tokens();
-    let z = app.canvas.zoom;
+    let z = app.page_zoom();
     let p = ui.painter();
     let shadow = egui::epaint::Shadow { offset: [0, 3], blur: 14, spread: 0, color: Color32::from_black_alpha(if t.dark { 120 } else { 46 }) };
     p.add(shadow.as_shape(pr, CornerRadius::same(2)));
@@ -438,7 +438,7 @@ pub fn show(app: &mut ScriptApp, ui: &mut Ui) {
         app.canvas.zoom = (app.canvas.zoom * zd).clamp(0.4, 3.0);
     }
     let layout = app.session.view_layout();
-    let z = app.canvas.zoom;
+    let z = app.page_zoom();
     let pw = layout.page_width() * z;
     let n = layout.pages.len();
     let heights: Vec<f32> = (0..n).map(|i| layout.page_height(i) * z).collect();
@@ -623,7 +623,7 @@ fn smarttype_popup(app: &mut ScriptApp, ui: &mut Ui) {
         app.canvas.suggest_items = sg.items.clone();
     }
     let t = app.tokens();
-    let z = app.canvas.zoom;
+    let z = app.page_zoom();
     // Align the list with the start of the text being completed.
     let back = app.session.script.para(sg.para).and_then(|p| p.text.get(sg.from..)).map_or(0, |s| s.chars().count());
     let at = pos2(cr.left() - back as f32 * CHAR_W * z, cr.bottom() + 3.0);

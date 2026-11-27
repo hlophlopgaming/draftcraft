@@ -36,7 +36,7 @@ One JSON object per line; one reply per line, `{"id", "ok": true, "result"}` or 
 | `engine.execute` | `{command, params}` | run any command (engine or `ui.*`) |
 | `engine.commands` | | every command with id, label, location, shortcut, params, enabled |
 | `document.inspect` | `{from?, count?}` | paragraphs, selection, title page, page count |
-| `ui.inspect` | | view, theme, zoom, page rectangles, caret, SmartType state |
+| `ui.inspect` | | view, theme (`dark` and the `theme` choice), `interfaceSize`, zoom, page rectangles, caret, SmartType state |
 | `ui.key` | `{key, shift?, alt?, cmd?}` | a key press through egui (`Enter`, `Tab`, `A`, `ArrowUp`…) |
 | `ui.text` | `{text}` | typed text through egui |
 | `ui.click` | `{x, y, count?, shift?, button?: "right"}` | a pointer click in window points |

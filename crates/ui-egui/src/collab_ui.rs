@@ -57,7 +57,7 @@ pub fn paint_peers(app: &ScriptApp, ui: &Ui, layout: &Layout, rects: &[Rect]) {
     if others.is_empty() {
         return;
     }
-    let z = app.canvas.zoom;
+    let z = app.page_zoom();
     let clip = ui.clip_rect();
     let p = ui.painter();
     for peer in others {
